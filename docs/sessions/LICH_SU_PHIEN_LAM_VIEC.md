@@ -12,10 +12,13 @@
 - Thêm formatter VND và unit test cơ bản.
 - Thêm ESLint và Vitest configuration.
 - Tạo tài liệu kiến trúc, roadmap, cấu trúc, schema định hướng, bản đồ tính năng, bảo mật, sync/backup, deployment và test plan.
+- Thêm GitHub Actions CI workflow để chạy typecheck, lint, unit test và production build trên Node 22.
+- Commit CI: 6c3a7898e9d80bf210071eaf8bae59c1bb90d385.
 
 ### Chưa nghiệm thu
 - Chưa chạy npm install, typecheck, lint, test hoặc production build.
 - Đã thử clone repository để chạy kiểm thử nhưng môi trường thực thi không phân giải được github.com; do đó chưa thể cài dependencies hoặc xác nhận build.
+- GitHub Actions API hiện trả về 0 workflow runs cho branch; CI chưa có kết quả xác nhận.
 - Chưa cấu hình Firebase Authentication, Security Rules hoặc Emulator.
 - Chưa cấu hình Gemini server secret/endpoint.
 - Chưa triển khai nghiệp vụ salon thật.
