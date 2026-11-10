@@ -6,19 +6,26 @@
 - Xác minh repository tuv​​inhquay/salon-toc-quyen và quyền Admin/Push.
 - Repository Public, default branch main.
 - Tạo branch phase-01-foundation.
-- Chuẩn bị bộ khung React/TypeScript/Vite/Tailwind/PWA và Owner UI shell không có dữ liệu demo.
-- Tạo .env.example và .gitignore; không ghi secret.
-- Tạo tài liệu kiến trúc, roadmap, cấu trúc, bảo mật và kế hoạch.
+- Tạo bộ khung React/TypeScript/Vite/Tailwind/PWA và Owner UI shell, không có dữ liệu demo.
+- Tạo .env.example và .gitignore.
+- Thêm Firebase Web SDK bootstrap có kiểm tra cấu hình; Firebase public config được đưa vào .env.example, không phải Gemini secret.
+- Thêm formatter VND và unit test cơ bản.
+- Thêm ESLint và Vitest configuration.
+- Tạo tài liệu kiến trúc, roadmap, cấu trúc, schema định hướng, bản đồ tính năng, bảo mật, sync/backup, deployment và test plan.
 
 ### Chưa nghiệm thu
 - Chưa chạy npm install, typecheck, lint, test hoặc production build.
-- Chưa cấu hình Firebase Auth, Security Rules hoặc Emulator.
+- Đã thử clone repository để chạy kiểm thử nhưng môi trường thực thi không phân giải được github.com; do đó chưa thể cài dependencies hoặc xác nhận build.
+- Chưa cấu hình Firebase Authentication, Security Rules hoặc Emulator.
 - Chưa cấu hình Gemini server secret/endpoint.
-- Chưa triển khai nghiệp vụ thật.
+- Chưa triển khai nghiệp vụ salon thật.
 - Chưa kiểm tra UI trên trình duyệt thực tế.
 
 ### Trạng thái
-P01 IN PROGRESS – không đánh dấu PASS trước khi có kết quả kiểm thử.
+P01 IN PROGRESS – không đánh dấu PASS trước khi có kết quả kiểm thử thực tế.
 
-### Lưu ý
-Repository Public; tuyệt đối không commit secrets. Gemini key không được ghi vào repository và cần được thay mới trước production.
+### Lưu ý bảo mật
+- Repository Public; tuyệt đối không commit secrets.
+- Firebase Web API key là cấu hình client public, không thay thế Security Rules.
+- Gemini API key không được ghi vào repository; cần thay khóa mới trước production.
+- Công cụ GitHub đang kết nối chưa cung cấp thao tác ghi GitHub Actions Secrets/Vercel Environment Variables. Không tuyên bố đã cấu hình những secret đó.
