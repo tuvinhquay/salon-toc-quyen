@@ -29,3 +29,10 @@ export type Refund=BaseEntity&{invoiceId:string;paymentId:string;cashSessionId:s
 export type CashSession=BaseEntity&{openedAt:string;closedAt:string|null;openingFloatVnd:number;expectedCashVnd:number|null;countedCashVnd:number|null;differenceVnd:number|null;status:'open'|'closed';notes:string}
 export type Expense=BaseEntity&{cashSessionId:string|null;category:string;amountVnd:number;method:PaymentMethod;paidAt:string;notes:string}
 export type TaxPolicy=BaseEntity&{name:string;ratePercent:number;inclusive:boolean;effectiveFrom:string;effectiveTo:string|null;active:boolean}
+
+export type DeviceStatus='pending'|'approved'|'revoked'
+export type DeviceRecord=BaseEntity&{deviceId:string;label:string;platform:string;status:DeviceStatus;publicKey:string|null;approvedAt:string|null;revokedAt:string|null;lastSeenAt:string|null}
+export type ChangeLog=BaseEntity&{entityType:string;entityId:string;operation:'create'|'update'|'archive';baseRevision:number;revision:number;encryptedPayload:string;createdAt:string;syncedAt:string|null}
+export type SyncConflict=BaseEntity&{entityType:string;entityId:string;localRevision:number;remoteRevision:number;detectedAt:string;status:'open'|'resolved';resolution:string|null}
+export type SyncCursor=BaseEntity&{peerDeviceId:string;lastSyncedAt:string|null;lastChangeId:string|null}
+export type BackupRecord=BaseEntity&{createdAt:string;schemaVersion:number;formatVersion:number;ciphertextHash:string;sizeBytes:number;recordCounts:Record<string,number>}
