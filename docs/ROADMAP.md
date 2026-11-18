@@ -7,8 +7,8 @@ Phạm vi giai đoạn 1: Owner App. Employee App là giai đoạn 2, không tr�
 | P03 | Dexie schema, migration, validation | IN PROGRESS |
 | P04 | Khách hàng và lịch hẹn | IN PROGRESS |
 | P05 | Dịch vụ, công thức, workflow event log | IN PROGRESS |
-| P06 | Nhân viên, ca làm, quyền, hoa hồng | NOT STARTED |
-| P07 | Kho, lô, vật tư tiêu hao | NOT STARTED |
+| P06 | Nhân viên, ca làm, quyền, hoa hồng | IN PROGRESS |
+| P07 | Kho, lô, vật tư tiêu hao | IN PROGRESS |
 | P08 | POS, hóa đơn, thanh toán, thuế | NOT STARTED |
 | P09 | Dashboard và báo cáo | NOT STARTED |
 | P10 | Thiết bị, E2E encryption, conflict | NOT STARTED |
@@ -37,3 +37,11 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - P04/P05 vẫn IN PROGRESS; CI của commit mới nhất đang chạy. Không đánh dấu PASS trước khi có kiểm thử runtime và regression.
 
 - Bổ sung kiểm thử chuẩn hóa tên tiếng Việt và số điện thoại; đã sửa regex để loại bỏ dấu phân cách số điện thoại và dấu thanh Unicode đúng cách.
+
+## P06 + P07 – 2026-11-19
+- Dexie schema version 3 bổ sung employees, workShifts, commissionPolicies, products, suppliers, purchaseOrders, inventoryLots và stockMovements; giữ migration v1/v2.
+- Thêm schema validation cho nhân viên, ca làm, chính sách hoa hồng, sản phẩm, nhà cung cấp, đơn mua và nhận hàng.
+- Repository P06 có hồ sơ nhân viên, xếp ca (chặn trùng ca cùng nhân viên) và chính sách hoa hồng theo nhân viên/dịch vụ.
+- Repository P07 có danh mục sản phẩm, nhà cung cấp, tạo đơn mua, nhận hàng từng phần, tạo lô và stock movement trong transaction.
+- UI Owner đã nối quản lý nhân viên, ca, hoa hồng, sản phẩm, nhà cung cấp, đơn mua và nhận hàng.
+- P06/P07 vẫn IN PROGRESS: chưa có integration test IndexedDB, kiểm thử thực tế trên thiết bị, điều chỉnh tồn kho/tiêu hao và kiểm tra hạn dùng tự động.
