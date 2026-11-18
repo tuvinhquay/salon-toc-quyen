@@ -27,3 +27,18 @@ export type ProductInput=z.infer<typeof productInputSchema>
 export type SupplierInput=z.infer<typeof supplierInputSchema>
 export type PurchaseOrderInput=z.infer<typeof purchaseOrderInputSchema>
 export type ReceivePurchaseOrderInput=z.infer<typeof receivePurchaseOrderInputSchema>
+
+export const taxPolicyInputSchema=z.object({name:text.max(120),ratePercent:z.number().min(0).max(100),inclusive:z.boolean(),effectiveFrom:iso,effectiveTo:iso.nullable().optional(),active:z.boolean().default(true)}).refine(v=>!v.effectiveTo||Date.parse(v.effectiveTo)>Date.parse(v.effectiveFrom),{message:'Ngày kết thúc phải sau ngày bắt đầu',path:['effectiveTo']})
+export const invoiceInputSchema=z.object({invoiceNumber:text.max(80),customerId:text.nullable().optional(),customerNameSnapshot:text.max(120).default('Khách lẻ'),customerPhoneSnapshot:z.string().trim().max(30).nullable().optional(),issuedAt:iso,notes:z.string().trim().max(2000).optional().default(''),lines:z.array(z.object({lineType:z.enum(['service','product','custom']),referenceId:text.nullable().optional(),description:text.max(200),quantity:z.number().positive().max(1_000_000),unitPriceVnd:z.number().int().min(0).max(10_000_000_000),discountVnd:z.number().int().min(0).default(0)})).min(1).max(200)}).superRefine((v,c)=>{v.lines.forEach((line,i)=>{if(line.discountVnd>line.quantity*line.unitPriceVnd)c.addIssue({code:'custom',message:'Chiết khấu không vượt thành tiền dòng',path:['lines',i,'discountVnd']});if(line.lineType!=='custom'&&!line.referenceId)c.addIssue({code:'custom',message:'Dòng dịch vụ/sản phẩm cần mã tham chiếu',path:['lines',i,'referenceId']})})})
+export const paymentInputSchema=z.object({invoiceId:text,method:z.enum(['cash','bank_transfer','card','other']),amountVnd:z.number().int().positive().max(10_000_000_000),paidAt:iso,reference:z.string().trim().max(200).optional().default('')})
+export const refundInputSchema=z.object({paymentId:text,amountVnd:z.number().int().positive().max(10_000_000_000),method:z.enum(['cash','bank_transfer','card','other']),reason:text.max(1000),refundedAt:iso})
+export const cashSessionOpenSchema=z.object({openingFloatVnd:z.number().int().min(0).max(10_000_000_000),openedAt:iso,notes:z.string().trim().max(1000).optional().default('')})
+export const cashSessionCloseSchema=z.object({cashSessionId:text,countedCashVnd:z.number().int().min(0).max(10_000_000_000),closedAt:iso,notes:z.string().trim().max(1000).optional().default('')})
+export const expenseInputSchema=z.object({category:text.max(120),amountVnd:z.number().int().positive().max(10_000_000_000),method:z.enum(['cash','bank_transfer','card','other']),paidAt:iso,notes:z.string().trim().max(1000).optional().default('')})
+export type TaxPolicyInput=z.infer<typeof taxPolicyInputSchema>
+export type InvoiceInput=z.infer<typeof invoiceInputSchema>
+export type PaymentInput=z.infer<typeof paymentInputSchema>
+export type RefundInput=z.infer<typeof refundInputSchema>
+export type CashSessionOpenInput=z.infer<typeof cashSessionOpenSchema>
+export type CashSessionCloseInput=z.infer<typeof cashSessionCloseSchema>
+export type ExpenseInput=z.infer<typeof expenseInputSchema>
