@@ -81,7 +81,7 @@ export const salonAssistant = onCall(
       })
 
       if (!response.ok) {
-        logger.warn('Gemini request failed', { status: response.status, uid: request.auth.uid })
+        logger.warn('Gemini request failed', { status: response.status })
         throw new HttpsError('unavailable', 'Dịch vụ AI hiện chưa phản hồi. Vui lòng thử lại sau.')
       }
 
@@ -93,7 +93,7 @@ export const salonAssistant = onCall(
       return { answer: answer.slice(0, 12_000), model: MODEL }
     } catch (cause) {
       if (cause instanceof HttpsError) throw cause
-      logger.error('Gemini service unavailable', { uid: request.auth.uid })
+      logger.error('Gemini service unavailable')
       throw new HttpsError('unavailable', 'Không thể kết nối trợ lý AI lúc này.')
     }
   },
