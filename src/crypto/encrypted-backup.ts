@@ -13,7 +13,7 @@ function tables():Record<string,Table<BackupRow,string>>{return{
 }}
 function audit(actor:ActorContext,id:string,action:AuditEvent['action'],summary:string):AuditEvent{return{id:crypto.randomUUID(),salonId:actor.salonId,entityType:'backup',entityId:id,action,occurredAt:new Date().toISOString(),actorId:actor.actorId,deviceId:actor.deviceId,summary}}
 export async function createEncryptedBackup(actor:ActorContext,passphrase:string):Promise<EncryptedBackupFile>{
- const dbTables=tables(),data:Record<string,BackupRow[]>={},recordCounts:Record<string,number>={}
+ const dbTables:Record<string,Table<BackupRow,string>>=tables(),data:Record<string,BackupRow[]>={},recordCounts:Record<string,number>={}
  for(const name of tableNames){const rows=await dbTables[name].where('salonId').equals(actor.salonId).toArray();data[name]=rows;recordCounts[name]=rows.length}
  const createdAt=new Date().toISOString(),payload:BackupPayload={formatVersion:1,schemaVersion:5,salonId:actor.salonId,createdAt,deviceId:actor.deviceId,tables:data}
  const envelope=await encryptJson(payload,passphrase,'backup'),metadata={formatVersion:1 as const,schemaVersion:5 as const,createdAt,salonId:actor.salonId,ciphertextHash:envelope.sha256,sizeBytes:envelope.ciphertext.length,recordCounts}
@@ -25,10 +25,10 @@ export async function restoreEncryptedBackup(actor:ActorContext,file:EncryptedBa
  if(!file?.metadata||file.metadata.salonId!==actor.salonId||file.metadata.ciphertextHash!==file.envelope?.sha256)throw new Error('Metadata backup không khớp salon hoặc checksum.')
  const payload=await decryptJson<BackupPayload>(file.envelope,passphrase,'backup')
  if(payload.formatVersion!==1||payload.schemaVersion>5||payload.schemaVersion<1||payload.salonId!==actor.salonId||!payload.tables||typeof payload.tables!=='object')throw new Error('Backup không đúng salon hoặc phiên bản không được hỗ trợ.')
- const dbTables=tables(),allowed=new Set(tableNames),entries=Object.entries(payload.tables)
+ const dbTables:Record<string,Table<BackupRow,string>>=tables(),allowed=new Set(tableNames),entries=Object.entries(payload.tables)
  for(const [name,rows] of entries){if(!allowed.has(name)||!Array.isArray(rows))throw new Error('Backup chứa bảng không hợp lệ.');for(const row of rows){if(!row||typeof row.id!=='string'||row.salonId!==actor.salonId)throw new Error('Backup chứa bản ghi sai salon hoặc thiếu định danh.')}} 
  const txTables=Object.values(dbTables)
- await salonDb.transaction('rw',...txTables,async()=>{
+ await salonDb.transaction('rw',txTables,async()=>{
   if(mode==='replace'){for(const table of txTables)await table.where('salonId').equals(actor.salonId).delete()}
   for(const [name,rows] of entries){const table=dbTables[name];for(const row of rows){const current=await table.get(row.id);if(mode==='merge'&&current){const currentRevision=Number(current.revision??0),incomingRevision=Number(row.revision??0);if(currentRevision>incomingRevision||(currentRevision===incomingRevision&&String(current.updatedAt??'')>String(row.updatedAt??'')))continue}await table.put(row)}}
  })
