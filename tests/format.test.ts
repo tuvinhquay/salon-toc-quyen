@@ -1,0 +1,1 @@
+import { describe, expect, it } from 'vitest'; import { formatVnd } from '../src/lib/format'; describe('formatVnd',()=>{it('formats VND using Vietnamese locale without fractional digits',()=>{expect(formatVnd(1250000)).toContain('1.250.000');});it('rejects non-finite amounts',()=>{expect(()=>formatVnd(Number.NaN)).toThrow(TypeError);});});
