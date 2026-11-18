@@ -21,8 +21,17 @@ Phạm vi: Giai đoạn 1 – Owner App. Không xây Employee App trước khi O
 ## Definition of Done
 Implementation thật; validation; error handling; security; unit/integration/regression tests; typecheck, lint, production build; mobile/desktop verification; tài liệu và session log. Chỉ PASS khi có bằng chứng.
 
-## P01 validation notes
-- Termux: typecheck, lint và unit tests đã PASS theo kết quả chạy thực tế ngày 2026-11-18.
-- Vite đã bundle thành công; Workbox Service Worker generation gặp lỗi Terser worker early-exit trên Termux/Android.
-- Cấu hình Workbox development mode riêng cho Termux; CI giữ production mode để kiểm chứng build tối ưu.
-- Chưa PASS: cần CI production build, đồng bộ package-lock, rà soát audit còn lại và kiểm tra UI/PWA trên trình duyệt.
+## P01 validation notes – cập nhật 2026-11-18
+- GitHub Actions Run #5, commit `9972fcf0135b1d748be52e79368718891b92e994`: **PASS**.
+- CI đã dùng `npm ci` từ `package-lock.json`; cài dependencies, typecheck, lint, unit tests và production build/PWA Service Worker đều PASS.
+- GitHub Actions Run #4, commit `bd7f790`, cũng PASS toàn bộ với `npm install`.
+- Termux: người dùng xác nhận typecheck, lint, unit tests và production build đều PASS; Workbox tạo được Service Worker.
+- `package-lock.json` đã được commit và đồng bộ lên nhánh `fix/p01-ci-bootstrap`.
+- Workflow CI đã bật npm cache và sử dụng Node 22.
+- Không sửa nhánh `main`; các thay đổi foundation/fix hiện nằm trên nhánh làm việc.
+
+## P01 còn cần hoàn tất
+- Rà soát 23 cảnh báo dependency từ lần `npm audit` gần nhất (2 moderate, 21 high); không dùng `npm audit fix --force`. Cần xác định dependency path, mức ảnh hưởng production/dev và phương án cập nhật an toàn có kiểm thử.
+- Kiểm tra giao diện trên trình duyệt thực tế ở mobile/tablet/desktop; xác nhận menu, trạng thái offline và PWA install/update.
+- Rà soát các liên kết điều hướng hiện là UI shell, chưa phải route nghiệp vụ; không được hiểu nhầm module chưa triển khai là chức năng đã hoạt động.
+- Chỉ chuyển P01 sang PASS sau khi các mục còn lại có bằng chứng và session log được cập nhật.

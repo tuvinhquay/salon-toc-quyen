@@ -56,3 +56,29 @@ P01 IN PROGRESS – không đánh dấu PASS trước khi có kết quả kiểm
 - Kiểm tra GitHub Actions production build.
 - Xử lý dependency audit còn tồn tại bằng nâng cấp/override có kiểm thử, không dùng npm audit fix --force.
 - Rà soát và phê duyệt install scripts còn lại theo đúng nhu cầu package.
+
+
+## Phiên 03 – 2026-11-18 – Hoàn tất CI lockfile và rà soát P01
+
+### Đã làm
+- Người dùng commit và push `package.json` cùng `package-lock.json` lên `fix/p01-ci-bootstrap`: commit `bd7f790`.
+- Xác minh GitHub Actions Run #4 trên `bd7f790`: cài dependencies, typecheck, lint, unit tests và production build đều PASS.
+- Chuyển workflow CI từ `npm install` sang `npm ci`, bật npm cache qua setup-node; Node CI vẫn là 22.
+- Commit workflow: `9972fcf0135b1d748be52e79368718891b92e994`.
+- Xác minh GitHub Actions Run #5 trên commit `9972fcf`: `npm ci`, typecheck, lint, unit tests và production build/PWA Service Worker đều PASS.
+- Đối chiếu source code, package scripts, Firebase bootstrap, UI shell, kiến trúc và security notes trên nhánh làm việc.
+- Xác nhận Termux production build gần nhất do người dùng cung cấp đã tạo được `dist/sw.js` và Workbox runtime; các kiểm tra typecheck/lint/test trước đó đều PASS.
+
+### Phát hiện và giới hạn
+- UI hiện là Owner shell/khung điều hướng; các mục nghiệp vụ chưa được triển khai và không được quảng bá như tính năng hoạt động.
+- Firebase bootstrap hiện chỉ khởi tạo SDK khi đủ public config; chưa có Auth flow, Firestore Rules hoặc Owner bootstrap.
+- Lần `npm audit` gần nhất do người dùng cung cấp còn 23 cảnh báo (2 moderate, 21 high). Chưa được xác minh lại bằng audit mới trên đúng lockfile và chưa có phân tích đầy đủ từng dependency path.
+- Chưa có bằng chứng kiểm tra trực quan trên trình duyệt thật ở các kích thước mobile/tablet/desktop.
+
+### Tài liệu cập nhật
+- README: hướng dẫn cài đặt dùng `npm ci`, ghi trạng thái CI mới nhất và các hạng mục còn mở.
+- ROADMAP: cập nhật bằng chứng CI/Termux và giữ P01 IN PROGRESS do security audit + browser smoke test chưa hoàn tất.
+- Nhật ký phiên: bổ sung phiên 03.
+
+### Trạng thái
+P01 IN PROGRESS. CI PASS không đồng nghĩa toàn bộ P01 hoặc toàn bộ sản phẩm đã PASS. Không thay đổi `main`.
