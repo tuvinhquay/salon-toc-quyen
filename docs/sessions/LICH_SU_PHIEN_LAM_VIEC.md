@@ -57,7 +57,6 @@ P01 IN PROGRESS – không đánh dấu PASS trước khi có kết quả kiểm
 - Xử lý dependency audit còn tồn tại bằng nâng cấp/override có kiểm thử, không dùng npm audit fix --force.
 - Rà soát và phê duyệt install scripts còn lại theo đúng nhu cầu package.
 
-
 ## Phiên 03 – 2026-11-18 – Hoàn tất CI lockfile và rà soát P01
 
 ### Đã làm
@@ -83,7 +82,6 @@ P01 IN PROGRESS – không đánh dấu PASS trước khi có kết quả kiểm
 ### Trạng thái
 P01 IN PROGRESS. CI PASS không đồng nghĩa toàn bộ P01 hoặc toàn bộ sản phẩm đã PASS. Không thay đổi `main`.
 
-
 ## Phiên 04 – 2026-11-18 – Owner route shell và responsive mobile
 
 ### Đã xác minh
@@ -91,13 +89,12 @@ P01 IN PROGRESS. CI PASS không đồng nghĩa toàn bộ P01 hoặc toàn bộ 
 - Owner shell đã có dashboard khởi tạo và 13 tuyến điều hướng. Các trang module hiện ghi rõ chưa triển khai; không có dữ liệu giả.
 
 ### Sửa tiếp
-- Phát hiện menu điều hướng bị ẩn ở breakpoint mobile trong CSS; đang sửa thành thanh điều hướng ngang có thể cuộn và bổ sung style trang module.
+- Phát hiện menu điều hướng bị ẩn ở breakpoint mobile trong CSS; sửa thành thanh điều hướng ngang có thể cuộn và bổ sung style trang module.
 - P01 vẫn IN PROGRESS cho đến khi kiểm tra trình duyệt thực tế và rà soát dependency audit.
 
 ### Ưu tiên tiếp theo
 - P02: Firebase Authentication + Owner bootstrap + membership/security rules.
 - Chỉ yêu cầu chủ dự án bật/cấu hình Firebase khi cần kết nối thật; không đưa secrets vào repository.
-
 
 ## Phiên 05 – 2026-11-18 – P02 Firebase Google Auth và Owner gate
 
@@ -108,6 +105,8 @@ P01 IN PROGRESS. CI PASS không đồng nghĩa toàn bộ P01 hoặc toàn bộ 
 - Tạo Firestore Rules mặc định deny; chỉ cho user đọc membership của chính UID, không cho client tự tạo/sửa membership và chưa mở quyền dữ liệu nghiệp vụ.
 - Bổ sung firebase.json để triển khai rules bằng Firebase CLI.
 - Bổ sung nhánh P02 vào trigger CI.
+- Sửa duplicate React hook import trong AuthGate bằng commit `0611018cc6391f0d77b2889fbd355e146270c523`.
+- GitHub Actions CI Run #11 trên commit `0611018`: **PASS** (typecheck, lint, tests, production build).
 
 ### Cần người sở hữu Firebase thực hiện khi tới bước kiểm thử live
 - Bật Google provider trong Firebase Authentication.
@@ -116,4 +115,18 @@ P01 IN PROGRESS. CI PASS không đồng nghĩa toàn bộ P01 hoặc toàn bộ 
 - Không gửi Gemini API key ở giai đoạn Auth.
 
 ### Trạng thái
-P02 IN PROGRESS – chờ CI và xác minh cấu hình Firebase thật. Không thay đổi main.
+P02 IN PROGRESS – CI PASS, nhưng chờ live Firebase Auth và trusted Owner membership verification. Không thay đổi `main`.
+
+## Phiên 06 – 2026-11-18 – P03 Local-first database foundation
+
+### Đã triển khai trên branch `phase-03-local-first-database`
+- Tạo Dexie database version 1 với stores và indexes theo salonId cho customers, appointments, services và auditEvents.
+- Khai báo TypeScript types cho base entity, khách hàng, lịch hẹn, dịch vụ, audit event và actor context.
+- Thêm Zod schemas kiểm tra dữ liệu đầu vào khách hàng/lịch hẹn; validate email, độ dài trường, thời gian kết thúc sau thời gian bắt đầu, tiền cọc không âm.
+- Thêm 6 unit tests cho validation schema.
+- Cập nhật ROADMAP và nhật ký phiên.
+- Không thêm dữ liệu demo, không lưu dữ liệu nghiệp vụ plaintext vào Firestore, không thay đổi main.
+
+### Chưa nghiệm thu
+- Chờ CI xác nhận typecheck, lint, tests và build.
+- Chưa có IndexedDB browser/Termux runtime smoke test hoặc migration upgrade test; chưa tuyên bố P03 PASS.

@@ -6,7 +6,7 @@ Phạm vi: Giai đoạn 1 – Owner App. Không xây Employee App trước khi O
 |---|---|---|
 | P01 | Repository, cấu trúc, UI shell, tài liệu | IN PROGRESS |
 | P02 | Firebase Auth, Owner bootstrap, membership, Rules | IN PROGRESS |
-| P03 | Dexie schema, migration, validation | NOT STARTED |
+| P03 | Dexie schema, migration, validation | IN PROGRESS |
 | P04 | Khách hàng và lịch hẹn | NOT STARTED |
 | P05 | Dịch vụ, công thức, workflow event log | NOT STARTED |
 | P06 | Nhân viên, ca làm, quyền, hoa hồng | NOT STARTED |
@@ -45,4 +45,13 @@ Implementation thật; validation; error handling; security; unit/integration/re
 - Google popup sign-in and auth-state listener added. UI blocks access when Firebase is not configured.
 - Owner access is gated by `memberships/{uid}` with `status=active`, `role=owner`, and a non-empty `salonId`; client cannot self-create this record.
 - Firestore rules are deny-by-default and allow a user to read only their own membership record. All membership writes and business data access remain server/admin-only until specific rules are reviewed.
-- Awaiting CI and Firebase Console enablement; do not mark P02 PASS until live Auth + membership verification is tested.
+- CI Run #11, commit `0611018cc6391f0d77b2889fbd355e146270c523`: **PASS** for typecheck, lint, tests and production build.
+- P02 remains IN PROGRESS until live Firebase Auth and trusted Owner membership verification are completed.
+
+## P03 implementation notes – 2026-11-18
+- Created `phase-03-local-first-database` from P02 CI-passing commit `0611018`.
+- Added Dexie v4 database foundation and version-1 IndexedDB stores for customers, appointments, services and audit events, with salon-scoped indexes.
+- Added typed base entity, customer, appointment, service and audit-event models.
+- Added Zod input schemas for customers and appointments, including required-name, email, date ordering, deposit and field-length validation.
+- Added schema unit tests. IndexedDB runtime/migration tests and cross-device sync are still pending; no business records are written to Firestore.
+- P03 remains IN PROGRESS pending CI and live browser/Termux IndexedDB smoke test.
