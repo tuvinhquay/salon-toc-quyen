@@ -8,7 +8,7 @@ import { z } from 'zod'
 initializeApp()
 const db = getFirestore()
 const GEMINI_API_KEY = defineSecret('GEMINI_API_KEY')
-const MODEL = 'gemini-2.5-flash'
+const MODEL = 'gemini-3.8-flash'
 const MAX_REQUESTS_PER_MINUTE = 10
 
 const requestSchema = z.object({
