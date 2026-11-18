@@ -76,7 +76,7 @@ export const salonAssistant = onCall(
             }],
           },
           contents: [{ role: 'user', parts: [{ text: userContent }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 1024 },
+          generationConfig: { temperature: 0.3, maxOutputTokens: 2048, thinkingConfig: { thinkingLevel: 'low' } },
         }),
       })
 
