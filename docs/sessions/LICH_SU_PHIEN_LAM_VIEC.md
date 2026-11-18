@@ -83,3 +83,18 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - Chưa kiểm thử backup/restore trên IndexedDB thật, file lớn, thiết bị Android hoặc quy trình phục hồi khi mất mật khẩu.
 - Chưa có cloud/Google Drive backup. Không lưu passphrase ở ứng dụng; người dùng phải tự bảo quản.
 - P10 + P11 vẫn IN PROGRESS, không tuyên bố đồng bộ thiết bị hoàn tất.
+
+## Phiên 11 – 2026-11-19 – Gộp P12 + P13
+### Đã triển khai
+- Firebase Cloud Function callable salonAssistant chạy server-side với Gemini 2.5 Flash; API key lấy từ Secret Manager bằng defineSecret.
+- Security gates: Firebase Auth, App Check enforce, kiểm tra membership active/owner và rate limit 10 yêu cầu/phút/UID.
+- Zod validate question/context; giới hạn độ dài, không lưu prompt/context; log không ghi nội dung câu hỏi.
+- Owner UI Trợ lý AI gửi nội dung người dùng chủ động nhập; không tự đọc dữ liệu khách hàng, thanh toán hoặc kho.
+- Firebase App Check Web qua reCAPTCHA Enterprise; nếu thiếu site key, giao diện khóa gửi câu hỏi.
+- Firebase Hosting SPA rewrite + security headers; Firestore Rules deny-by-default; Functions Node 22 và deploy predeploy build.
+- .env.example chỉ còn placeholder; không đưa Firebase config thật hoặc Gemini key vào Git.
+- CI đã mở rộng build Cloud Functions cùng frontend.
+### Còn chờ người dùng cấu hình / nghiệm thu
+- Chưa nhập Firebase Web config vào .env.local, chưa tạo reCAPTCHA Enterprise site key, chưa đặt GEMINI_API_KEY trong Firebase Secret Manager.
+- Chưa deploy Functions/Hosting/Firestore Rules lên project salon-quyen; chưa kiểm tra App Check token, callable, rate limit hoặc chi phí Gemini thực tế.
+- P12/P13 vẫn IN PROGRESS cho đến khi hoàn tất cấu hình và smoke test trên Termux/thiết bị thật.

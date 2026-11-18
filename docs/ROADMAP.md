@@ -65,3 +65,12 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Owner UI có màn hình thiết bị/xung đột và backup/restore mã hóa.
 - Unit tests xác minh mã hóa, sai mật khẩu, context và peer/salon isolation.
 - CI trên commit P10/P11: Typecheck, Lint, Unit tests và Production build PASS. P10/P11 vẫn IN PROGRESS do chưa có transport P2P và kiểm thử backup IndexedDB trên thiết bị thật.
+
+## P12 + P13 – 2026-11-19
+- Cloud Function salonAssistant dùng Gemini server-side, secret GEMINI_API_KEY từ Firebase Secret Manager; không đưa key xuống Vite/browser.
+- Function kiểm tra Firebase Auth, App Check bắt buộc, membership active/owner, giới hạn 10 yêu cầu/phút theo UID, giới hạn kích thước prompt/context và không lưu prompt.
+- Owner UI trợ lý AI chỉ gửi câu hỏi/ngữ cảnh do người dùng tự nhập; không tự truy cập hồ sơ khách hàng, hóa đơn hoặc kho.
+- Firebase App Check Web dùng reCAPTCHA Enterprise; khóa chức năng AI khi site key chưa được cấu hình.
+- Firebase Hosting cấu hình SPA rewrite và security headers; Firebase Functions runtime Node 22; Firestore Rules giữ deny-by-default.
+- CI thêm cài đặt/build Cloud Functions.
+- P12/P13 vẫn IN PROGRESS cho đến khi user cấu hình Firebase/App Check/Gemini Secret, deploy và chạy smoke test thực tế.
