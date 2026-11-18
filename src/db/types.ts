@@ -17,5 +17,15 @@ export type PurchaseOrderLine={productId:string;productNameSnapshot:string;quant
 export type PurchaseOrder=BaseEntity&{supplierId:string;supplierNameSnapshot:string;orderNumber:string;status:PurchaseOrderStatus;orderedAt:string;expectedAt:string|null;receivedAt:string|null;lines:PurchaseOrderLine[];totalAmountVnd:number;notes:string}
 export type InventoryLot=BaseEntity&{productId:string;supplierId:string|null;purchaseOrderId:string|null;lotCode:string;receivedAt:string;expiresAt:string|null;quantityReceived:number;quantityRemaining:number;unitCostVnd:number;status:'active'|'depleted'|'expired'}
 export type StockMovement=BaseEntity&{productId:string;lotId:string|null;movementType:'receipt'|'consumption'|'adjustment'|'return';direction:'in'|'out';quantity:number;unitCostVnd:number;occurredAt:string;sourceId:string|null;notes:string}
-export type AuditEvent={id:string;salonId:string;entityType:'customer'|'appointment'|'service'|'workflow'|'employee'|'shift'|'commission'|'product'|'supplier'|'purchase_order'|'inventory_lot'|'stock_movement';entityId:string;action:'created'|'updated'|'archived'|'status_changed'|'event_recorded'|'received';occurredAt:string;actorId:string;deviceId:string;summary:string}
+export type AuditEvent={id:string;salonId:string;entityType:'customer'|'appointment'|'service'|'workflow'|'employee'|'shift'|'commission'|'product'|'supplier'|'purchase_order'|'inventory_lot'|'stock_movement'|'invoice'|'payment'|'refund'|'cash_session'|'expense'|'tax_policy';entityId:string;action:'created'|'updated'|'archived'|'status_changed'|'event_recorded'|'received'|'paid'|'refunded'|'closed';occurredAt:string;actorId:string;deviceId:string;summary:string}
 export type ActorContext={salonId:string;actorId:string;deviceId:string}
+
+export type InvoiceStatus='issued'|'partially_paid'|'paid'|'void'|'refunded'
+export type InvoiceLineSnapshot={id:string;lineType:'service'|'product'|'custom';referenceId:string|null;description:string;quantity:number;unitPriceVnd:number;discountVnd:number;taxRatePercent:number;taxVnd:number;totalVnd:number}
+export type Invoice=BaseEntity&{invoiceNumber:string;customerId:string|null;customerNameSnapshot:string;customerPhoneSnapshot:string|null;status:InvoiceStatus;issuedAt:string;subtotalVnd:number;discountVnd:number;taxVnd:number;totalVnd:number;amountPaidVnd:number;lines:InvoiceLineSnapshot[];notes:string;voidedAt:string|null}
+export type PaymentMethod='cash'|'bank_transfer'|'card'|'other'
+export type Payment=BaseEntity&{invoiceId:string;cashSessionId:string|null;method:PaymentMethod;amountVnd:number;paidAt:string;reference:string;status:'completed'|'partially_refunded'|'refunded'|'void'}
+export type Refund=BaseEntity&{invoiceId:string;paymentId:string;cashSessionId:string|null;method:PaymentMethod;amountVnd:number;reason:string;refundedAt:string}
+export type CashSession=BaseEntity&{openedAt:string;closedAt:string|null;openingFloatVnd:number;expectedCashVnd:number|null;countedCashVnd:number|null;differenceVnd:number|null;status:'open'|'closed';notes:string}
+export type Expense=BaseEntity&{cashSessionId:string|null;category:string;amountVnd:number;method:PaymentMethod;paidAt:string;notes:string}
+export type TaxPolicy=BaseEntity&{name:string;ratePercent:number;inclusive:boolean;effectiveFrom:string;effectiveTo:string|null;active:boolean}
