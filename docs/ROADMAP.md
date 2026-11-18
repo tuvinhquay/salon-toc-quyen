@@ -26,3 +26,12 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Công thức tóc lưu dạng snapshot append-only cùng workflow event.
 - Schema tests được mở rộng; CI và IndexedDB/browser smoke test đang chờ.
 - Chưa có UI CRUD nghiệp vụ, chưa tích hợp nhân viên/kho/cloud sync.
+
+## Cập nhật triển khai UI P04 + P05 – 2026-11-19
+- Đã bổ sung OwnerContext chỉ được tạo sau khi AuthGate xác minh Google user có membership active, role owner và salonId hợp lệ.
+- Đã kết nối CRUD khách hàng: tạo, đọc, tìm kiếm, sửa và lưu trữ; mọi thao tác đi qua repository có salon scope và audit.
+- Đã kết nối CRUD dịch vụ: tạo, đọc, sửa; validate thời lượng và giá VND qua schema.
+- Đã bổ sung giao diện tạo lịch hẹn: chọn khách hàng, dịch vụ, thời gian, tiền cọc; trạng thái có luồng chuyển tiếp giới hạn.
+- Đã bổ sung giao diện nhật ký quy trình và lưu snapshot công thức tóc theo lịch hẹn.
+- UI chưa được nghiệm thu trên trình duyệt/Termux thật; IndexedDB integration test, kiểm tra dữ liệu nhiều salon, quyền Firestore và backup còn chờ.
+- P04/P05 vẫn IN PROGRESS; CI của commit mới nhất đang chạy. Không đánh dấu PASS trước khi có kiểm thử runtime và regression.
