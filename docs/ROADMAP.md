@@ -35,3 +35,7 @@ Implementation thật; validation; error handling; security; unit/integration/re
 - Kiểm tra giao diện trên trình duyệt thực tế ở mobile/tablet/desktop; xác nhận menu, trạng thái offline và PWA install/update.
 - Rà soát các liên kết điều hướng hiện là UI shell, chưa phải route nghiệp vụ; không được hiểu nhầm module chưa triển khai là chức năng đã hoạt động.
 - Chỉ chuyển P01 sang PASS sau khi các mục còn lại có bằng chứng và session log được cập nhật.
+
+## P01 cập nhật giao diện điều hướng – 2026-11-18
+- Commit `7f3a454f69aebb067b1a0ed186406cf3e7594778`: Owner route shell và 13 mục điều hướng; GitHub Actions Run #7 **PASS** (npm ci, typecheck, lint, unit tests, production build/PWA).
+- Tiếp tục sửa responsive menu mobile để các mục điều hướng không bị ẩn trên màn hình nhỏ; bổ sung style cho trang module. Chờ CI mới xác nhận sau commit.

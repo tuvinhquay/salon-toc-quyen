@@ -82,3 +82,18 @@ P01 IN PROGRESS – không đánh dấu PASS trước khi có kết quả kiểm
 
 ### Trạng thái
 P01 IN PROGRESS. CI PASS không đồng nghĩa toàn bộ P01 hoặc toàn bộ sản phẩm đã PASS. Không thay đổi `main`.
+
+
+## Phiên 04 – 2026-11-18 – Owner route shell và responsive mobile
+
+### Đã xác minh
+- GitHub Actions Run #7, commit `7f3a454f69aebb067b1a0ed186406cf3e7594778`: **PASS** toàn bộ 8 bước, gồm npm ci, typecheck, lint, unit tests và production build/PWA Service Worker.
+- Owner shell đã có dashboard khởi tạo và 13 tuyến điều hướng. Các trang module hiện ghi rõ chưa triển khai; không có dữ liệu giả.
+
+### Sửa tiếp
+- Phát hiện menu điều hướng bị ẩn ở breakpoint mobile trong CSS; đang sửa thành thanh điều hướng ngang có thể cuộn và bổ sung style trang module.
+- P01 vẫn IN PROGRESS cho đến khi kiểm tra trình duyệt thực tế và rà soát dependency audit.
+
+### Ưu tiên tiếp theo
+- P02: Firebase Authentication + Owner bootstrap + membership/security rules.
+- Chỉ yêu cầu chủ dự án bật/cấu hình Firebase khi cần kết nối thật; không đưa secrets vào repository.
