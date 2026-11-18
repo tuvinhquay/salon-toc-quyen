@@ -9,3 +9,10 @@
 - Ảnh/ghi chú nhạy cảm cần consent.
 - Thu hồi thiết bị không xóa được dữ liệu đã giải mã trên thiết bị offline; cần key rotation.
 - Repository đang Public: tuyệt đối không đưa secret vào Git.
+
+## Mã hóa backup và sync (P10/P11)
+- Dùng Web Crypto AES-GCM 256-bit, PBKDF2 SHA-256 với 310.000 iterations, salt 16 bytes và IV 12 bytes ngẫu nhiên.
+- Context binding tách biệt backup và sync; SHA-256 checksum phát hiện file bị thay đổi trước giải mã.
+- Passphrase không được lưu hoặc gửi lên Firebase. Quên passphrase đồng nghĩa không thể giải mã backup.
+- Restore chỉ nhận payload có salonId khớp Owner context; replace yêu cầu xác nhận rõ ràng và chỉ xóa record thuộc salon hiện tại.
+- P2P/WebRTC transport và signaling chưa được triển khai; chưa có dữ liệu nghiệp vụ được truyền giữa thiết bị trong giai đoạn này.

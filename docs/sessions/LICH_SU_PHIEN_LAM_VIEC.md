@@ -67,3 +67,19 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - Chưa có thao tác void hóa đơn, trả hàng nhập lại kho, chia hóa đơn nhiều dòng ở UI, giảm giá cấp hóa đơn, quản lý hóa đơn điện tử hoặc kết nối cổng thanh toán.
 - Báo cáo hiện tổng hợp theo ngày phát hành/thu/hoàn/chi, chưa có báo cáo lợi nhuận theo giá vốn và hoa hồng.
 - P08 + P09 vẫn IN PROGRESS cho tới khi runtime regression và đối soát thực tế PASS.
+
+## Phiên 10 – 2026-11-19 – Gộp P10 + P11
+### Đã triển khai
+- Dexie schema version 5: devices, changeLogs, syncConflicts, syncCursors, backupRecords.
+- Repository đăng ký, duyệt, thu hồi thiết bị; ghi encrypted change log; liệt kê hàng đợi chưa đồng bộ; ghi nhận/đóng xung đột; cập nhật cursor.
+- AES-GCM 256 với PBKDF2 SHA-256 (310.000 vòng), salt/IV ngẫu nhiên và authenticated additional data theo context backup/sync.
+- Sync protocol mã hóa batch, xác thực salonId và peer device ID trước khi chấp nhận payload. Đây là protocol layer; chưa kết nối WebRTC/signaling.
+- Backup export/restore mã hóa; SHA-256 checksum; kiểm tra schema version, tenant; merge ưu tiên revision mới hơn; replace có xác nhận rõ ràng ở UI.
+- Owner UI cho đăng ký/duyệt/thu hồi thiết bị, hiển thị pending changes/xung đột và tạo/khôi phục backup.
+- Unit tests cho envelope và sync protocol; CI commit b93ee77: Typecheck PASS, Lint PASS, Unit tests PASS, Production build PASS.
+### Giới hạn còn lại
+- Chưa có P2P WebRTC transport, signaling, peer discovery, key exchange riêng cho từng thiết bị hoặc tự động đẩy/nhận change log.
+- CRUD hiện tại chưa tự động ghi change log; chưa có end-to-end sync giữa hai thiết bị.
+- Chưa kiểm thử backup/restore trên IndexedDB thật, file lớn, thiết bị Android hoặc quy trình phục hồi khi mất mật khẩu.
+- Chưa có cloud/Google Drive backup. Không lưu passphrase ở ứng dụng; người dùng phải tự bảo quản.
+- P10 + P11 vẫn IN PROGRESS, không tuyên bố đồng bộ thiết bị hoàn tất.

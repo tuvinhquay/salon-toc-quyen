@@ -56,3 +56,12 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Reports tổng hợp số hóa đơn, doanh số phát hành, tiền đã thu, hoàn tiền, chi phí và thu ròng theo khoảng thời gian.
 - Owner UI đã kết nối thu ngân, chính sách thuế, hóa đơn, thanh toán, hoàn tiền, chi phí, đóng ca và báo cáo.
 - CI trên commit UI hiện tại: Typecheck, Lint, Unit tests và Production build PASS. P08/P09 vẫn IN PROGRESS vì chưa có runtime/browser smoke test và đối soát nghiệp vụ thực tế.
+
+## P10 + P11 – 2026-11-19
+- Dexie schema v5 thêm devices, changeLogs, syncConflicts, syncCursors, backupRecords.
+- Thêm đăng ký/duyệt/thu hồi thiết bị, hàng đợi change log chỉ nhận encryptedPayload, cursor và conflict records.
+- Thêm protocol đóng gói/mở gói đồng bộ AES-GCM với PBKDF2 và kiểm tra salonId/peerDeviceId. Chưa có kênh WebRTC/signaling hoặc truyền dữ liệu thực tế.
+- Thêm backup export AES-GCM 256, PBKDF2 SHA-256 310.000 vòng, checksum SHA-256; restore có merge/replace, xác minh salonId và chặn bản ghi khác tenant.
+- Owner UI có màn hình thiết bị/xung đột và backup/restore mã hóa.
+- Unit tests xác minh mã hóa, sai mật khẩu, context và peer/salon isolation.
+- CI trên commit P10/P11: Typecheck, Lint, Unit tests và Production build PASS. P10/P11 vẫn IN PROGRESS do chưa có transport P2P và kiểm thử backup IndexedDB trên thiết bị thật.
