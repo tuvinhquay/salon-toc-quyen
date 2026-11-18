@@ -7,6 +7,6 @@ describe('customer search normalization', () => {
     expect(normalizePhone(undefined)).toBeNull()
   })
   it('normalizes Vietnamese accents for lookup without changing display names', () => {
-    expect(normalizeCustomerName('Đặng Thị Ánh')).toBe('đang thi anh')
+    expect(normalizeCustomerName('Đặng Thị Ánh')).toBe('dang thi anh')
   })
 })
