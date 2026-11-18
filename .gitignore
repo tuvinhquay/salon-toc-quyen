@@ -7,3 +7,8 @@ coverage/
 !.env.example
 *.local
 .DS_Store
+
+functions/node_modules/
+functions/lib/
+functions/.env*
+!functions/.env.example
