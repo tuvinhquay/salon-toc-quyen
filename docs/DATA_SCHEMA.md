@@ -30,3 +30,15 @@ Mỗi entity cần ID ổn định, salonId, createdAt, updatedAt, revision và 
 ## P09 – Báo cáo
 - getSalesReport tổng hợp số hóa đơn, doanh số phát hành, tiền thu, tiền hoàn, chi phí và thu ròng theo khoảng thời gian.
 - Chưa bao gồm lợi nhuận theo giá vốn, hoa hồng thực trả, báo cáo thuế pháp lý hoặc hóa đơn điện tử.
+
+## P10 – Thiết bị và đồng bộ
+- DeviceRecord: deviceId, label, platform, pending/approved/revoked, publicKey placeholder, approval/revocation timestamps.
+- ChangeLog: entity identity, base/entity revision và encryptedPayload; không chấp nhận plaintext payload.
+- SyncConflict: local/remote revision và trạng thái open/resolved.
+- SyncCursor: peer device, last sync time và last change id.
+- Secure sync packet: AES-GCM-256, PBKDF2-SHA-256, context binding; kiểm tra tenant và peer. Chưa có transport P2P.
+## P11 – Backup
+- BackupRecord metadata: schema/format version, SHA-256 hash, size và số lượng record theo bảng.
+- Backup payload chứa dữ liệu của đúng salon; mã hóa AES-GCM-256 với PBKDF2 SHA-256 310.000 iterations, salt và IV ngẫu nhiên.
+- Restore kiểm tra checksum, giải mã, kiểm tra salonId trên toàn bộ record; merge bỏ qua revision cũ hơn, replace chỉ xóa dữ liệu của salon đang xác thực.
+- Backup hiện tải tệp cục bộ; chưa có upload Google Drive/cloud.
