@@ -20,3 +20,9 @@ Phạm vi: Giai đoạn 1 – Owner App. Không xây Employee App trước khi O
 
 ## Definition of Done
 Implementation thật; validation; error handling; security; unit/integration/regression tests; typecheck, lint, production build; mobile/desktop verification; tài liệu và session log. Chỉ PASS khi có bằng chứng.
+
+## P01 validation notes
+- Termux: typecheck, lint và unit tests đã PASS theo kết quả chạy thực tế ngày 2026-11-18.
+- Vite đã bundle thành công; Workbox Service Worker generation gặp lỗi Terser worker early-exit trên Termux/Android.
+- Cấu hình Workbox development mode riêng cho Termux; CI giữ production mode để kiểm chứng build tối ưu.
+- Chưa PASS: cần CI production build, đồng bộ package-lock, rà soát audit còn lại và kiểm tra UI/PWA trên trình duyệt.
