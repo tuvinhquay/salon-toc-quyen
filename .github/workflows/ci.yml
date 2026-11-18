@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [main, phase-01-foundation, fix/p01-ci-bootstrap, phase-02-firebase-owner-auth, phase-03-local-first-database]
+    branches: [main, phase-01-foundation, fix/p01-ci-bootstrap, phase-02-firebase-owner-auth, phase-03-local-first-database, phase-04-05-customers-appointments-workflow]
   pull_request:
     branches: [main]
   workflow_dispatch:
