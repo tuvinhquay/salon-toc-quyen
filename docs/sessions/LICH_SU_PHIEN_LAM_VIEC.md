@@ -86,7 +86,7 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 
 ## Phiên 11 – 2026-11-19 – Gộp P12 + P13
 ### Đã triển khai
-- Firebase Cloud Function callable salonAssistant chạy server-side với Gemini 2.5 Flash; API key lấy từ Secret Manager bằng defineSecret.
+- Firebase Cloud Function callable salonAssistant chạy server-side với Gemini 3.8 Flash; API key lấy từ Secret Manager bằng defineSecret.
 - Security gates: Firebase Auth, App Check enforce, kiểm tra membership active/owner và rate limit 10 yêu cầu/phút/UID.
 - Zod validate question/context; giới hạn độ dài, không lưu prompt/context; log không ghi nội dung câu hỏi.
 - Owner UI Trợ lý AI gửi nội dung người dùng chủ động nhập; không tự đọc dữ liệu khách hàng, thanh toán hoặc kho.
