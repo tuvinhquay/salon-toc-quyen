@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { useOwnerContext } from '../auth/OwnerContext'
 import { changeAppointmentStatus, listAppointments, listCustomers, listServices, listWorkflowEvents, recordWorkflowEvent, saveAppointment } from '../db/repositories'
-import type { Appointment, AppointmentStatus, Customer, Service, WorkflowEventInput } from '../db/types'
+import type { Appointment, AppointmentStatus, Customer, Service } from '../db/types'
+import type { WorkflowEventInput } from '../db/schema'
 import { formatVnd } from '../lib/format'
 function Field({label,children}:{label:string;children:ReactNode}){return <label className="field"><span>{label}</span>{children}</label>}
 function ErrorText({value}:{value:string|null}){return value?<p className="form-error" role="alert">{value}</p>:null}
