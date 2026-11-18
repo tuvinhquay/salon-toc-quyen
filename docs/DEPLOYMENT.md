@@ -7,20 +7,26 @@
 - Bật App Check với reCAPTCHA Enterprise cho Web; thêm domain local/production phù hợp.
 - Owner membership phải được tạo bằng quy trình tin cậy phía quản trị; client không có quyền tự cấp role Owner.
 
-## 2. Cài Firebase CLI trên Termux
+## 2. Chuẩn bị billing và App Check
+- Deploy Cloud Functions yêu cầu Firebase project dùng gói Blaze và có Cloud Billing account. Trước khi deploy, thiết lập budget alerts/spend caps để kiểm soát chi phí.
+- Tạo reCAPTCHA Enterprise Web-type score-based key cho domain production; đăng ký Web app trong Firebase Console > App Check với provider reCAPTCHA Enterprise.
+- Không đưa localhost vào key production. Khi kiểm thử local, dùng key dành riêng cho môi trường dev hoặc App Check debug provider theo hướng dẫn Firebase.
+- Điền site key vào VITE_RECAPTCHA_ENTERPRISE_SITE_KEY trong .env.local. reCAPTCHA Enterprise có quota miễn phí theo tháng, vượt quota có thể phát sinh phí.
+
+## 3. Cài Firebase CLI trên Termux
 ```bash
 npm install -g firebase-tools
 firebase login
 firebase use salon-quyen
 ```
 
-## 3. Cài secret Gemini ở Firebase
+## 4. Cài secret Gemini ở Firebase
 ```bash
 firebase functions:secrets:set GEMINI_API_KEY
 ```
 Firebase CLI sẽ hỏi giá trị secret trực tiếp trong terminal. Không gửi giá trị này vào ChatGPT và không commit.
 
-## 4. Kiểm tra trước deploy
+## 5. Kiểm tra trước deploy
 ```bash
 npm ci
 npm run typecheck
@@ -31,12 +37,12 @@ npm --prefix functions install
 npm --prefix functions run build
 ```
 
-## 5. Deploy
+## 6. Deploy
 ```bash
 firebase deploy --only firestore:rules,functions,hosting
 ```
 
-## 6. Kiểm tra sau deploy
+## 7. Kiểm tra sau deploy
 - Kiểm tra Hosting PWA qua HTTPS.
 - Kiểm tra Google sign-in và membership Owner.
 - Kiểm tra App Check token được gửi tới callable function.

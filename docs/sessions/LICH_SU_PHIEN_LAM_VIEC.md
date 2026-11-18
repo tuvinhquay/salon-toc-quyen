@@ -98,3 +98,7 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - Chưa nhập Firebase Web config vào .env.local, chưa tạo reCAPTCHA Enterprise site key, chưa đặt GEMINI_API_KEY trong Firebase Secret Manager.
 - Chưa deploy Functions/Hosting/Firestore Rules lên project salon-quyen; chưa kiểm tra App Check token, callable, rate limit hoặc chi phí Gemini thực tế.
 - P12/P13 vẫn IN PROGRESS cho đến khi hoàn tất cấu hình và smoke test trên Termux/thiết bị thật.
+
+### Ghi chú triển khai thực tế
+- Cloud Functions deploy yêu cầu gói Blaze/Cloud Billing; cần bật budget alerts và spend caps trước khi deploy.
+- App Check Web cần reCAPTCHA Enterprise score-based Web key, đăng ký trong Firebase Console; không dùng localhost trong key production. reCAPTCHA Enterprise có quota miễn phí theo tháng và có thể tính phí khi vượt quota.
