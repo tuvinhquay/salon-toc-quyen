@@ -32,7 +32,7 @@ export type TaxPolicy=BaseEntity&{name:string;ratePercent:number;inclusive:boole
 
 export type DeviceStatus='pending'|'approved'|'revoked'
 export type DeviceRecord=BaseEntity&{deviceId:string;label:string;platform:string;status:DeviceStatus;publicKey:string|null;approvedAt:string|null;revokedAt:string|null;lastSeenAt:string|null}
-export type ChangeLog=BaseEntity&{entityType:string;entityId:string;operation:'create'|'update'|'archive';baseRevision:number;revision:number;encryptedPayload:string;createdAt:string;syncedAt:string|null}
+export type ChangeLog=BaseEntity&{entityType:string;entityId:string;operation:'create'|'update'|'archive';baseRevision:number;entityRevision:number;encryptedPayload:string;createdAt:string;syncedAt:string|null}
 export type SyncConflict=BaseEntity&{entityType:string;entityId:string;localRevision:number;remoteRevision:number;detectedAt:string;status:'open'|'resolved';resolution:string|null}
 export type SyncCursor=BaseEntity&{peerDeviceId:string;lastSyncedAt:string|null;lastChangeId:string|null}
 export type BackupRecord=BaseEntity&{createdAt:string;schemaVersion:number;formatVersion:number;ciphertextHash:string;sizeBytes:number;recordCounts:Record<string,number>}
