@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useEffect, useState } from 'react'
 import { doc, getDoc } from 'firebase/firestore'
 import { RouterProvider } from '@tanstack/react-router'
