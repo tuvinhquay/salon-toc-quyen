@@ -5,7 +5,7 @@ Phạm vi: Giai đoạn 1 – Owner App. Không xây Employee App trước khi O
 | ID | Hạng mục | Trạng thái |
 |---|---|---|
 | P01 | Repository, cấu trúc, UI shell, tài liệu | IN PROGRESS |
-| P02 | Firebase Auth, Owner bootstrap, membership, Rules | NOT STARTED |
+| P02 | Firebase Auth, Owner bootstrap, membership, Rules | IN PROGRESS |
 | P03 | Dexie schema, migration, validation | NOT STARTED |
 | P04 | Khách hàng và lịch hẹn | NOT STARTED |
 | P05 | Dịch vụ, công thức, workflow event log | NOT STARTED |
@@ -39,3 +39,10 @@ Implementation thật; validation; error handling; security; unit/integration/re
 ## P01 cập nhật giao diện điều hướng – 2026-11-18
 - Commit `7f3a454f69aebb067b1a0ed186406cf3e7594778`: Owner route shell và 13 mục điều hướng; GitHub Actions Run #7 **PASS** (npm ci, typecheck, lint, unit tests, production build/PWA).
 - Tiếp tục sửa responsive menu mobile để các mục điều hướng không bị ẩn trên màn hình nhỏ; bổ sung style cho trang module. Chờ CI mới xác nhận sau commit.
+
+## P02 implementation notes – 2026-11-18
+- Branch `phase-02-firebase-owner-auth` created from the tested P01 working branch.
+- Google popup sign-in and auth-state listener added. UI blocks access when Firebase is not configured.
+- Owner access is gated by `memberships/{uid}` with `status=active`, `role=owner`, and a non-empty `salonId`; client cannot self-create this record.
+- Firestore rules are deny-by-default and allow a user to read only their own membership record. All membership writes and business data access remain server/admin-only until specific rules are reviewed.
+- Awaiting CI and Firebase Console enablement; do not mark P02 PASS until live Auth + membership verification is tested.

@@ -1,5 +1,8 @@
 import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { doc, getDoc } from 'firebase/firestore'
 import { RouterProvider } from '@tanstack/react-router'
+import { firestore } from '../lib/firebase'
 import { Chrome, LoaderCircle, ShieldCheck, WifiOff } from 'lucide-react'
 import { router } from '../app/router'
 import { useAuth } from './AuthProvider'
@@ -43,9 +46,33 @@ function SignInScreen() {
   )
 }
 
+function AccessPending({ message, onLogOut }: { message: string; onLogOut: () => void }) {
+  return <main className="auth-screen"><section className="auth-card"><div className="auth-mark"><ShieldCheck size={26} /></div><small>OWNER ACCESS CONTROL</small><h1>Chưa được cấp quyền</h1><p>{message}</p><button className="google-signin" onClick={onLogOut}>Đăng xuất</button><div className="auth-foot">CHỈ THÀNH VIÊN ĐƯỢC DUYỆT MỚI TRUY CẬP ĐƯỢC SALON</div></section></main>
+}
+
 export function AuthGate() {
-  const { user, loading } = useAuth()
-  if (loading) return <main className="auth-screen"><div className="auth-loading"><LoaderCircle className="spin" />Đang kiểm tra phiên đăng nhập…</div></main>
+  const { user, loading, logOut } = useAuth()
+  const [membership, setMembership] = useState<'checking' | 'active' | 'missing' | 'error'>('checking')
+  useEffect(() => {
+    let cancelled = false
+    async function verifyMembership() {
+      if (!user) { setMembership('checking'); return }
+      if (!firestore) { setMembership('error'); return }
+      try {
+        const snapshot = await getDoc(doc(firestore, 'memberships', user.uid))
+        const data = snapshot.data()
+        if (cancelled) return
+        setMembership(snapshot.exists() && data?.status === 'active' && data?.role === 'owner' && typeof data?.salonId === 'string' && data.salonId.length > 0 ? 'active' : 'missing')
+      } catch {
+        if (!cancelled) setMembership('error')
+      }
+    }
+    void verifyMembership()
+    return () => { cancelled = true }
+  }, [user])
+
+  if (loading || (user && membership === 'checking')) return <main className="auth-screen"><div className="auth-loading"><LoaderCircle className="spin" />Đang kiểm tra quyền truy cập…</div></main>
   if (!user) return <SignInScreen />
+  if (membership !== 'active') return <AccessPending message={membership === 'missing' ? 'Tài khoản Google đã đăng nhập nhưng chưa có hồ sơ Owner được cấp quyền. Không thể tự tạo quyền quản trị từ trình duyệt.' : 'Không thể xác minh membership với máy chủ. Kiểm tra cấu hình Firebase và Firestore Rules rồi thử lại.'} onLogOut={() => void logOut()} />
   return <RouterProvider router={router} />
 }

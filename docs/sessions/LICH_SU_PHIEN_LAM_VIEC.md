@@ -97,3 +97,23 @@ P01 IN PROGRESS. CI PASS không đồng nghĩa toàn bộ P01 hoặc toàn bộ 
 ### Ưu tiên tiếp theo
 - P02: Firebase Authentication + Owner bootstrap + membership/security rules.
 - Chỉ yêu cầu chủ dự án bật/cấu hình Firebase khi cần kết nối thật; không đưa secrets vào repository.
+
+
+## Phiên 05 – 2026-11-18 – P02 Firebase Google Auth và Owner gate
+
+### Đã triển khai trên branch `phase-02-firebase-owner-auth`
+- Tạo Google sign-in bằng Firebase Authentication, listener theo dõi trạng thái phiên và sign-out.
+- Màn hình đăng nhập xử lý Firebase chưa cấu hình, popup bị chặn/đóng, domain chưa được cho phép và lỗi chung.
+- AuthGate không cho truy cập Owner workspace chỉ dựa vào đăng nhập; yêu cầu `memberships/{uid}` phải có `status=active`, `role=owner`, `salonId` hợp lệ.
+- Tạo Firestore Rules mặc định deny; chỉ cho user đọc membership của chính UID, không cho client tự tạo/sửa membership và chưa mở quyền dữ liệu nghiệp vụ.
+- Bổ sung firebase.json để triển khai rules bằng Firebase CLI.
+- Bổ sung nhánh P02 vào trigger CI.
+
+### Cần người sở hữu Firebase thực hiện khi tới bước kiểm thử live
+- Bật Google provider trong Firebase Authentication.
+- Thêm domain triển khai vào Authorized domains.
+- Tạo membership Owner qua Firebase Admin SDK/trusted environment sau khi xác minh UID; không tự tạo từ client.
+- Không gửi Gemini API key ở giai đoạn Auth.
+
+### Trạng thái
+P02 IN PROGRESS – chờ CI và xác minh cấu hình Firebase thật. Không thay đổi main.
