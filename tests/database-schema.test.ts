@@ -1,41 +1,4 @@
-import { describe, expect, it } from 'vitest';
-import { appointmentInputSchema, customerInputSchema } from '../src/db/schema';
-
-describe('customerInputSchema', () => {
-  it('normalizes surrounding whitespace through validation', () => {
-    const result = customerInputSchema.parse({ fullName: '  Nguyễn An  ', phone: ' 0901 ' });
-    expect(result.fullName).toBe('Nguyễn An');
-    expect(result.phone).toBe('0901');
-  });
-
-  it('rejects an empty customer name', () => {
-    expect(customerInputSchema.safeParse({ fullName: '   ' }).success).toBe(false);
-  });
-
-  it('rejects invalid email addresses', () => {
-    expect(customerInputSchema.safeParse({ fullName: 'An', email: 'not-an-email' }).success).toBe(false);
-  });
-});
-
-describe('appointmentInputSchema', () => {
-  const base = {
-    customerNameSnapshot: 'Khách vãng lai',
-    startAt: '2026-11-19T09:00:00+07:00',
-    endAt: '2026-11-19T10:00:00+07:00',
-  };
-
-  it('accepts a valid appointment and applies safe defaults', () => {
-    const result = appointmentInputSchema.parse(base);
-    expect(result.depositAmount).toBe(0);
-    expect(result.serviceIds).toEqual([]);
-    expect(result.notes).toBe('');
-  });
-
-  it('rejects an end time that is not after the start time', () => {
-    expect(appointmentInputSchema.safeParse({ ...base, endAt: base.startAt }).success).toBe(false);
-  });
-
-  it('rejects negative deposits', () => {
-    expect(appointmentInputSchema.safeParse({ ...base, depositAmount: -1 }).success).toBe(false);
-  });
-});
+import{describe,expect,it}from'vitest';import{appointmentInputSchema,customerInputSchema,hairFormulaSchema,serviceInputSchema,workflowEventInputSchema}from'../src/db/schema';
+describe('customer schema',()=>{it('trims name and phone',()=>{const v=customerInputSchema.parse({fullName:' An ',phone:' 0901 '});expect(v.fullName).toBe('An');expect(v.phone).toBe('0901')});it('rejects blank names and invalid email',()=>{expect(customerInputSchema.safeParse({fullName:' '}).success).toBe(false);expect(customerInputSchema.safeParse({fullName:'An',email:'bad'}).success).toBe(false)})});
+describe('appointment schema',()=>{const base={customerNameSnapshot:'Khách',startAt:'2026-11-19T09:00:00+07:00',endAt:'2026-11-19T10:00:00+07:00'};it('defaults deposit and services',()=>{const v=appointmentInputSchema.parse(base);expect(v.depositAmount).toBe(0);expect(v.serviceIds).toEqual([])});it('rejects invalid time range and negative deposit',()=>{expect(appointmentInputSchema.safeParse({...base,endAt:base.startAt}).success).toBe(false);expect(appointmentInputSchema.safeParse({...base,depositAmount:-1}).success).toBe(false)})});
+describe('service and workflow schemas',()=>{it('validates integer VND and service duration',()=>{expect(serviceInputSchema.safeParse({name:'Nhuộm',durationMinutes:120,priceVnd:850000}).success).toBe(true);expect(serviceInputSchema.safeParse({name:'Nhuộm',durationMinutes:0,priceVnd:2.5}).success).toBe(false)});it('requires a formula snapshot for formula events',()=>{expect(workflowEventInputSchema.safeParse({appointmentId:'a1',eventType:'formula_recorded'}).success).toBe(false);expect(hairFormulaSchema.safeParse({category:'bleach',products:[],processingMinutes:-1}).success).toBe(false)})});

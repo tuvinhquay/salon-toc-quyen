@@ -1,132 +1,16 @@
 # Lịch sử phiên làm việc
-
-## Phiên 01 – 2026-11-10 – P01 Foundation
-
-### Đã làm
-- Xác minh repository tuv​​inhquay/salon-toc-quyen và quyền Admin/Push.
-- Repository Public, default branch main.
-- Tạo branch phase-01-foundation.
-- Tạo bộ khung React/TypeScript/Vite/Tailwind/PWA và Owner UI shell, không có dữ liệu demo.
-- Tạo .env.example và .gitignore.
-- Thêm Firebase Web SDK bootstrap có kiểm tra cấu hình; Firebase public config được đưa vào .env.example, không phải Gemini secret.
-- Thêm formatter VND và unit test cơ bản.
-- Thêm ESLint và Vitest configuration.
-- Tạo tài liệu kiến trúc, roadmap, cấu trúc, schema định hướng, bản đồ tính năng, bảo mật, sync/backup, deployment và test plan.
-- Thêm GitHub Actions CI workflow để chạy typecheck, lint, unit test và production build trên Node 22.
-- Commit CI: 6c3a7898e9d80bf210071eaf8bae59c1bb90d385.
-
-### Chưa nghiệm thu
-- Chưa chạy npm install, typecheck, lint, test hoặc production build.
-- Đã thử clone repository để chạy kiểm thử nhưng môi trường thực thi không phân giải được github.com; do đó chưa thể cài dependencies hoặc xác nhận build.
-- GitHub Actions API hiện trả về 0 workflow runs cho branch; CI chưa có kết quả xác nhận.
-- Chưa cấu hình Firebase Authentication, Security Rules hoặc Emulator.
-- Chưa cấu hình Gemini server secret/endpoint.
-- Chưa triển khai nghiệp vụ salon thật.
-- Chưa kiểm tra UI trên trình duyệt thực tế.
-
+Các phiên 01–05 được giữ nguyên ở các commit lịch sử trước đó.
+## Phiên 06 – 2026-11-18 – Gộp P04 + P05
+### Đã triển khai trên phase-04-05-customers-appointments-workflow
+- Dexie schema version 2, migration giữ nguyên version 1, store workflowEvents.
+- Repository local-first khách hàng, lịch hẹn, dịch vụ, workflow event.
+- Kiểm tra salon scope ở các điểm truy cập; audit event ghi cùng transaction.
+- State transition lịch hẹn; tiền cọc; snapshot khách hàng tại thời điểm đặt.
+- Công thức tóc được lưu thành snapshot append-only.
+- Bổ sung kiểm thử validation cho customer, appointment, service, formula và workflow.
+### Chưa hoàn tất
+- Chưa có UI CRUD nghiệp vụ; chưa có IndexedDB integration test trên trình duyệt.
+- Chưa xác minh Firebase membership live để cấp ActorContext.
+- Chưa có nhân viên, kho, P2P/cloud sync.
 ### Trạng thái
-P01 IN PROGRESS – không đánh dấu PASS trước khi có kết quả kiểm thử thực tế.
-
-### Lưu ý bảo mật
-- Repository Public; tuyệt đối không commit secrets.
-- Firebase Web API key là cấu hình client public, không thay thế Security Rules.
-- Gemini API key không được ghi vào repository; cần thay khóa mới trước production.
-- Công cụ GitHub đang kết nối chưa cung cấp thao tác ghi GitHub Actions Secrets/Vercel Environment Variables. Không tuyên bố đã cấu hình những secret đó.
-
-## Phiên 02 – 2026-11-18 – P01 CI bootstrap và sửa lỗi build Termux
-
-### Kết quả kiểm tra người dùng cung cấp
-- npm install hoàn tất và tạo package-lock.json cục bộ (chưa được Git theo dõi).
-- npm audit fix cập nhật 14 packages và thêm 1 package; audit vẫn còn 23 cảnh báo (2 moderate, 21 high ở lần chạy sau sửa).
-- Firebase 12.19.0; Vitest 4.1.12; Vite 7.3.8; picomatch 4.0.7.
-- Đã phê duyệt install script riêng cho esbuild; Firebase util và protobufjs vẫn đang bị chặn.
-- typecheck, lint và unit tests đều PASS; 1 test file, 2 tests.
-- Vite bundle thành công, nhưng Workbox không tạo được Service Worker do Terser worker Unexpected early exit trên Termux/Android.
-- Lỗi cùng dạng đã được ghi nhận trong Rollup plugin-terser trên Android ARM64; đây là giới hạn môi trường build, chưa phải lỗi nghiệp vụ Salon hay bằng chứng ENA xung đột.
-
-### Thay đổi kỹ thuật
-- Workbox dùng development mode riêng khi chạy trong Termux để tránh Terser worker; các môi trường khác, đặc biệt GitHub Actions, vẫn dùng production mode.
-- Bổ sung SVG PWA icon thay cho manifest icons rỗng.
-- Kích hoạt CI trên nhánh fix/p01-ci-bootstrap; CI production build vẫn kiểm tra Service Worker tối ưu.
-- Giữ P01 IN PROGRESS cho đến khi CI production, package-lock đồng bộ, audit review và UI/PWA smoke test hoàn tất.
-
-### Việc còn lại
-- Đồng bộ package-lock từ Termux lên nhánh sửa.
-- Chạy lại typecheck, lint, test, build tại Termux sau khi đồng bộ.
-- Kiểm tra GitHub Actions production build.
-- Xử lý dependency audit còn tồn tại bằng nâng cấp/override có kiểm thử, không dùng npm audit fix --force.
-- Rà soát và phê duyệt install scripts còn lại theo đúng nhu cầu package.
-
-## Phiên 03 – 2026-11-18 – Hoàn tất CI lockfile và rà soát P01
-
-### Đã làm
-- Người dùng commit và push `package.json` cùng `package-lock.json` lên `fix/p01-ci-bootstrap`: commit `bd7f790`.
-- Xác minh GitHub Actions Run #4 trên `bd7f790`: cài dependencies, typecheck, lint, unit tests và production build đều PASS.
-- Chuyển workflow CI từ `npm install` sang `npm ci`, bật npm cache qua setup-node; Node CI vẫn là 22.
-- Commit workflow: `9972fcf0135b1d748be52e79368718891b92e994`.
-- Xác minh GitHub Actions Run #5 trên commit `9972fcf`: `npm ci`, typecheck, lint, unit tests và production build/PWA Service Worker đều PASS.
-- Đối chiếu source code, package scripts, Firebase bootstrap, UI shell, kiến trúc và security notes trên nhánh làm việc.
-- Xác nhận Termux production build gần nhất do người dùng cung cấp đã tạo được `dist/sw.js` và Workbox runtime; các kiểm tra typecheck/lint/test trước đó đều PASS.
-
-### Phát hiện và giới hạn
-- UI hiện là Owner shell/khung điều hướng; các mục nghiệp vụ chưa được triển khai và không được quảng bá như tính năng hoạt động.
-- Firebase bootstrap hiện chỉ khởi tạo SDK khi đủ public config; chưa có Auth flow, Firestore Rules hoặc Owner bootstrap.
-- Lần `npm audit` gần nhất do người dùng cung cấp còn 23 cảnh báo (2 moderate, 21 high). Chưa được xác minh lại bằng audit mới trên đúng lockfile và chưa có phân tích đầy đủ từng dependency path.
-- Chưa có bằng chứng kiểm tra trực quan trên trình duyệt thật ở các kích thước mobile/tablet/desktop.
-
-### Tài liệu cập nhật
-- README: hướng dẫn cài đặt dùng `npm ci`, ghi trạng thái CI mới nhất và các hạng mục còn mở.
-- ROADMAP: cập nhật bằng chứng CI/Termux và giữ P01 IN PROGRESS do security audit + browser smoke test chưa hoàn tất.
-- Nhật ký phiên: bổ sung phiên 03.
-
-### Trạng thái
-P01 IN PROGRESS. CI PASS không đồng nghĩa toàn bộ P01 hoặc toàn bộ sản phẩm đã PASS. Không thay đổi `main`.
-
-## Phiên 04 – 2026-11-18 – Owner route shell và responsive mobile
-
-### Đã xác minh
-- GitHub Actions Run #7, commit `7f3a454f69aebb067b1a0ed186406cf3e7594778`: **PASS** toàn bộ 8 bước, gồm npm ci, typecheck, lint, unit tests và production build/PWA Service Worker.
-- Owner shell đã có dashboard khởi tạo và 13 tuyến điều hướng. Các trang module hiện ghi rõ chưa triển khai; không có dữ liệu giả.
-
-### Sửa tiếp
-- Phát hiện menu điều hướng bị ẩn ở breakpoint mobile trong CSS; sửa thành thanh điều hướng ngang có thể cuộn và bổ sung style trang module.
-- P01 vẫn IN PROGRESS cho đến khi kiểm tra trình duyệt thực tế và rà soát dependency audit.
-
-### Ưu tiên tiếp theo
-- P02: Firebase Authentication + Owner bootstrap + membership/security rules.
-- Chỉ yêu cầu chủ dự án bật/cấu hình Firebase khi cần kết nối thật; không đưa secrets vào repository.
-
-## Phiên 05 – 2026-11-18 – P02 Firebase Google Auth và Owner gate
-
-### Đã triển khai trên branch `phase-02-firebase-owner-auth`
-- Tạo Google sign-in bằng Firebase Authentication, listener theo dõi trạng thái phiên và sign-out.
-- Màn hình đăng nhập xử lý Firebase chưa cấu hình, popup bị chặn/đóng, domain chưa được cho phép và lỗi chung.
-- AuthGate không cho truy cập Owner workspace chỉ dựa vào đăng nhập; yêu cầu `memberships/{uid}` phải có `status=active`, `role=owner`, `salonId` hợp lệ.
-- Tạo Firestore Rules mặc định deny; chỉ cho user đọc membership của chính UID, không cho client tự tạo/sửa membership và chưa mở quyền dữ liệu nghiệp vụ.
-- Bổ sung firebase.json để triển khai rules bằng Firebase CLI.
-- Bổ sung nhánh P02 vào trigger CI.
-- Sửa duplicate React hook import trong AuthGate bằng commit `0611018cc6391f0d77b2889fbd355e146270c523`.
-- GitHub Actions CI Run #11 trên commit `0611018`: **PASS** (typecheck, lint, tests, production build).
-
-### Cần người sở hữu Firebase thực hiện khi tới bước kiểm thử live
-- Bật Google provider trong Firebase Authentication.
-- Thêm domain triển khai vào Authorized domains.
-- Tạo membership Owner qua Firebase Admin SDK/trusted environment sau khi xác minh UID; không tự tạo từ client.
-- Không gửi Gemini API key ở giai đoạn Auth.
-
-### Trạng thái
-P02 IN PROGRESS – CI PASS, nhưng chờ live Firebase Auth và trusted Owner membership verification. Không thay đổi `main`.
-
-## Phiên 06 – 2026-11-18 – P03 Local-first database foundation
-
-### Đã triển khai trên branch `phase-03-local-first-database`
-- Tạo Dexie database version 1 với stores và indexes theo salonId cho customers, appointments, services và auditEvents.
-- Khai báo TypeScript types cho base entity, khách hàng, lịch hẹn, dịch vụ, audit event và actor context.
-- Thêm Zod schemas kiểm tra dữ liệu đầu vào khách hàng/lịch hẹn; validate email, độ dài trường, thời gian kết thúc sau thời gian bắt đầu, tiền cọc không âm.
-- Thêm 6 unit tests cho validation schema.
-- Cập nhật ROADMAP và nhật ký phiên.
-- Không thêm dữ liệu demo, không lưu dữ liệu nghiệp vụ plaintext vào Firestore, không thay đổi main.
-
-### Chưa nghiệm thu
-- Chờ CI xác nhận typecheck, lint, tests và build.
-- Chưa có IndexedDB browser/Termux runtime smoke test hoặc migration upgrade test; chưa tuyên bố P03 PASS.
+P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.

@@ -1,25 +1,7 @@
-import Dexie, { type Table } from 'dexie';
-import type { Appointment, AuditEvent, Customer, Service } from './types';
-
-export class SalonDatabase extends Dexie {
-  customers!: Table<Customer, string>;
-  appointments!: Table<Appointment, string>;
-  services!: Table<Service, string>;
-  auditEvents!: Table<AuditEvent, string>;
-
-  constructor() {
-    super('salon-toc-quyen');
-    this.version(1).stores({
-      customers: 'id, salonId, normalizedName, normalizedPhone, updatedAt, [salonId+normalizedPhone]',
-      appointments: 'id, salonId, customerId, startAt, endAt, status, updatedAt, [salonId+startAt], [salonId+customerId]',
-      services: 'id, salonId, name, active, updatedAt',
-      auditEvents: 'id, salonId, entityType, entityId, occurredAt, [salonId+occurredAt]',
-    });
-  }
+import Dexie,{type Table} from 'dexie';
+import type {Appointment,AuditEvent,Customer,Service,WorkflowEvent} from './types';
+export class SalonDatabase extends Dexie{
+ customers!:Table<Customer,string>;appointments!:Table<Appointment,string>;services!:Table<Service,string>;workflowEvents!:Table<WorkflowEvent,string>;auditEvents!:Table<AuditEvent,string>;
+ constructor(){super('salon-toc-quyen');this.version(1).stores({customers:'id,salonId,normalizedName,normalizedPhone,updatedAt,[salonId+normalizedPhone]',appointments:'id,salonId,customerId,startAt,endAt,status,updatedAt,[salonId+startAt],[salonId+customerId]',services:'id,salonId,name,active,updatedAt',auditEvents:'id,salonId,entityType,entityId,occurredAt,[salonId+occurredAt]'});this.version(2).stores({customers:'id,salonId,normalizedName,normalizedPhone,updatedAt,archivedAt,[salonId+normalizedPhone]',appointments:'id,salonId,customerId,startAt,endAt,status,updatedAt,[salonId+startAt],[salonId+customerId]',services:'id,salonId,name,active,updatedAt',workflowEvents:'id,salonId,appointmentId,serviceId,eventType,occurredAt,[salonId+appointmentId],[salonId+occurredAt]',auditEvents:'id,salonId,entityType,entityId,occurredAt,[salonId+occurredAt]'});}
 }
-
-export const salonDb = new SalonDatabase();
-
-export async function closeSalonDatabase(): Promise<void> {
-  salonDb.close();
-}
+export const salonDb=new SalonDatabase();export async function closeSalonDatabase(){salonDb.close();}
