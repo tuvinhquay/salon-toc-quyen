@@ -1,0 +1,1 @@
+export function formatVnd(amount: number): string { if (!Number.isFinite(amount)) throw new TypeError('Số tiền phải là số hữu hạn'); return new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND',maximumFractionDigits:0}).format(Math.round(amount)); }
