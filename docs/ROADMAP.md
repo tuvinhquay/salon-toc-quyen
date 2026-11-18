@@ -9,8 +9,8 @@ Phạm vi giai đoạn 1: Owner App. Employee App là giai đoạn 2, không tr�
 | P05 | Dịch vụ, công thức, workflow event log | IN PROGRESS |
 | P06 | Nhân viên, ca làm, quyền, hoa hồng | IN PROGRESS |
 | P07 | Kho, lô, vật tư tiêu hao | IN PROGRESS |
-| P08 | POS, hóa đơn, thanh toán, thuế | NOT STARTED |
-| P09 | Dashboard và báo cáo | NOT STARTED |
+| P08 | POS, hóa đơn, thanh toán, thuế | IN PROGRESS |
+| P09 | Dashboard và báo cáo | IN PROGRESS |
 | P10 | Thiết bị, E2E encryption, conflict | NOT STARTED |
 | P11 | Backup/restore mã hóa | NOT STARTED |
 | P12 | Gemini server API, quota, quyền | NOT STARTED |
@@ -45,3 +45,14 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Repository P07 có danh mục sản phẩm, nhà cung cấp, tạo đơn mua, nhận hàng từng phần, tạo lô và stock movement trong transaction.
 - UI Owner đã nối quản lý nhân viên, ca, hoa hồng, sản phẩm, nhà cung cấp, đơn mua và nhận hàng.
 - P06/P07 vẫn IN PROGRESS: chưa có integration test IndexedDB, kiểm thử thực tế trên thiết bị, điều chỉnh tồn kho/tiêu hao và kiểm tra hạn dùng tự động.
+
+## P08 + P09 – 2026-11-19
+- Dexie schema v4 bổ sung invoices, payments, refunds, cashSessions, expenses và taxPolicies.
+- Repository phát hành hóa đơn với snapshot dòng hàng, chính sách thuế hiệu lực và kiểm tra khách/dịch vụ/sản phẩm.
+- Bán sản phẩm trừ tồn FEFO từ inventory lots; invoice + lot update + stock movement + audit nằm trong một transaction, thiếu tồn thì rollback.
+- Payment hỗ trợ cash/bank transfer/card/other, partial payment và kiểm tra số dư hóa đơn.
+- Refund hỗ trợ hoàn một phần/toàn phần; hoàn tiền mặt yêu cầu ca thu ngân đang mở.
+- Cash session mở/đóng, tính expected cash từ float + thu tiền mặt - hoàn tiền mặt - chi tiền mặt; ghi chi phí.
+- Reports tổng hợp số hóa đơn, doanh số phát hành, tiền đã thu, hoàn tiền, chi phí và thu ròng theo khoảng thời gian.
+- Owner UI đã kết nối thu ngân, chính sách thuế, hóa đơn, thanh toán, hoàn tiền, chi phí, đóng ca và báo cáo.
+- CI trên commit UI hiện tại: Typecheck, Lint, Unit tests và Production build PASS. P08/P09 vẫn IN PROGRESS vì chưa có runtime/browser smoke test và đối soát nghiệp vụ thực tế.

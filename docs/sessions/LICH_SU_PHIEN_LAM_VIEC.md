@@ -50,3 +50,20 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - Chưa có phân quyền chi tiết theo nhân viên, tính hoa hồng thực thu, tiêu hao vật tư, điều chỉnh tồn, trả hàng hoặc kiểm kê.
 - Chưa có tự động cảnh báo/đổi trạng thái lô hết hạn; cần hoàn thiện FIFO/FEFO và xác nhận nghiệp vụ.
 - P06 + P07 IN PROGRESS; chỉ đánh dấu PASS sau CI và runtime regression đầy đủ.
+
+## Phiên 09 – 2026-11-19 – Gộp P08 + P09
+### Đã triển khai
+- Dexie schema version 4 thêm invoices, payments, refunds, cashSessions, expenses, taxPolicies; giữ migration v1–v3.
+- Zod validation cho chính sách thuế, hóa đơn, thanh toán, hoàn tiền, ca thu ngân và chi phí.
+- Repository tạo hóa đơn theo snapshot; tính thuế theo policy hiệu lực và hỗ trợ giá đã gồm thuế/chưa gồm thuế.
+- Phát hành hóa đơn có dòng sản phẩm sẽ trừ tồn theo FEFO; cập nhật inventory lot, stock movement, invoice và audit cùng transaction để thiếu tồn thì rollback.
+- Repository thanh toán một phần/toàn phần, hoàn tiền một phần/toàn phần, mở/đóng ca thu ngân và ghi chi phí.
+- Đóng ca đối soát tiền mặt theo tiền đầu ca + thu tiền mặt - hoàn tiền mặt - chi tiền mặt.
+- Báo cáo tổng hợp hóa đơn, doanh số phát hành, thu, hoàn, chi phí và thu ròng.
+- Owner UI: mở/đóng ca, cấu hình thuế, lập hóa đơn, thanh toán, hoàn tiền, ghi chi phí và báo cáo theo khoảng thời gian.
+- CI GitHub Actions commit UI: Typecheck PASS, Lint PASS, Unit tests PASS, Production build PASS.
+### Giới hạn còn lại
+- Chưa có browser/IndexedDB integration test trên Android/Termux; chưa đối soát dữ liệu thực tế với nghiệp vụ salon.
+- Chưa có thao tác void hóa đơn, trả hàng nhập lại kho, chia hóa đơn nhiều dòng ở UI, giảm giá cấp hóa đơn, quản lý hóa đơn điện tử hoặc kết nối cổng thanh toán.
+- Báo cáo hiện tổng hợp theo ngày phát hành/thu/hoàn/chi, chưa có báo cáo lợi nhuận theo giá vốn và hoa hồng.
+- P08 + P09 vẫn IN PROGRESS cho tới khi runtime regression và đối soát thực tế PASS.
