@@ -35,3 +35,5 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Đã bổ sung giao diện nhật ký quy trình và lưu snapshot công thức tóc theo lịch hẹn.
 - UI chưa được nghiệm thu trên trình duyệt/Termux thật; IndexedDB integration test, kiểm tra dữ liệu nhiều salon, quyền Firestore và backup còn chờ.
 - P04/P05 vẫn IN PROGRESS; CI của commit mới nhất đang chạy. Không đánh dấu PASS trước khi có kiểm thử runtime và regression.
+
+- Bổ sung kiểm thử chuẩn hóa tên tiếng Việt và số điện thoại; đã sửa regex để loại bỏ dấu phân cách số điện thoại và dấu thanh Unicode đúng cách.
