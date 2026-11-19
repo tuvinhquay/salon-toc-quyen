@@ -102,3 +102,12 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 ### Ghi chú triển khai thực tế
 - Cloud Functions deploy yêu cầu gói Blaze/Cloud Billing; cần bật budget alerts và spend caps trước khi deploy.
 - App Check Web cần reCAPTCHA Enterprise score-based Web key, đăng ký trong Firebase Console; không dùng localhost trong key production. reCAPTCHA Enterprise có quota miễn phí theo tháng và có thể tính phí khi vượt quota.
+
+
+### Bổ sung rà soát và CI – 2026-11-19
+- Kiểm tra model Gemini API: `gemini-3.8-flash` là model ID hiện hành trong tài liệu Google; giữ nguyên model ID ở Cloud Function.
+- Rà soát Owner navigation và loại bỏ nhánh render `/assistant` bị lặp.
+- Đồng bộ trạng thái P10–P13 trong ROADMAP thành IN PROGRESS kèm điều kiện còn thiếu; không ghi PASS cho giai đoạn chưa có runtime nghiệm thu.
+- Commit `bdcd2e0`: GitHub Actions Run #44463059905 PASS đầy đủ: Typecheck, Lint, Unit tests, Production build, Cloud Functions dependency install và build.
+- PR #7 cập nhật phạm vi, bằng chứng CI và các bước cấu hình còn chờ; tiếp tục giữ draft.
+- Chưa deploy Firebase và chưa đưa khóa API vào repository/chat. Bước kế tiếp là đồng bộ branch P12/P13 về Termux, cấu hình `.env.local`, App Check và Gemini Secret Manager an toàn.
