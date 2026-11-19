@@ -2,7 +2,7 @@
 Phạm vi giai đoạn 1: Owner App. Employee App là giai đoạn 2, không trộn giao diện nhân viên trước khi Owner nghiệm thu.
 | ID | Hạng mục | Trạng thái |
 |---|---|---|
-| P01 | Repository, cấu trúc, UI shell | IN PROGRESS |
+| P01 | Repository, cấu trúc, UI shell | IN PROGRESS – chờ nghiệm thu runtime |
 | P02 | Firebase Auth, Owner membership, Rules | IN PROGRESS |
 | P03 | Dexie schema, migration, validation | IN PROGRESS |
 | P04 | Khách hàng và lịch hẹn | IN PROGRESS |
@@ -11,10 +11,10 @@ Phạm vi giai đoạn 1: Owner App. Employee App là giai đoạn 2, không tr�
 | P07 | Kho, lô, vật tư tiêu hao | IN PROGRESS |
 | P08 | POS, hóa đơn, thanh toán, thuế | IN PROGRESS |
 | P09 | Dashboard và báo cáo | IN PROGRESS |
-| P10 | Thiết bị, E2E encryption, conflict | NOT STARTED |
-| P11 | Backup/restore mã hóa | NOT STARTED |
-| P12 | Gemini server API, quota, quyền | NOT STARTED |
-| P13 | PWA, bảo mật và nghiệm thu | NOT STARTED |
+| P10 | Thiết bị, E2E encryption, conflict | IN PROGRESS – protocol có, P2P transport còn thiếu |
+| P11 | Backup/restore mã hóa | IN PROGRESS – cần smoke test IndexedDB/Android |
+| P12 | Gemini server API, quota, quyền | IN PROGRESS – CI PASS, chờ cấu hình/deploy/smoke test |
+| P13 | PWA, bảo mật và nghiệm thu | IN PROGRESS – CI PASS, chờ cấu hình/deploy/smoke test |
 | E01 | Employee App độc lập theo vai trò | GIAI ĐOẠN 2 – CHƯA TRIỂN KHAI |
 ## Definition of Done
 Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail; unit/integration/regression tests; typecheck, lint, build; mobile/desktop verification; tài liệu và session log. Chỉ PASS khi có bằng chứng.
@@ -65,3 +65,18 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Owner UI có màn hình thiết bị/xung đột và backup/restore mã hóa.
 - Unit tests xác minh mã hóa, sai mật khẩu, context và peer/salon isolation.
 - CI trên commit P10/P11: Typecheck, Lint, Unit tests và Production build PASS. P10/P11 vẫn IN PROGRESS do chưa có transport P2P và kiểm thử backup IndexedDB trên thiết bị thật.
+
+## P12 + P13 – 2026-11-19
+- Cloud Function salonAssistant dùng Gemini 3.8 Flash server-side, secret GEMINI_API_KEY từ Firebase Secret Manager; không đưa key xuống Vite/browser.
+- Function kiểm tra Firebase Auth, App Check bắt buộc, membership active/owner, giới hạn 10 yêu cầu/phút theo UID, giới hạn kích thước prompt/context và không lưu prompt.
+- Owner UI trợ lý AI chỉ gửi câu hỏi/ngữ cảnh do người dùng tự nhập; không tự truy cập hồ sơ khách hàng, hóa đơn hoặc kho.
+- Firebase App Check Web dùng reCAPTCHA Enterprise; khóa chức năng AI khi site key chưa được cấu hình.
+- Firebase Hosting cấu hình SPA rewrite và security headers; Firebase Functions runtime Node 22; Firestore Rules giữ deny-by-default.
+- CI thêm cài đặt/build Cloud Functions.
+- P12/P13 vẫn IN PROGRESS cho đến khi user cấu hình Firebase/App Check/Gemini Secret, deploy và chạy smoke test thực tế.
+
+
+## Rà soát P12 + P13 – 2026-11-19
+- Xác nhận model `gemini-3.8-flash` có trong danh sách model Gemini API hiện hành của Google; model ID được giữ nguyên.
+- Rà soát điều hướng Owner App và loại bỏ nhánh điều kiện `/assistant` bị lặp.
+- CI mới nhất trên nhánh P12/P13 đã PASS gồm frontend và Cloud Functions build; chưa deploy Firebase, chưa test App Check/Gemini thực tế.

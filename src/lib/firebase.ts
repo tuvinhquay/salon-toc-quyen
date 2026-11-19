@@ -1,6 +1,7 @@
 import { getApp, getApps, initializeApp, type FirebaseOptions } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check'
 
 const config: FirebaseOptions = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,5 +15,8 @@ const config: FirebaseOptions = {
 
 export const isFirebaseConfigured = Boolean(config.apiKey && config.authDomain && config.projectId && config.appId)
 export const firebaseApp = isFirebaseConfigured ? (getApps().length ? getApp() : initializeApp(config)) : null
+const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY
+export const appCheck = firebaseApp && recaptchaSiteKey ? initializeAppCheck(firebaseApp, { provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey), isTokenAutoRefreshEnabled: true }) : null
+
 export const firebaseAuth = firebaseApp ? getAuth(firebaseApp) : null
 export const firestore = firebaseApp ? getFirestore(firebaseApp) : null
