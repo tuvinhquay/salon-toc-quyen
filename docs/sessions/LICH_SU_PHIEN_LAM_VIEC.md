@@ -111,3 +111,14 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - Commit `bdcd2e0`: GitHub Actions Run #44463059905 PASS đầy đủ: Typecheck, Lint, Unit tests, Production build, Cloud Functions dependency install và build.
 - PR #7 cập nhật phạm vi, bằng chứng CI và các bước cấu hình còn chờ; tiếp tục giữ draft.
 - Chưa deploy Firebase và chưa đưa khóa API vào repository/chat. Bước kế tiếp là đồng bộ branch P12/P13 về Termux, cấu hình `.env.local`, App Check và Gemini Secret Manager an toàn.
+
+
+## Phiên 12 – 2026-11-22 – P14: Owner App polish & dữ liệu mẫu
+### Đã triển khai trên phase-14-owner-app-polish-demo-data
+- Bổ sung bộ dữ liệu mẫu tenant-scoped với ID có tiền tố `demo_<salonId>_`; gồm 10 nhân viên, 10 khách hàng, 6 dịch vụ, 8 lịch hẹn, 10 ca, 10 chính sách hoa hồng, 6 sản phẩm và 2 nhà cung cấp.
+- Bổ sung thao tác nạp một lần, chống tạo trùng, xem số lượng và xóa riêng record có tiền tố demo của salon hiện tại.
+- Bổ sung trang Cài đặt quản lý dữ liệu mẫu và nhắc rõ dữ liệu local-first, P2P chưa triển khai.
+### Còn chờ
+- Chạy typecheck, lint, test, build và kiểm tra CI.
+- Smoke test trên Android/Termux: nạp mẫu, kiểm tra từng module, xóa mẫu và xác nhận dữ liệu thật không bị ảnh hưởng.
+- Chưa đánh dấu P14 PASS trước khi có bằng chứng runtime.
