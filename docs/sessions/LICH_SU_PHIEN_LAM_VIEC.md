@@ -111,3 +111,38 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - Commit `bdcd2e0`: GitHub Actions Run #44463059905 PASS đầy đủ: Typecheck, Lint, Unit tests, Production build, Cloud Functions dependency install và build.
 - PR #7 cập nhật phạm vi, bằng chứng CI và các bước cấu hình còn chờ; tiếp tục giữ draft.
 - Chưa deploy Firebase và chưa đưa khóa API vào repository/chat. Bước kế tiếp là đồng bộ branch P12/P13 về Termux, cấu hình `.env.local`, App Check và Gemini Secret Manager an toàn.
+
+
+## Phiên 12 – 2026-11-22 – P14: Owner App polish & dữ liệu mẫu
+### Đã triển khai trên phase-14-owner-app-polish-demo-data
+- Bổ sung bộ dữ liệu mẫu tenant-scoped với ID có tiền tố `demo_<salonId>_`; gồm 10 nhân viên, 10 khách hàng, 6 dịch vụ, 8 lịch hẹn, 10 ca, 10 chính sách hoa hồng, 6 sản phẩm và 2 nhà cung cấp.
+- Bổ sung thao tác nạp một lần, chống tạo trùng, xem số lượng và xóa riêng record có tiền tố demo của salon hiện tại.
+- Bổ sung trang Cài đặt quản lý dữ liệu mẫu và nhắc rõ dữ liệu local-first, P2P chưa triển khai.
+### Còn chờ
+- Chạy typecheck, lint, test, build và kiểm tra CI.
+- Smoke test trên Android/Termux: nạp mẫu, kiểm tra từng module, xóa mẫu và xác nhận dữ liệu thật không bị ảnh hưởng.
+- Chưa đánh dấu P14 PASS trước khi có bằng chứng runtime.
+
+
+## Phiên 12 – Bổ sung P14–P16 Owner App – 2026-11-22
+### P14 – Dữ liệu mẫu và công cụ quản trị
+- Sửa Dexie transaction cho cả luồng nạp và xóa: truyền danh sách bảng dưới dạng array, không spread thành nhiều tham số vượt overload.
+- Mở rộng dữ liệu mẫu: 10 nhân viên, 10 khách, 6 dịch vụ, 8 lịch, 10 ca, 10 hoa hồng, 6 sản phẩm, 2 nhà cung cấp, 2 PO đã nhận, 6 inventory lots và 6 stock movements.
+- Mỗi bản ghi có ID `demo_<salonId>_...`; các bảng đều có salonId; xóa lọc cả salonId và prefix ID.
+### P15 – Dashboard
+- Thay dashboard tĩnh bằng số liệu Dexie thật: lịch hẹn hôm nay, số khách, nhân viên active, sản phẩm, cảnh báo tồn thấp và thu ròng tháng hiện tại.
+- Thêm danh sách lịch hẹn hôm nay và cảnh báo tồn theo ngưỡng cấu hình sản phẩm.
+### P16 – Nhân sự và kho
+- Bổ sung chỉnh sửa hồ sơ nhân viên và chuyển trạng thái active/inactive, giữ nguyên lịch sử nhân viên.
+- Bổ sung nhãn cảnh báo nhập hàng khi tồn khả dụng <= minimumStock.
+### Quy trình xác nhận
+- CI các commit đầu phát hiện lỗi Dexie transaction và import icon không dùng; đã sửa trên branch. Cần chờ CI mới nhất để xác nhận TypeScript, lint, tests, build và Functions.
+- Cần chạy trên Android/Termux: nạp mẫu, xem dashboard/nhân sự/kho/POS/báo cáo, chỉnh sửa nhân viên, chuyển inactive, xóa mẫu; xác minh dữ liệu thật không đổi.
+- Chưa đánh dấu PASS, chưa merge PR, không deploy Hosting/Functions trong phiên này.
+
+- Hoàn thiện thêm guard xóa mẫu: bảo vệ workflow events của lịch hẹn mẫu và các lô tồn thật tham chiếu đơn mua mẫu; không để lại lịch sử quy trình mồ côi.
+
+### Trạng thái xác thực P14–P16 tại 2026-11-22
+- Commit `e5d95e0` đã PASS toàn bộ CI: Typecheck, Lint, Unit tests, Production Build/PWA, Functions dependency install và Functions build.
+- Sau khi tăng cường kiểm tra tham chiếu trước cleanup, commit `c3c35db` đã PASS Typecheck, Lint và Unit tests; Build/PWA và Functions đang được xác nhận lại.
+- Chưa nghiệm thu runtime trên Android/Termux; chưa merge PR #8; không thay đổi main.
