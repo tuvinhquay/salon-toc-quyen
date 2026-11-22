@@ -100,7 +100,7 @@ export async function clearDemoData(actor: ActorContext) {
   if (!actor.salonId.trim() || !actor.actorId.trim()) throw new Error('Thiếu ngữ cảnh Owner.')
   const prefix=prefixFor(actor.salonId)
   const removed:DemoCounts={}
-  await salonDb.transaction('rw', ...demoTables, async()=>{
+  await salonDb.transaction('rw', [...demoTables], async()=>{
     for (const table of demoTables) {
       const rows=await table.where('salonId').equals(actor.salonId).toArray()
       const ids=rows.filter(row=>row.id.startsWith(prefix)).map(row=>row.id)
