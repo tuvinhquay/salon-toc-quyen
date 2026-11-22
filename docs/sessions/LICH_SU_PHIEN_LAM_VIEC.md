@@ -122,3 +122,20 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - Chạy typecheck, lint, test, build và kiểm tra CI.
 - Smoke test trên Android/Termux: nạp mẫu, kiểm tra từng module, xóa mẫu và xác nhận dữ liệu thật không bị ảnh hưởng.
 - Chưa đánh dấu P14 PASS trước khi có bằng chứng runtime.
+
+
+## Phiên 12 – Bổ sung P14–P16 Owner App – 2026-11-22
+### P14 – Dữ liệu mẫu và công cụ quản trị
+- Sửa Dexie transaction cho cả luồng nạp và xóa: truyền danh sách bảng dưới dạng array, không spread thành nhiều tham số vượt overload.
+- Mở rộng dữ liệu mẫu: 10 nhân viên, 10 khách, 6 dịch vụ, 8 lịch, 10 ca, 10 hoa hồng, 6 sản phẩm, 2 nhà cung cấp, 2 PO đã nhận, 6 inventory lots và 6 stock movements.
+- Mỗi bản ghi có ID `demo_<salonId>_...`; các bảng đều có salonId; xóa lọc cả salonId và prefix ID.
+### P15 – Dashboard
+- Thay dashboard tĩnh bằng số liệu Dexie thật: lịch hẹn hôm nay, số khách, nhân viên active, sản phẩm, cảnh báo tồn thấp và thu ròng tháng hiện tại.
+- Thêm danh sách lịch hẹn hôm nay và cảnh báo tồn theo ngưỡng cấu hình sản phẩm.
+### P16 – Nhân sự và kho
+- Bổ sung chỉnh sửa hồ sơ nhân viên và chuyển trạng thái active/inactive, giữ nguyên lịch sử nhân viên.
+- Bổ sung nhãn cảnh báo nhập hàng khi tồn khả dụng <= minimumStock.
+### Quy trình xác nhận
+- CI các commit đầu phát hiện lỗi Dexie transaction và import icon không dùng; đã sửa trên branch. Cần chờ CI mới nhất để xác nhận TypeScript, lint, tests, build và Functions.
+- Cần chạy trên Android/Termux: nạp mẫu, xem dashboard/nhân sự/kho/POS/báo cáo, chỉnh sửa nhân viên, chuyển inactive, xóa mẫu; xác minh dữ liệu thật không đổi.
+- Chưa đánh dấu PASS, chưa merge PR, không deploy Hosting/Functions trong phiên này.
