@@ -141,3 +141,8 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - Chưa đánh dấu PASS, chưa merge PR, không deploy Hosting/Functions trong phiên này.
 
 - Hoàn thiện thêm guard xóa mẫu: bảo vệ workflow events của lịch hẹn mẫu và các lô tồn thật tham chiếu đơn mua mẫu; không để lại lịch sử quy trình mồ côi.
+
+### Trạng thái xác thực P14–P16 tại 2026-11-22
+- Commit `e5d95e0` đã PASS toàn bộ CI: Typecheck, Lint, Unit tests, Production Build/PWA, Functions dependency install và Functions build.
+- Sau khi tăng cường kiểm tra tham chiếu trước cleanup, commit `c3c35db` đã PASS Typecheck, Lint và Unit tests; Build/PWA và Functions đang được xác nhận lại.
+- Chưa nghiệm thu runtime trên Android/Termux; chưa merge PR #8; không thay đổi main.
