@@ -40,7 +40,7 @@ export async function seedDemoData(actor: ActorContext) {
     status: 'active', joinedAt: at(-180+index*7,9), notes: 'DỮ LIỆU MẪU – có thể chỉnh sửa hoặc xóa riêng.',
   }))
   const customerNames = ['Nguyễn Thu Trang','Trần Mai Phương','Lê Bảo Ngọc','Phạm Minh Châu','Võ Thanh Thảo','Đặng Ngọc Ánh','Bùi Hà My','Hoàng Lan Anh','Đỗ Quỳnh Như','Nguyễn Hải Yến']
-  const customers: Customer[] = customerNames.map((fullName,index)=>({
+  const customers: Customer[] = customerNames.map<Customer>((fullName,index)=>({
     ...base(prefix+`customer_${index+1}`), fullName, normalizedName: fullName.toLocaleLowerCase('vi'),
     phone: `09120000${String(index+1).padStart(2,'0')}`, normalizedPhone: `09120000${String(index+1).padStart(2,'0')}`,
     email:null, notes:'Khách hàng minh họa – dữ liệu mẫu.', archivedAt:null,
@@ -49,22 +49,22 @@ export async function seedDemoData(actor: ActorContext) {
     ['Cắt & tạo kiểu',45,180000],['Gội dưỡng sinh',40,150000],['Nhuộm thời trang',150,950000],
     ['Nâng sáng / tẩy tóc',180,1200000],['Uốn định hình',150,850000],['Phục hồi chuyên sâu',90,650000],
   ] as const
-  const services: Service[] = serviceDefs.map(([name,durationMinutes,priceVnd],index)=>({
+  const services: Service[] = serviceDefs.map<Service>(([name,durationMinutes,priceVnd],index)=>({
     ...base(prefix+`service_${index+1}`), name, description:'Dịch vụ mẫu để kiểm tra lịch hẹn và thu ngân.',
     durationMinutes, priceVnd, active:true,
   }))
-  const appointments: Appointment[] = customers.slice(0,8).map((customer,index)=>{
+  const appointments: Appointment[] = customers.slice(0,8).map<Appointment>((customer,index)=>{
     const startAt=at(index<4?0:index-6,9+index)
     return {...base(prefix+`appointment_${index+1}`),customerId:customer.id,customerNameSnapshot:customer.fullName,
       customerPhoneSnapshot:customer.phone,startAt,endAt:new Date(Date.parse(startAt)+services[index%services.length].durationMinutes*60000).toISOString(),
       status:(['completed','completed','in_service','confirmed','scheduled','scheduled','cancelled','no_show'] as Appointment['status'][])[index],
       serviceIds:[services[index%services.length].id],depositAmount:index%3===0?100000:0,notes:'Lịch hẹn minh họa.',cancelledAt:null}
   })
-  const shifts: WorkShift[] = employees.map((employee,index)=>({
+  const shifts: WorkShift[] = employees.map<WorkShift>((employee,index)=>({
     ...base(prefix+`shift_${index+1}`),employeeId:employee.id,startAt:at(0,8+index%3),endAt:at(0,16+index%3),
     status:'scheduled',notes:'Ca làm mẫu.',
   }))
-  const commissions: CommissionPolicy[] = employees.map((employee,index)=>({
+  const commissions: CommissionPolicy[] = employees.map<CommissionPolicy>((employee,index)=>({
     ...base(prefix+`commission_${index+1}`),employeeId:employee.id,serviceId:null,mode:'percent',value:index%2===0?10:8,
     effectiveFrom:at(-30,0),effectiveTo:null,active:true,
   }))
@@ -73,7 +73,7 @@ export async function seedDemoData(actor: ActorContext) {
     ['Thuốc nhuộm nâu lạnh','COLOR-001','Nhuộm','tuýp',30],['Oxy 6%','CHEM-006','Hóa chất','chai',20],
     ['Bột tẩy tóc','BLEACH-001','Hóa chất','gói',10],['Tinh dầu dưỡng tóc','CARE-003','Bán lẻ','lọ',12],
   ] as const
-  const products: Product[] = productDefs.map(([name,sku,category,unit,minimumStock],index)=>({
+  const products: Product[] = productDefs.map<Product>(([name,sku,category,unit,minimumStock],index)=>({
     ...base(prefix+`product_${index+1}`),name,sku,category,unit,minimumStock,trackingMode:'lot',active:true,
   }))
   const suppliers: Supplier[] = [
