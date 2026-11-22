@@ -94,3 +94,11 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - P16: danh sách nhân viên có thao tác chỉnh sửa và chuyển active/inactive; lịch ca tiếp tục chỉ cho chọn nhân viên active.
 - Kho hiển thị cảnh báo mặt hàng có tồn khả dụng nhỏ hơn hoặc bằng tồn tối thiểu.
 - Trạng thái P14–P16: IMPLEMENTED ON BRANCH, chưa PASS cho tới khi CI toàn bộ và smoke test Android/IndexedDB đạt.
+
+
+## P17 – Nghiệm thu và ổn định Owner App – 2026-11-22
+- Tạo nhánh phase-17-owner-app-acceptance từ head P14–P16 25be9737686600b68e1c0df58f6b430744086dfa; không thay đổi main và không merge PR nền tảng.
+- Rà soát các luồng đăng nhập Owner, điều hướng, dữ liệu Dexie, lịch hẹn/quy trình, nhân sự/kho, POS/báo cáo và công cụ dữ liệu mẫu.
+- Sửa màn hình chờ quyền Owner: bổ sung thao tác thử xác minh membership lại khi Firestore tạm thời lỗi hoặc membership vừa được cấp; giữ nguyên nguyên tắc fail-closed, không cho trình duyệt tự cấp quyền.
+- Còn bắt buộc: chạy typecheck/lint/test/build trên Termux; smoke test Android/IndexedDB; kiểm tra nạp/xóa dữ liệu mẫu không ảnh hưởng dữ liệu thật; kiểm tra luồng hóa đơn/thanh toán/hoàn tiền/đóng ca; backup và restore trên thiết bị.
+- P17 chưa PASS, không được merge PR hoặc tuyên bố sẵn sàng dữ liệu thật trước khi có kết quả kiểm tra thực tế.
