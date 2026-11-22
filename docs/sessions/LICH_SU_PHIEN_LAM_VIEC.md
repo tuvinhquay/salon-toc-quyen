@@ -165,3 +165,18 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - Smoke test đăng nhập, refresh quyền, CRUD, lịch hẹn, quy trình, nhân viên, kho, POS, báo cáo, dữ liệu demo.
 - Kiểm tra backup/restore mã hóa và xác minh dữ liệu thật không bị tác động.
 - Chưa có bằng chứng runtime nên P17 vẫn IN PROGRESS; chưa merge và chưa deploy.
+
+
+## Phiên 14 – 2026-11-22 – P18: AI đồng hành và dữ liệu mẫu
+### Đã triển khai trên phase-18-ai-companion-demo-shortcuts
+- Kiểm tra AssistantPage và xác nhận bản cũ chỉ gửi prompt nhập tay, không tự đọc dữ liệu Dexie.
+- Thêm robot AI nổi trên mọi trang Owner và lối tắt Dữ liệu mẫu ở header.
+- Thêm bộ tạo ngữ cảnh AI theo salonId, chỉ tổng hợp số liệu lịch hẹn, khách, nhân viên, dịch vụ, kho và tài chính tháng hiện tại; loại bỏ trường định danh cá nhân.
+- Nối AssistantPage với snapshot tự động; giữ quyền Owner, App Check và Secret Manager ở server.
+- Nới context 12.000 ký tự và quota fair-use 30 yêu cầu/phút/UID.
+- Ghi tài liệu ma trận quyền AI; Employee App chưa có nên không cấp quyền AI nhân viên bằng dữ liệu role cục bộ.
+### Còn chờ
+- CI typecheck/lint/test/build frontend và Cloud Functions.
+- Smoke test robot, shortcut dữ liệu mẫu, seed/clear demo và bảo toàn dữ liệu thật trên Android.
+- Cấu hình/deploy Gemini Function, Secret Manager và App Check để gọi AI thực tế.
+- P18 chưa PASS, chưa merge.
