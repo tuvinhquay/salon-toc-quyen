@@ -128,7 +128,9 @@ export async function clearDemoData(actor: ActorContext) {
   const serviceIds=new Set(services.filter(x=>isDemo(x.id)).map(x=>x.id))
   const productIds=new Set(products.filter(x=>isDemo(x.id)).map(x=>x.id))
   const supplierIds=new Set(suppliers.filter(x=>isDemo(x.id)).map(x=>x.id))
-  const [appointments,invoices,shifts,policies,orders,lots,movements]=await Promise.all([
+  const appointmentIds=new Set(appointments.filter(x=>isDemo(x.id)).map(x=>x.id))
+  const purchaseOrderIds=new Set(orders.filter(x=>isDemo(x.id)).map(x=>x.id))
+  const [appointments,invoices,shifts,policies,orders,lots,movements,workflowEvents]=await Promise.all([
     salonDb.appointments.where('salonId').equals(actor.salonId).toArray(),
     salonDb.invoices.where('salonId').equals(actor.salonId).toArray(),
     salonDb.workShifts.where('salonId').equals(actor.salonId).toArray(),
@@ -136,6 +138,7 @@ export async function clearDemoData(actor: ActorContext) {
     salonDb.purchaseOrders.where('salonId').equals(actor.salonId).toArray(),
     salonDb.inventoryLots.where('salonId').equals(actor.salonId).toArray(),
     salonDb.stockMovements.where('salonId').equals(actor.salonId).toArray(),
+    salonDb.workflowEvents.where('salonId').equals(actor.salonId).toArray(),
   ])
   const hasRealReferences=
     appointments.some(x=>!isDemo(x.id)&&(!!x.customerId&&customerIds.has(x.customerId)||x.serviceIds.some(id=>serviceIds.has(id))))||
@@ -143,7 +146,8 @@ export async function clearDemoData(actor: ActorContext) {
     shifts.some(x=>!isDemo(x.id)&&employeeIds.has(x.employeeId))||
     policies.some(x=>!isDemo(x.id)&&(!!x.employeeId&&employeeIds.has(x.employeeId)||!!x.serviceId&&serviceIds.has(x.serviceId)))||
     orders.some(x=>!isDemo(x.id)&&(supplierIds.has(x.supplierId)||x.lines.some(line=>productIds.has(line.productId))))||
-    lots.some(x=>!isDemo(x.id)&&(productIds.has(x.productId)||!!x.supplierId&&supplierIds.has(x.supplierId)))||
+    lots.some(x=>!isDemo(x.id)&&(productIds.has(x.productId)||!!x.supplierId&&supplierIds.has(x.supplierId)||!!x.purchaseOrderId&&purchaseOrderIds.has(x.purchaseOrderId)))||
+    workflowEvents.some(x=>appointmentIds.has(x.appointmentId))||
     movements.some(x=>!isDemo(x.id)&&(productIds.has(x.productId)||!!x.lotId&&isDemo(x.lotId)))
   if(hasRealReferences)throw new Error('Không thể xóa toàn bộ dữ liệu mẫu vì đã có lịch hẹn, hóa đơn, ca làm hoặc giao dịch thật đang tham chiếu đến dữ liệu mẫu. Hãy giữ lại dữ liệu này để bảo toàn lịch sử.')
   const removed:DemoCounts={}
