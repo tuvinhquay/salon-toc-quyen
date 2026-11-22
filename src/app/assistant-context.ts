@@ -49,7 +49,7 @@ export async function buildOwnerAssistantContext(salonId: string): Promise<strin
       .reduce((sum, lot) => sum + lot.quantityRemaining, 0),
   })).filter(item => item.available <= item.minimum)
 
-  const monthInvoices = invoices.filter(item => inRange(item.issuedAt, monthStart, new Date(now.getFullYear(), now.getMonth() + 1, 1)))
+  const monthInvoices = invoices.filter(item => item.status !== 'void' && inRange(item.issuedAt, monthStart, new Date(now.getFullYear(), now.getMonth() + 1, 1)))
   const monthPayments = payments.filter(item => inRange(item.paidAt, monthStart, new Date(now.getFullYear(), now.getMonth() + 1, 1)) && item.status !== 'void')
   const monthRefunds = refunds.filter(item => inRange(item.refundedAt, monthStart, new Date(now.getFullYear(), now.getMonth() + 1, 1)))
   const monthExpenses = expenses.filter(item => inRange(item.paidAt, monthStart, new Date(now.getFullYear(), now.getMonth() + 1, 1)))
