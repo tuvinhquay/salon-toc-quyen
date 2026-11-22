@@ -86,3 +86,11 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Tạo bộ dữ liệu mẫu có ID `demo_<salonId>_...`, tenant-scoped, gồm 10 nhân viên, 10 khách hàng, 6 dịch vụ, 8 lịch hẹn, ca làm, hoa hồng, sản phẩm và nhà cung cấp.
 - Trang Cài đặt cho phép nạp dữ liệu mẫu một lần, xem số lượng và xóa riêng bản ghi demo; không xóa dữ liệu thật.
 - P14 vẫn IN PROGRESS cho tới khi CI và smoke test Android/IndexedDB xác nhận PASS.
+
+
+## P14 – P16: Hoàn thiện Owner App – 2026-11-22
+- P14: bộ dữ liệu demo tenant-scoped gồm 10 nhân viên, 10 khách, 6 dịch vụ, 8 lịch, 10 ca, 10 hoa hồng, 6 sản phẩm, 2 nhà cung cấp, 2 PO đã nhận, 6 lô tồn và 6 stock movement; ID có tiền tố demo_<salonId>_. Nạp một lần, chống tạo trùng, xóa chỉ record demo thuộc salon hiện tại.
+- P15: Dashboard tổng hợp lịch hẹn hôm nay, khách hàng, nhân viên active, số mặt hàng và tồn dưới ngưỡng, thu ròng tháng hiện tại từ repositories Dexie.
+- P16: danh sách nhân viên có thao tác chỉnh sửa và chuyển active/inactive; lịch ca tiếp tục chỉ cho chọn nhân viên active.
+- Kho hiển thị cảnh báo mặt hàng có tồn khả dụng nhỏ hơn hoặc bằng tồn tối thiểu.
+- Trạng thái P14–P16: IMPLEMENTED ON BRANCH, chưa PASS cho tới khi CI toàn bộ và smoke test Android/IndexedDB đạt.
