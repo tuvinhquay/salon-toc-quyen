@@ -115,6 +115,37 @@ export async function seedDemoData(actor: ActorContext) {
 export async function clearDemoData(actor: ActorContext) {
   if (!actor.salonId.trim() || !actor.actorId.trim()) throw new Error('Thiếu ngữ cảnh Owner.')
   const prefix=prefixFor(actor.salonId)
+  const isDemo=(id:string)=>id.startsWith(prefix)
+  const [customers,employees,services,products,suppliers]=await Promise.all([
+    salonDb.customers.where('salonId').equals(actor.salonId).toArray(),
+    salonDb.employees.where('salonId').equals(actor.salonId).toArray(),
+    salonDb.services.where('salonId').equals(actor.salonId).toArray(),
+    salonDb.products.where('salonId').equals(actor.salonId).toArray(),
+    salonDb.suppliers.where('salonId').equals(actor.salonId).toArray(),
+  ])
+  const customerIds=new Set(customers.filter(x=>isDemo(x.id)).map(x=>x.id))
+  const employeeIds=new Set(employees.filter(x=>isDemo(x.id)).map(x=>x.id))
+  const serviceIds=new Set(services.filter(x=>isDemo(x.id)).map(x=>x.id))
+  const productIds=new Set(products.filter(x=>isDemo(x.id)).map(x=>x.id))
+  const supplierIds=new Set(suppliers.filter(x=>isDemo(x.id)).map(x=>x.id))
+  const [appointments,invoices,shifts,policies,orders,lots,movements]=await Promise.all([
+    salonDb.appointments.where('salonId').equals(actor.salonId).toArray(),
+    salonDb.invoices.where('salonId').equals(actor.salonId).toArray(),
+    salonDb.workShifts.where('salonId').equals(actor.salonId).toArray(),
+    salonDb.commissionPolicies.where('salonId').equals(actor.salonId).toArray(),
+    salonDb.purchaseOrders.where('salonId').equals(actor.salonId).toArray(),
+    salonDb.inventoryLots.where('salonId').equals(actor.salonId).toArray(),
+    salonDb.stockMovements.where('salonId').equals(actor.salonId).toArray(),
+  ])
+  const hasRealReferences=
+    appointments.some(x=>!isDemo(x.id)&&(!!x.customerId&&customerIds.has(x.customerId)||x.serviceIds.some(id=>serviceIds.has(id))))||
+    invoices.some(x=>!isDemo(x.id)&&(!!x.customerId&&customerIds.has(x.customerId)||x.lines.some(line=>!!line.referenceId&&(serviceIds.has(line.referenceId)||productIds.has(line.referenceId)))))||
+    shifts.some(x=>!isDemo(x.id)&&employeeIds.has(x.employeeId))||
+    policies.some(x=>!isDemo(x.id)&&(!!x.employeeId&&employeeIds.has(x.employeeId)||!!x.serviceId&&serviceIds.has(x.serviceId)))||
+    orders.some(x=>!isDemo(x.id)&&(supplierIds.has(x.supplierId)||x.lines.some(line=>productIds.has(line.productId))))||
+    lots.some(x=>!isDemo(x.id)&&(productIds.has(x.productId)||!!x.supplierId&&supplierIds.has(x.supplierId)))||
+    movements.some(x=>!isDemo(x.id)&&(productIds.has(x.productId)||!!x.lotId&&isDemo(x.lotId)))
+  if(hasRealReferences)throw new Error('Không thể xóa toàn bộ dữ liệu mẫu vì đã có lịch hẹn, hóa đơn, ca làm hoặc giao dịch thật đang tham chiếu đến dữ liệu mẫu. Hãy giữ lại dữ liệu này để bảo toàn lịch sử.')
   const removed:DemoCounts={}
   await salonDb.transaction('rw', [...demoTables], async()=>{
     for (const table of demoTables) {
