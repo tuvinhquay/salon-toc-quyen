@@ -3,7 +3,7 @@ on:
   push:
     branches: [main, phase-01-foundation, fix/p01-ci-bootstrap, phase-02-firebase-owner-auth, phase-03-local-first-database, phase-04-05-customers-appointments-workflow, phase-06-07-employees-inventory, phase-08-09-pos-reports, phase-10-11-device-sync-backup, phase-12-13-gemini-deployment, phase-14-owner-app-polish-demo-data, phase-17-owner-app-acceptance, phase-18-ai-companion-demo-shortcuts]
   pull_request:
-    branches: [main]
+    branches: [main, phase-17-owner-app-acceptance]
   workflow_dispatch:
 permissions:
   contents: read
