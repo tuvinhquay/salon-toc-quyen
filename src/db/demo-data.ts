@@ -1,5 +1,5 @@
 import { salonDb } from './database'
-import type { ActorContext, Appointment, AuditEvent, Customer, Employee, Product, Service, Supplier, WorkShift, CommissionPolicy } from './types'
+import type { ActorContext, Appointment, AuditEvent, Customer, Employee, Product, Service, Supplier, WorkShift, CommissionPolicy, InventoryLot, PurchaseOrder, StockMovement } from './types'
 
 const prefixFor = (salonId: string) => `demo_${salonId}_`
 const at = (dayOffset: number, hour: number) => {
@@ -13,7 +13,7 @@ export type DemoCounts = Record<string, number>
 const demoTables = [
   salonDb.customers, salonDb.appointments, salonDb.services, salonDb.employees,
   salonDb.workShifts, salonDb.commissionPolicies, salonDb.products, salonDb.suppliers,
-  salonDb.auditEvents,
+  salonDb.purchaseOrders, salonDb.inventoryLots, salonDb.stockMovements, salonDb.auditEvents,
 ] as const
 
 export async function getDemoDataCounts(salonId: string): Promise<DemoCounts> {
@@ -80,6 +80,21 @@ export async function seedDemoData(actor: ActorContext) {
     {...base(prefix+'supplier_1'),name:'Nhà phân phối Mỹ phẩm An Tâm',phone:'02839000001',email:null,address:'TP. Hồ Chí Minh',notes:'Nhà cung cấp mẫu.',archivedAt:null},
     {...base(prefix+'supplier_2'),name:'Kho vật tư Salon Việt',phone:'02839000002',email:null,address:'Hà Nội',notes:'Nhà cung cấp mẫu.',archivedAt:null},
   ]
+  const purchaseOrders: PurchaseOrder[] = [
+    {...base(prefix+'purchase_1'),supplierId:suppliers[0].id,supplierNameSnapshot:suppliers[0].name,orderNumber:'PO-DEMO-001',status:'received',orderedAt:at(-5,9),expectedAt:at(-3,9),receivedAt:at(-3,14),lines:products.slice(0,3).map((p)=>({productId:p.id,productNameSnapshot:p.name,quantity:10,receivedQuantity:10,unitCostVnd:80000})),totalAmountVnd:2400000,notes:'Đơn mua hàng minh họa.'},
+    {...base(prefix+'purchase_2'),supplierId:suppliers[1].id,supplierNameSnapshot:suppliers[1].name,orderNumber:'PO-DEMO-002',status:'received',orderedAt:at(-2,9),expectedAt:at(-1,9),receivedAt:at(-1,15),lines:products.slice(3,6).map((p)=>({productId:p.id,productNameSnapshot:p.name,quantity:8,receivedQuantity:8,unitCostVnd:60000})),totalAmountVnd:1440000,notes:'Đơn mua hàng minh họa.'},
+  ]
+  const inventoryLots: InventoryLot[] = products.map((product,index)=>({
+    ...base(prefix+`lot_${index+1}`),productId:product.id,supplierId:suppliers[index%2].id,
+    purchaseOrderId:purchaseOrders[index<3?0:1].id,lotCode:`DEMO-LOT-${String(index+1).padStart(3,'0')}`,
+    receivedAt:at(-3,14),expiresAt:at(365,0),quantityReceived:10,quantityRemaining:index===2?5:10,
+    unitCostVnd:index<3?80000:60000,status:'active',
+  }))
+  const stockMovements: StockMovement[] = inventoryLots.map((lot,index)=>({
+    ...base(prefix+`movement_${index+1}`),productId:lot.productId,lotId:lot.id,movementType:'receipt',
+    direction:'in',quantity:lot.quantityReceived,unitCostVnd:lot.unitCostVnd,occurredAt:lot.receivedAt,
+    sourceId:lot.purchaseOrderId,notes:'Nhập kho dữ liệu mẫu.',
+  }))
   const audit: AuditEvent = {id:prefix+'audit_seed',salonId:actor.salonId,entityType:'employee',entityId:prefix+'dataset',
     action:'created',occurredAt:now,actorId:actor.actorId,deviceId:actor.deviceId,summary:'Đã nạp bộ dữ liệu mẫu Owner App.'}
 
@@ -90,7 +105,7 @@ export async function seedDemoData(actor: ActorContext) {
       salonDb.employees.bulkAdd(employees), salonDb.customers.bulkAdd(customers),
       salonDb.services.bulkAdd(services), salonDb.appointments.bulkAdd(appointments),
       salonDb.workShifts.bulkAdd(shifts), salonDb.commissionPolicies.bulkAdd(commissions),
-      salonDb.products.bulkAdd(products), salonDb.suppliers.bulkAdd(suppliers), salonDb.auditEvents.add(audit),
+      salonDb.products.bulkAdd(products), salonDb.suppliers.bulkAdd(suppliers), salonDb.purchaseOrders.bulkAdd(purchaseOrders),\n      salonDb.inventoryLots.bulkAdd(inventoryLots), salonDb.stockMovements.bulkAdd(stockMovements), salonDb.auditEvents.add(audit),
     ])
   })
   return {created:true,counts:await getDemoDataCounts(actor.salonId)}
