@@ -80,3 +80,9 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Xác nhận model `gemini-3.8-flash` có trong danh sách model Gemini API hiện hành của Google; model ID được giữ nguyên.
 - Rà soát điều hướng Owner App và loại bỏ nhánh điều kiện `/assistant` bị lặp.
 - CI mới nhất trên nhánh P12/P13 đã PASS gồm frontend và Cloud Functions build; chưa deploy Firebase, chưa test App Check/Gemini thực tế.
+
+
+## P14 – Owner App polish & demo data – 2026-11-22
+- Tạo bộ dữ liệu mẫu có ID `demo_<salonId>_...`, tenant-scoped, gồm 10 nhân viên, 10 khách hàng, 6 dịch vụ, 8 lịch hẹn, ca làm, hoa hồng, sản phẩm và nhà cung cấp.
+- Trang Cài đặt cho phép nạp dữ liệu mẫu một lần, xem số lượng và xóa riêng bản ghi demo; không xóa dữ liệu thật.
+- P14 vẫn IN PROGRESS cho tới khi CI và smoke test Android/IndexedDB xác nhận PASS.
