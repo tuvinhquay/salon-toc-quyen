@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState } from '@tanstack/react-router'
-import { ArrowUpRight, Scissors, ShieldCheck, WifiOff } from 'lucide-react'
+import { Scissors, ShieldCheck, WifiOff } from 'lucide-react'
 import { navigation } from './navigation'
 import type { NavigationItem } from './navigation'
 import { useAuth } from '../auth/AuthProvider'
