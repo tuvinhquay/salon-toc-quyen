@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 
 export function FloatingAssistant() {
   return (
-    <Link to="/assistant" className="assistant-fab" aria-label="Mở trợ lý AI TÓC QUYỀN">
+    <Link to={"/assistant" as never} className="assistant-fab" aria-label="Mở trợ lý AI TÓC QUYỀN">
       <span className="assistant-robot" aria-hidden="true">
         <span className="robot-antenna" />
         <span className="robot-head">
