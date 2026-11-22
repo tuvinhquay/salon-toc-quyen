@@ -33,7 +33,7 @@ Không được suy ra quyền nhân viên từ trường Employee.role trong In
 | Kho | Đọc tồn và yêu cầu vật tư; không tự duyệt mua hàng nếu chưa cấp | Xem vật tư cần cho dịch vụ; ghi tiêu hao được giao | Xem vật tư công việc | Xem sản phẩm/giá bán; không xem giá vốn |
 | POS/thanh toán | Theo quyền được Owner cấp | Không | Không | Tạo hóa đơn/thu tiền theo quyền; hoàn tiền cần Owner/manager duyệt |
 | Báo cáo tài chính | Báo cáo vận hành giới hạn; không mặc định xem toàn bộ lợi nhuận | Không | Không | Báo cáo ca thu ngân của mình |
-| Membership, phân quyền, thiết bị, backup, export | Owner בלבד | Cấm | Cấm | Cấm |
+| Membership, phân quyền, thiết bị, backup, export | Chỉ Owner | Cấm | Cấm | Cấm |
 
 Ma trận này là thiết kế mục tiêu, không phải quyền đã được triển khai. Trước khi Employee App ra mắt phải có permission IDs riêng, server enforcement, repository guards, audit và kiểm thử truy cập chéo vai trò.
 
