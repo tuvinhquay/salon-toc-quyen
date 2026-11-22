@@ -128,8 +128,6 @@ export async function clearDemoData(actor: ActorContext) {
   const serviceIds=new Set(services.filter(x=>isDemo(x.id)).map(x=>x.id))
   const productIds=new Set(products.filter(x=>isDemo(x.id)).map(x=>x.id))
   const supplierIds=new Set(suppliers.filter(x=>isDemo(x.id)).map(x=>x.id))
-  const appointmentIds=new Set(appointments.filter(x=>isDemo(x.id)).map(x=>x.id))
-  const purchaseOrderIds=new Set(orders.filter(x=>isDemo(x.id)).map(x=>x.id))
   const [appointments,invoices,shifts,policies,orders,lots,movements,workflowEvents]=await Promise.all([
     salonDb.appointments.where('salonId').equals(actor.salonId).toArray(),
     salonDb.invoices.where('salonId').equals(actor.salonId).toArray(),
@@ -140,6 +138,8 @@ export async function clearDemoData(actor: ActorContext) {
     salonDb.stockMovements.where('salonId').equals(actor.salonId).toArray(),
     salonDb.workflowEvents.where('salonId').equals(actor.salonId).toArray(),
   ])
+  const appointmentIds=new Set(appointments.filter(x=>isDemo(x.id)).map(x=>x.id))
+  const purchaseOrderIds=new Set(orders.filter(x=>isDemo(x.id)).map(x=>x.id))
   const hasRealReferences=
     appointments.some(x=>!isDemo(x.id)&&(!!x.customerId&&customerIds.has(x.customerId)||x.serviceIds.some(id=>serviceIds.has(id))))||
     invoices.some(x=>!isDemo(x.id)&&(!!x.customerId&&customerIds.has(x.customerId)||x.lines.some(line=>!!line.referenceId&&(serviceIds.has(line.referenceId)||productIds.has(line.referenceId)))))||
