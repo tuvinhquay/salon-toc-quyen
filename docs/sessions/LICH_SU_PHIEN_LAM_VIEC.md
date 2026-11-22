@@ -146,3 +146,22 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - Commit `e5d95e0` đã PASS toàn bộ CI: Typecheck, Lint, Unit tests, Production Build/PWA, Functions dependency install và Functions build.
 - Sau khi tăng cường kiểm tra tham chiếu trước cleanup, commit `c3c35db` đã PASS Typecheck, Lint và Unit tests; Build/PWA và Functions đang được xác nhận lại.
 - Chưa nghiệm thu runtime trên Android/Termux; chưa merge PR #8; không thay đổi main.
+
+
+## Phiên 13 – 2026-11-22 – P17: Ổn định và nghiệm thu Owner App
+### Nhánh làm việc
+- Tạo nhánh phase-17-owner-app-acceptance từ commit P14–P16 25be9737686600b68e1c0df58f6b430744086dfa.
+- Giữ nguyên main, PR #8 và PR #9; không merge chồng nhánh.
+
+### Rà soát và thay đổi
+- Rà soát AuthGate, điều hướng Owner, Dexie schema, module lịch hẹn/quy trình, nhân sự/kho, thu ngân/báo cáo và cài đặt dữ liệu mẫu.
+- Phát hiện AuthGate chỉ cho đăng xuất khi không xác minh được membership; chưa có cách thử lại sau lỗi mạng hoặc sau khi quyền Owner được cấp.
+- Bổ sung nút Thử kiểm tra lại quyền Owner; mỗi lần thử lại đọc lại memberships/{uid} từ Firestore.
+- Giữ nguyên fail-closed: chỉ cho vào Owner workspace khi membership tồn tại, status=active, role=owner và salonId hợp lệ. Không cho client tự tạo/cấp quyền.
+- Tạo checklist nghiệm thu thủ công Android/IndexedDB cho các nghiệp vụ cốt lõi.
+
+### Còn chờ kiểm chứng
+- Chạy npm run typecheck, npm run lint, npm run test, npm run build trên Termux.
+- Smoke test đăng nhập, refresh quyền, CRUD, lịch hẹn, quy trình, nhân viên, kho, POS, báo cáo, dữ liệu demo.
+- Kiểm tra backup/restore mã hóa và xác minh dữ liệu thật không bị tác động.
+- Chưa có bằng chứng runtime nên P17 vẫn IN PROGRESS; chưa merge và chưa deploy.
