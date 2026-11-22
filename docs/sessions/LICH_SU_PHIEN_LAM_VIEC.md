@@ -139,3 +139,5 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - CI các commit đầu phát hiện lỗi Dexie transaction và import icon không dùng; đã sửa trên branch. Cần chờ CI mới nhất để xác nhận TypeScript, lint, tests, build và Functions.
 - Cần chạy trên Android/Termux: nạp mẫu, xem dashboard/nhân sự/kho/POS/báo cáo, chỉnh sửa nhân viên, chuyển inactive, xóa mẫu; xác minh dữ liệu thật không đổi.
 - Chưa đánh dấu PASS, chưa merge PR, không deploy Hosting/Functions trong phiên này.
+
+- Hoàn thiện thêm guard xóa mẫu: bảo vệ workflow events của lịch hẹn mẫu và các lô tồn thật tham chiếu đơn mua mẫu; không để lại lịch sử quy trình mồ côi.
