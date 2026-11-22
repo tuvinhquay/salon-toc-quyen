@@ -83,7 +83,7 @@ export async function seedDemoData(actor: ActorContext) {
   const audit: AuditEvent = {id:prefix+'audit_seed',salonId:actor.salonId,entityType:'employee',entityId:prefix+'dataset',
     action:'created',occurredAt:now,actorId:actor.actorId,deviceId:actor.deviceId,summary:'Đã nạp bộ dữ liệu mẫu Owner App.'}
 
-  await salonDb.transaction('rw', ...demoTables, async()=>{
+  await salonDb.transaction('rw', [...demoTables], async()=>{
     const check = await salonDb.employees.where('salonId').equals(actor.salonId).filter(row=>row.id.startsWith(prefix)).count()
     if (check) throw new Error('Dữ liệu mẫu vừa được tạo ở một phiên khác. Hãy tải lại trang.')
     await Promise.all([
