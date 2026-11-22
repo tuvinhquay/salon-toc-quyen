@@ -105,7 +105,8 @@ export async function seedDemoData(actor: ActorContext) {
       salonDb.employees.bulkAdd(employees), salonDb.customers.bulkAdd(customers),
       salonDb.services.bulkAdd(services), salonDb.appointments.bulkAdd(appointments),
       salonDb.workShifts.bulkAdd(shifts), salonDb.commissionPolicies.bulkAdd(commissions),
-      salonDb.products.bulkAdd(products), salonDb.suppliers.bulkAdd(suppliers), salonDb.purchaseOrders.bulkAdd(purchaseOrders),\n      salonDb.inventoryLots.bulkAdd(inventoryLots), salonDb.stockMovements.bulkAdd(stockMovements), salonDb.auditEvents.add(audit),
+      salonDb.products.bulkAdd(products), salonDb.suppliers.bulkAdd(suppliers), salonDb.purchaseOrders.bulkAdd(purchaseOrders),
+      salonDb.inventoryLots.bulkAdd(inventoryLots), salonDb.stockMovements.bulkAdd(stockMovements), salonDb.auditEvents.add(audit),
     ])
   })
   return {created:true,counts:await getDemoDataCounts(actor.salonId)}
