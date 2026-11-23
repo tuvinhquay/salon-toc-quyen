@@ -3,7 +3,7 @@
 ## Nguyên tắc bắt buộc
 
 1. AI không có tài khoản hoặc quyền độc lập. AI kế thừa đúng Membership của người đang đăng nhập.
-2. Mọi truy vấn phải xác minh Firebase Auth, Membership đang active, role và salonId ở máy chủ. Không tin role/salonId do trình duyệt tự gửi.
+2. Truy vấn local chỉ được mở sau khi AuthGate xác minh Firebase Auth + Owner Membership. Firebase AI Logic App Check xác minh ứng dụng, nhưng không tự xác minh Membership/role; do đó không được bật AI cho nhân viên chỉ dựa vào UI.
 3. Mọi dữ liệu phải giới hạn theo salonId; không được đọc chéo tenant.
 4. AI chỉ nhận đúng phần dữ liệu mà vai trò hiện tại được phép đọc. Ưu tiên số liệu tổng hợp và giảm thiểu dữ liệu định danh.
 5. AI không tự ghi, sửa, xóa, thanh toán, hoàn tiền, nhập/xuất kho, thay đổi lịch hoặc cấp quyền. Giai đoạn sau, mỗi hành động ghi phải có permission riêng, xác nhận trực tiếp của người dùng, validation nghiệp vụ và audit log.
@@ -37,7 +37,7 @@ Không được suy ra quyền nhân viên từ trường Employee.role trong In
 
 Ma trận này là thiết kế mục tiêu, không phải quyền đã được triển khai. Trước khi Employee App ra mắt phải có permission IDs riêng, server enforcement, repository guards, audit và kiểm thử truy cập chéo vai trò.
 
-## Dữ liệu AI Owner được đọc trong P18
+## Dữ liệu AI Owner được đọc trong P19–P21
 
 - Số lượng khách hàng, nhân viên active/tổng, dịch vụ active, sản phẩm active.
 - Số lịch hôm nay/7 ngày và phân bố trạng thái.
@@ -45,12 +45,29 @@ Ma trận này là thiết kế mục tiêu, không phải quyền đã được
 - Số hóa đơn, tổng giá trị hóa đơn, tổng tiền thu, hoàn tiền và chi phí trong tháng hiện tại.
 - Chỉ lấy dữ liệu từ IndexedDB trên thiết bị đang mở; không đại diện các thiết bị khác khi chưa có sync.
 
-P18 không gửi tên khách, số điện thoại, email, ghi chú, công thức tóc, chi tiết dòng hóa đơn, mã thanh toán hoặc địa chỉ nhà cung cấp lên Gemini.
+P19 local assistant chỉ xử lý tại thiết bị. P21 Gemini adviser chỉ nhận số liệu tổng hợp đã loại bỏ tên khách/nhân viên, số điện thoại, email, ghi chú, công thức tóc, chi tiết dòng hóa đơn, mã thanh toán và địa chỉ nhà cung cấp.
 
 ## Giới hạn và vận hành
 
-- Callable Function kiểm tra Firebase Auth + Membership Owner ở server; App Check vẫn bắt buộc.
-- Rate limit mặc định 30 yêu cầu/phút/UID để chống lạm dụng, không phải giới hạn tính năng hội thoại.
-- Gemini API key chỉ ở Secret Manager; không đặt trong frontend.
+- Owner hiện được xác minh bởi AuthGate qua Firebase Auth và memberships/{uid}; không tin role cục bộ.
+- P19 local assistant chỉ hoạt động sau khi Owner Membership được xác minh.
+- P21 dùng Firebase AI Logic proxy + App Check; không nhúng Gemini API key và không phụ thuộc Cloud Functions. Lưu ý: App Check không thay thế kiểm tra Membership ở máy chủ. Vì Spark không có backend enforcement tùy chỉnh trong kiến trúc hiện tại, chỉ bật giao diện cho Owner; không mở cho Employee App.
+- Gemini Developer API Free Tier có hạn mức và điều khoản xử lý dữ liệu riêng; dữ liệu Free Tier có thể được dùng để cải thiện sản phẩm Google. Chỉ gửi dữ liệu tổng hợp, không gửi PII.
 - AI chỉ trả lời/đề xuất; mọi thao tác nghiệp vụ vẫn qua UI/repository hiện có.
 - Employee AI chỉ được mở sau khi có Employee App và mô hình Membership đáng tin cậy.
+
+
+## P19–P21: Kiến trúc đang triển khai
+
+- Trợ lý nội bộ là nguồn sự thật cho phép tính; Gemini chỉ giải thích/tư vấn.
+- Bộ nhớ thói quen lưu riêng theo salonId và chỉ giữ bộ đếm chủ đề/khoảng thời gian; không lưu câu hỏi gốc.
+- Gemini chỉ được gọi khi câu hỏi cần tư vấn hoặc bot chưa nhận diện được; không gọi cho các truy vấn thống kê đã biết.
+- Chỉ Owner được bật trong giai đoạn hiện tại. Các role Manager/Stylist/Assistant/Cashier là thiết kế tương lai, chưa có Employee Authentication/Membership nên chưa cấp quyền.
+- Mọi câu trả lời nêu rõ dữ liệu là bản local trên thiết bị hiện tại cho tới khi đồng bộ đa thiết bị được nghiệm thu.
+
+
+## Giới hạn bảo vệ Membership của Gemini client SDK
+
+- Firebase AI Logic có App Check để hạn chế client không hợp lệ, nhưng không tự áp dụng điều kiện Firestore memberships/{uid}. AuthGate là cổng Owner trong ứng dụng, không phải lớp ủy quyền tùy chỉnh của Gemini endpoint.
+- Không bật Gemini cho Manager/Stylist/Assistant/Cashier trong kiến trúc client-only hiện tại. Muốn cấp AI theo từng Membership phải có cơ chế backend/authorization kiểm tra role trước khi chuyển yêu cầu, hoặc một thiết kế tương đương được kiểm chứng.
+- Không gửi dữ liệu nghiệp vụ chi tiết hoặc PII lên Gemini; chỉ gửi số liệu tổng hợp đã lọc.
