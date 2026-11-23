@@ -14,7 +14,7 @@ const suggestions = [
   'Kho có mặt hàng nào sắp hết không?',
   'Tư vấn giúp mình cải thiện hoạt động tiệm.',
 ]
-const needsAdviser = (question: string, intent: string) => intent === 'general' || /(tu van|giai thich|de xuat|nen lam gi|lam sao|chien luoc|ke hoach|vi sao)/i.test(question.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))
+const needsAdviser = (question: string, intent: string) => intent === 'general' || intent === 'staff' || /(tu van|giai thich|de xuat|nen lam gi|lam sao|chien luoc|ke hoach|vi sao)/i.test(question.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))
 
 export function AssistantPage() {
   const actor = useOwnerContext()
