@@ -6,11 +6,11 @@ export type AssistantMemory = {
   lastUsedAt: string | null
 }
 const emptyMemory = (): AssistantMemory => ({ version: 1, questionCount: 0, intentCounts: {}, periodCounts: {}, lastUsedAt: null })
-const storageKey = (salonId: string) => 'salon-assistant-memory-v1:' + encodeURIComponent(salonId)
-export function readAssistantMemory(salonId: string): AssistantMemory {
-  if (!salonId.trim() || typeof window === 'undefined') return emptyMemory()
+const storageKey = (salonId: string, ownerId: string) => 'salon-assistant-memory-v1:' + encodeURIComponent(salonId) + ':' + encodeURIComponent(ownerId)
+export function readAssistantMemory(salonId: string, ownerId: string): AssistantMemory {
+  if (!salonId.trim() || !ownerId.trim() || typeof window === 'undefined') return emptyMemory()
   try {
-    const raw = window.localStorage.getItem(storageKey(salonId))
+    const raw = window.localStorage.getItem(storageKey(salonId, ownerId))
     if (!raw) return emptyMemory()
     const parsed = JSON.parse(raw) as AssistantMemory
     if (parsed.version !== 1 || typeof parsed.questionCount !== 'number' || !parsed.intentCounts || !parsed.periodCounts) return emptyMemory()
@@ -18,8 +18,8 @@ export function readAssistantMemory(salonId: string): AssistantMemory {
   } catch { return emptyMemory() }
 }
 /** Learns aggregate usage patterns only; never stores raw prompts, names, or business records. */
-export function learnAssistantHabit(salonId: string, intent: string, period: string): AssistantMemory {
-  const current = readAssistantMemory(salonId)
+export function learnAssistantHabit(salonId: string, ownerId: string, intent: string, period: string): AssistantMemory {
+  const current = readAssistantMemory(salonId, ownerId)
   const next: AssistantMemory = {
     version: 1,
     questionCount: current.questionCount + 1,
@@ -27,7 +27,7 @@ export function learnAssistantHabit(salonId: string, intent: string, period: str
     periodCounts: { ...current.periodCounts, [period]: (current.periodCounts[period] ?? 0) + 1 },
     lastUsedAt: new Date().toISOString(),
   }
-  if (typeof window !== 'undefined' && salonId.trim()) { try { window.localStorage.setItem(storageKey(salonId), JSON.stringify(next)) } catch { /* Assistant remains usable when browser storage is unavailable. */ } }
+  if (typeof window !== 'undefined' && salonId.trim() && ownerId.trim()) { try { window.localStorage.setItem(storageKey(salonId, ownerId), JSON.stringify(next)) } catch { /* Assistant remains usable when browser storage is unavailable. */ } }
   return next
 }
 export function describeAssistantMemory(memory: AssistantMemory): string {
@@ -38,6 +38,6 @@ export function describeAssistantMemory(memory: AssistantMemory): string {
   if (!memory.questionCount) return 'Mình chưa có đủ tương tác để nhận ra thói quen của bạn.'
   return 'Mình đã học từ ' + memory.questionCount + ' câu hỏi. Bạn thường quan tâm ' + (intentNames[topIntent ?? ''] ?? 'nhiều chủ đề') + ' và thường xem báo cáo ' + (periodNames[topPeriod ?? ''] ?? 'theo nhiều khoảng thời gian') + '. Mình chỉ lưu thống kê thói quen, không lưu nội dung câu hỏi.'
 }
-export function clearAssistantMemory(salonId: string) {
-  if (typeof window !== 'undefined' && salonId.trim()) window.localStorage.removeItem(storageKey(salonId))
+export function clearAssistantMemory(salonId: string, ownerId: string) {
+  if (typeof window !== 'undefined' && salonId.trim() && ownerId.trim()) { try { window.localStorage.removeItem(storageKey(salonId, ownerId)) } catch { /* No-op when browser storage is unavailable. */ } }
 }
