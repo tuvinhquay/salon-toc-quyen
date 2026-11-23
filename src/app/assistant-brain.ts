@@ -12,7 +12,7 @@ export function parseMemoryInstruction(question: string): ParsedMemoryInstructio
   if (!explicit && !identity) return null
 
   let content = raw
-    .replace(/^(hãy\s+)?(ghi nhớ|nhớ giúp|mình nhớ|lưu lại|hãy lưu|từ nay hãy|từ nay)\s*/i, '')
+    .replace(/^(hãy\s+)?(ghi nhớ|nhớ giúp|nhớ|mình nhớ|lưu lại|hãy lưu|từ nay hãy|từ nay)\s*/i, '')
     .replace(/^(rằng|là)\s*/i, '')
     .trim()
   content = content.replace(/\s+(nhé|nha|bạn nhé|giúp mình)$/i, '').trim()
