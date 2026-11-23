@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Bot, Brain, Eraser, Send, Sparkles, UserRound } from 'lucide-react'
 import { useOwnerContext } from '../auth/OwnerContext'
-import { answerOwnerQuestion } from './assistant-local'
+import { answerOwnerQuestion, redactQuestionForGemini } from './assistant-local'
 import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, readAssistantMemory } from './assistant-memory'
 import { askGeminiAdviser, isGeminiAssistantReady } from './assistant-gemini'
 
@@ -81,7 +81,7 @@ export function AssistantPage() {
     </div>
     <div className="assistant-status-row">
       <div><span className="assistant-status-dot"/> Trợ lý nội bộ đang hoạt động</div>
-      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Gemini {geminiReady ? 'sẵn sàng khi cần' : 'chưa kết nối'}</div>
+      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Gemini {geminiReady ? 'đã có App Check' : 'chưa cấu hình App Check'}</div>
     </div>
     <div className="assistant-chat" aria-live="polite">
       {messages.map(message => <article className={'assistant-message ' + message.role} key={message.id}>
