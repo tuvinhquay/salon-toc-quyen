@@ -42,3 +42,7 @@ export type RefundInput=z.infer<typeof refundInputSchema>
 export type CashSessionOpenInput=z.infer<typeof cashSessionOpenSchema>
 export type CashSessionCloseInput=z.infer<typeof cashSessionCloseSchema>
 export type ExpenseInput=z.infer<typeof expenseInputSchema>
+
+
+export const assistantMemoryInputSchema=z.object({category:z.enum(['profile','preference','routine','project','knowledge']),title:z.string().trim().min(1).max(120),content:z.string().trim().min(1).max(2000),keywords:z.array(z.string().trim().min(1).max(40)).max(30).default([])})
+export type AssistantMemoryInput=z.infer<typeof assistantMemoryInputSchema>
