@@ -8,7 +8,7 @@ Nhánh: `phase-19-local-learning-assistant`
 - Không dùng Cloud Functions, không đặt Gemini API key trong frontend, không chuyển Firebase project sang Blaze.
 - Gemini chỉ được gọi khi câu hỏi cần tư vấn/giải thích/đề xuất hoặc bộ nhận diện local chưa hiểu.
 - Số liệu tiền được tính trước bằng TypeScript; Gemini chỉ giải thích và tư vấn, không được tự tính lại hoặc tạo số liệu.
-- Chỉ gửi số liệu tổng hợp đã loại bỏ tên, số điện thoại, email, ghi chú, công thức tóc, dòng hóa đơn và mã thanh toán.
+- Chỉ gửi số liệu tổng hợp đã loại bỏ tên, số điện thoại, email, ghi chú, công thức tóc, dòng hóa đơn và mã thanh toán. Câu hỏi được lọc email, số điện thoại và tên khách/nhân viên/khách snapshot đã có trong dữ liệu local; tên tự do ngoài hồ sơ không thể đảm bảo nhận diện tuyệt đối, vì vậy UI nhắc người dùng không nhập PII.
 - Nếu AI Logic/App Check chưa sẵn sàng, Gemini lỗi hoặc hết hạn mức, trợ lý local vẫn trả lời.
 - App Check hiện được lấy từ cấu hình Firebase hiện có; thiếu App Check thì tắt Gemini, không tắt trợ lý nội bộ.
 
