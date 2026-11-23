@@ -105,6 +105,6 @@ export function AssistantPage() {
       <div><strong>Trợ lý đang học thói quen sử dụng</strong><p>{describeAssistantMemory(memory)}</p><small>Chỉ lưu số lần hỏi theo chủ đề và khoảng thời gian; không lưu nội dung câu hỏi, tên khách hàng hay dữ liệu kinh doanh.</small></div>
       <button type="button" className="subtle-button" onClick={resetMemory}><Eraser size={14}/> Xóa ghi nhớ</button>
     </div>
-    <p className="assistant-privacy-note">Dữ liệu phân tích được đọc từ IndexedDB của salon hiện tại trên thiết bị này. Gemini chỉ nhận số liệu tổng hợp đã loại bỏ thông tin định danh; Gemini không được quyền sửa hóa đơn, lịch hẹn, nhân sự hoặc kho.</p>
+    <p className="assistant-privacy-note">Dữ liệu phân tích được đọc từ IndexedDB của salon hiện tại trên thiết bị này. Gemini chỉ nhận số liệu tổng hợp; ứng dụng lọc email, số điện thoại và tên đã có trong hồ sơ salon trước khi gửi câu hỏi. Không nhập thông tin cá nhân mới vào câu hỏi tư vấn. Gemini không được quyền sửa hóa đơn, lịch hẹn, nhân sự hoặc kho.</p>
   </section>
 }
