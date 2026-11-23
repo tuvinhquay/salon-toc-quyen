@@ -76,7 +76,7 @@ function buildSafeContext(snapshot: Snapshot, range: DateRange, intent: Assistan
   const appointments = snapshot.appointments.filter(row => within(row.startAt, range))
   const completed = appointments.filter(row => row.status === 'completed')
   const activeEmployees = snapshot.employees.filter(row => row.status === 'active')
-  const availableLots = snapshot.lots.filter(row => row.status === 'active' && row.quantityRemaining > 0 && (!row.expiresAt || Date.parse(row.expiresAt) >= range.start.getTime()))
+  const availableLots = snapshot.lots.filter(row => row.status === 'active' && row.quantityRemaining > 0 && (!row.expiresAt || Date.parse(row.expiresAt) >= Date.now()))
   const lowStock = snapshot.products.filter(row => row.active).map(product => ({
     productId: product.id,
     minimum: product.minimumStock,
@@ -156,4 +156,24 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
     'Period=' + data.period + '; intent=' + intent + '.',
   ].join('\n')
   return { answer: lines.join('\n'), safeContext, intent, period }
+}
+
+/** Redact known local customer/employee names and contact details before an optional Gemini request. */
+export async function redactQuestionForGemini(salonId: string, question: string): Promise<string> {
+  const [customers, employees] = await Promise.all([
+    salonDb.customers.where('salonId').equals(salonId).toArray(),
+    salonDb.employees.where('salonId').equals(salonId).toArray(),
+  ])
+  let safe = question
+  const names = [...customers.map(row => row.fullName), ...employees.map(row => row.fullName)]
+    .filter(name => name.trim().length >= 2)
+    .sort((a, b) => b.length - a.length)
+  for (const name of names) {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    safe = safe.replace(new RegExp(escaped, 'gi'), '[tên đã ẩn]')
+  }
+  return safe
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/gi, '[email đã ẩn]')
+    .replace(/(?:\\+?84|0)(?:[\\s.-]*\\d){8,10}/g, '[số điện thoại đã ẩn]')
+    .slice(0, 1200)
 }
