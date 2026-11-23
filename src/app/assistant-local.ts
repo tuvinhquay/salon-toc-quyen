@@ -44,11 +44,11 @@ function within(value: string, range: DateRange) {
 export function detectAssistantIntent(question: string): AssistantIntent {
   const q = normalize(question)
   if (/(nhan vien|nhan su|tho nao|ai lam|nang suat|hieu suat)/.test(q)) return 'staff'
-  if (/(khach hang|khach nao|dat lich nhieu|khach quen|khach than thiet)/.test(q)) return 'customers'
+  if (/(khach hang|khach nao|dat lich nhieu|khach quen|khach than thiet|top khach|so khach)/.test(q)) return 'customers'
   if (/(dich vu|kieu toc|mon nao pho bien)/.test(q)) return 'services'
   if (/(ton kho|hang ton|san pham|vat tu|sap het|thieu hang)/.test(q)) return 'inventory'
   if (/(lich hen|cuoc hen|hen hom|lich hom|bao nhieu lich)/.test(q)) return 'appointments'
-  if (/(doanh thu|tien thu|thuc thu|thu duoc|hoan tien|chi phi|loi nhuan|tai chinh|kiem duoc|kiem bao nhieu|lam duoc bao nhieu tien|tien hom nay|hom nay thu duoc)/.test(q)) return 'finance'
+  if (/(doanh thu|doanh so|tien thu|thuc thu|thu rong|thu duoc|hoan tien|chi phi|loi nhuan|tai chinh|kiem duoc|kiem bao nhieu|lam duoc bao nhieu tien|tien hom nay|hom nay thu duoc)/.test(q)) return 'finance'
   if (/(tong quan|tinh hinh|bao cao|phân tich|phan tich)/.test(q)) return 'overview'
   return 'general'
 }
