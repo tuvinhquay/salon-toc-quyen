@@ -27,8 +27,8 @@ function vietnamMidnight(year: number, month: number, day: number) {
 }
 export function detectAssistantPeriod(question: string): AssistantPeriod {
   const q = normalize(question)
-  if (q.includes('nam nay') || q.includes('nam nay') || q.includes('ca nam') || q.includes('trong nam')) return 'year'
-  if (q.includes('thang nay') || q.includes('thang nay') || q.includes('thang hien tai') || q.includes('thang nay')) return 'month'
+  if (q.includes('nam nay') || q.includes('ca nam') || q.includes('trong nam')) return 'year'
+  if (q.includes('thang nay') || q.includes('thang hien tai')) return 'month'
   return 'today'
 }
 export function getAssistantRange(period: AssistantPeriod, now = new Date()): DateRange {
@@ -48,7 +48,7 @@ export function detectAssistantIntent(question: string): AssistantIntent {
   if (/(dich vu|kieu toc|mon nao pho bien)/.test(q)) return 'services'
   if (/(ton kho|hang ton|san pham|vat tu|sap het|thieu hang)/.test(q)) return 'inventory'
   if (/(lich hen|cuoc hen|hen hom|lich hom|bao nhieu lich)/.test(q)) return 'appointments'
-  if (/(doanh thu|tien thu|thuc thu|thu duoc|hoan tien|chi phi|loi nhuan|tai chinh|kiem duoc|kiem bao nhieu)/.test(q)) return 'finance'
+  if (/(doanh thu|tien thu|thuc thu|thu duoc|hoan tien|chi phi|loi nhuan|tai chinh|kiem duoc|kiem bao nhieu|lam duoc bao nhieu tien|tien hom nay|hom nay thu duoc)/.test(q)) return 'finance'
   if (/(tong quan|tinh hinh|bao cao|phân tich|phan tich)/.test(q)) return 'overview'
   return 'general'
 }
