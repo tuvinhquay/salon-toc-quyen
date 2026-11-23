@@ -4,7 +4,10 @@ import type { AssistantMemoryRecord } from '../src/db/types'
 
 describe('owner assistant long-term memory', () => {
   it('parses explicit owner instructions and classifies profile/routine/preferences', () => {
-    expect(parseMemoryInstruction('Hãy ghi nhớ tên tôi là Quay')?.category).toBe('profile')
+    const name = parseMemoryInstruction('Hãy ghi nhớ tên tôi là Quay')
+    expect(name?.category).toBe('profile')
+    expect(name?.content).toBe('tên tôi là Quay')
+    expect(parseMemoryInstruction('Tên tôi là Quay')?.category).toBe('profile')
     expect(parseMemoryInstruction('Từ nay hãy lập kế hoạch công việc mỗi sáng')?.category).toBe('routine')
     expect(parseMemoryInstruction('Hãy nhớ tôi ưu tiên việc quan trọng trước')?.category).toBe('preference')
   })
