@@ -36,3 +36,7 @@ export type ChangeLog=BaseEntity&{entityType:string;entityId:string;operation:'c
 export type SyncConflict=BaseEntity&{entityType:string;entityId:string;localRevision:number;remoteRevision:number;detectedAt:string;status:'open'|'resolved';resolution:string|null}
 export type SyncCursor=BaseEntity&{peerDeviceId:string;lastSyncedAt:string|null;lastChangeId:string|null}
 export type BackupRecord=BaseEntity&{createdAt:string;schemaVersion:number;formatVersion:number;ciphertextHash:string;sizeBytes:number;recordCounts:Record<string,number>}
+
+
+export type AssistantMemoryCategory='profile'|'preference'|'routine'|'project'|'knowledge'
+export type AssistantMemoryRecord=BaseEntity&{ownerId:string;category:AssistantMemoryCategory;title:string;content:string;keywords:string[];status:'active'|'archived';syncState:'local_only'}
