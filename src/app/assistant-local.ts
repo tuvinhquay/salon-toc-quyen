@@ -75,6 +75,7 @@ function buildSafeContext(snapshot: Snapshot, range: DateRange, intent: Assistan
   const expenses = snapshot.expenses.filter(row => within(row.paidAt, range))
   const appointments = snapshot.appointments.filter(row => within(row.startAt, range))
   const completed = appointments.filter(row => row.status === 'completed')
+  const booked = appointments.filter(row => row.status !== 'cancelled' && row.status !== 'no_show')
   const activeEmployees = snapshot.employees.filter(row => row.status === 'active')
   const availableLots = snapshot.lots.filter(row => row.status === 'active' && row.quantityRemaining > 0 && (!row.expiresAt || Date.parse(row.expiresAt) >= Date.now()))
   const lowStock = snapshot.products.filter(row => row.active).map(product => ({
@@ -123,14 +124,14 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
     lines.push('• Tiền hoàn: **' + money(data.refunded) + '**.')
     lines.push('• Chi phí đã ghi nhận: **' + money(data.spent) + '**.')
     lines.push('• Thu ròng sau hoàn tiền và chi phí: **' + money(data.net) + '**.')
-    lines.push('Lưu ý: doanh thu hóa đơn, tiền thu thực tế và thu ròng là ba chỉ số khác nhau.')
+    lines.push('Lưu ý: doanh thu hóa đơn, tiền thu thực tế và thu ròng là ba chỉ số khác nhau.')\n    if (normalize(question).includes('loi nhuan')) lines.push('Chưa thể kết luận lợi nhuận chính xác: dữ liệu hiện chưa phân bổ đầy đủ giá vốn vật tư, chi phí nhân công và hoa hồng theo dịch vụ.')
   }
   if (intent === 'appointments' || intent === 'overview') {
     lines.push('• Lịch hẹn: **' + data.appointmentCount + '**; hoàn thành ' + data.completedCount + ', đã hủy ' + data.cancelledCount + ', khách không đến ' + data.noShowCount + '.')
   }
   if (intent === 'customers' || intent === 'overview') {
-    lines.push('• Top khách đặt lịch đã hoàn thành:')
-    if (!data.topCustomers.length) lines.push('  Chưa có lịch hoàn thành gắn với hồ sơ khách hàng trong khoảng thời gian này.')
+    lines.push('• Top khách đặt lịch (loại lịch đã hủy/không đến):')
+    if (!data.topCustomers.length) lines.push('  Chưa có lịch đặt gắn với hồ sơ khách hàng trong khoảng thời gian này.')
     else data.topCustomers.forEach((row, index) => lines.push('  ' + (index + 1) + '. ' + row.label + ' – ' + row.count + ' lịch hoàn thành'))
   }
   if (intent === 'services' || intent === 'overview') {
