@@ -20,9 +20,9 @@ Phạm vi giai đoạn 1: Owner App. Employee App là giai đoạn 2, không tr�
 | P16 | Quản lý nhân sự và kho | IMPLEMENTED – chờ smoke test |
 | P17 | Ổn định và nghiệm thu Owner App | IN PROGRESS – chờ acceptance Android |
 | P18 | Robot trợ lý và dữ liệu mẫu trên Owner App | IMPLEMENTED ON BRANCH – chờ CI/acceptance |
-| P19 | Trợ lý nội bộ: hỏi đáp số liệu salon bằng tiếng Việt | IMPLEMENTED ON BRANCH – chờ CI và Android smoke test |
-| P20 | Bộ nhớ học thói quen Owner, tenant-scoped, có quyền xóa | IMPLEMENTED ON BRANCH – chờ kiểm thử lưu trữ |
-| P21 | Gemini cố vấn qua Firebase AI Logic, Spark-compatible | CODE IMPLEMENTED – chờ bật AI Logic/App Check và smoke test |
+| P19 | Trợ lý nội bộ: hỏi đáp số liệu salon bằng tiếng Việt | CI PASS – chờ Termux/Android smoke test |
+| P20 | Bộ nhớ học thói quen Owner, tenant-scoped, có quyền xóa | CODE IMPLEMENTED – chờ kiểm thử lưu trữ trên Android |
+| P21 | Gemini cố vấn qua Firebase AI Logic, Spark-compatible | CI PASS – chờ bật AI Logic/App Check và smoke test live |
 | P22 | Membership AI theo vai trò | OWNER ACTIVE; vai trò nhân viên CHƯA TRIỂN KHAI do chưa có Employee Auth/Membership |
 | P23 | Hỗ trợ chủ động, cảnh báo và đề xuất định kỳ | NOT STARTED |
 | E01 | Employee App độc lập theo vai trò | GIAI ĐOẠN 2 – CHƯA TRIỂN KHAI |
