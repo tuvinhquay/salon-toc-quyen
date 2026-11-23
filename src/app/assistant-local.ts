@@ -164,16 +164,15 @@ export async function redactQuestionForGemini(salonId: string, question: string)
     salonDb.customers.where('salonId').equals(salonId).toArray(),
     salonDb.employees.where('salonId').equals(salonId).toArray(),
   ])
-  let safe = question
+  let safe = question.toLocaleLowerCase('vi')
   const names = [...customers.map(row => row.fullName), ...employees.map(row => row.fullName)]
     .filter(name => name.trim().length >= 2)
     .sort((a, b) => b.length - a.length)
   for (const name of names) {
-    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    safe = safe.replace(new RegExp(escaped, 'gi'), '[tên đã ẩn]')
+    safe = safe.split(name.toLocaleLowerCase('vi')).join('[tên đã ẩn]')
   }
   return safe
-    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/gi, '[email đã ẩn]')
-    .replace(/(?:\\+?84|0)(?:[\\s.-]*\\d){8,10}/g, '[số điện thoại đã ẩn]')
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+[.][A-Z]{2,}/gi, '[email đã ẩn]')
+    .replace(/(?:[+]?[0-9]{1,3})?(?:[ .-]*[0-9]){9,11}/g, '[số điện thoại đã ẩn]')
     .slice(0, 1200)
 }
