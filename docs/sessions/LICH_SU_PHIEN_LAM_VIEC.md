@@ -209,3 +209,15 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 
 ### Trạng thái
 P19–P21: GitHub Actions run #45134545399 PASS toàn bộ Typecheck, Lint, Unit tests, Production Build/PWA, Cloud Functions dependency install và Functions build. Còn chờ Termux/Android smoke test, kiểm tra IndexedDB/localStorage, bật Firebase AI Logic + App Check và kiểm thử Gemini live. Chưa nghiệm thu tổng thể.
+
+
+## Phiên 16 – 2026-11-23 – P22: Salon Brain Core và chốt P2P-only
+- Chủ tiệm chọn phương án A: P2P-only, không lưu dữ liệu salon/trí nhớ AI lên cloud. Firebase chỉ xác thực và bảo vệ quyền hệ thống.
+- Tạo Dexie schema version 6 với bảng `assistantMemories`, lưu trí nhớ dài hạn theo salonId + Owner UID; không sửa/xóa dữ liệu cũ và giữ nguyên migration v1–v5.
+- Thêm loại trí nhớ profile, preference, routine, project, knowledge; lưu metadata nguồn, revision, trạng thái active/archived và `syncState=local_only`.
+- Thêm parser cho lệnh ghi nhớ tường minh, nhận diện câu hỏi truy xuất trí nhớ, tìm các mục liên quan và trả lời từ trí nhớ local.
+- Owner có thể xem và lưu trữ từng mục trí nhớ; thao tác tạo/lưu trữ ghi audit event.
+- Không gửi trí nhớ dài hạn đến Firebase hoặc Gemini. Chưa có P2P transport nên chưa đồng bộ giữa các thiết bị; UI phải nói rõ giới hạn này.
+- Cập nhật roadmap P23–P29; ghi rõ P2P-only, không cloud signaling/storage, và giới hạn phục hồi khi tất cả thiết bị bị mất.
+- Chờ CI và kiểm thử Termux: typecheck, lint, unit tests, build; smoke test lưu/đọc/lưu trữ trí nhớ và kiểm tra migration Dexie v5→v6.
+- P22 hiện IMPLEMENTED ON BRANCH, chưa PASS, chưa merge.

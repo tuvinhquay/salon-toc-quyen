@@ -23,9 +23,22 @@ Phạm vi giai đoạn 1: Owner App. Employee App là giai đoạn 2, không tr�
 | P19 | Trợ lý nội bộ: hỏi đáp số liệu salon bằng tiếng Việt | CI PASS – chờ Termux/Android smoke test |
 | P20 | Bộ nhớ học thói quen Owner, tenant-scoped, có quyền xóa | CODE IMPLEMENTED – chờ kiểm thử lưu trữ trên Android |
 | P21 | Gemini cố vấn qua Firebase AI Logic, Spark-compatible | CI PASS – chờ bật AI Logic/App Check và smoke test live |
-| P22 | Membership AI theo vai trò | OWNER ACTIVE; vai trò nhân viên CHƯA TRIỂN KHAI do chưa có Employee Auth/Membership |
-| P23 | Hỗ trợ chủ động, cảnh báo và đề xuất định kỳ | NOT STARTED |
+| P22 | Salon Brain Core: trí nhớ dài hạn Owner lưu Dexie, ghi nhớ có chủ đích, truy xuất và quản lý trí nhớ | IMPLEMENTED ON BRANCH – chờ CI/Termux; local-only, chưa P2P |
+| P23 | Hiểu hội thoại, ngữ cảnh cá nhân và lập kế hoạch ngày/tuần | NOT STARTED |
+| P24 | Core Governance: quyền hạn, xác nhận hành động, audit và chống prompt injection | NOT STARTED |
+| P25 | Ghép đôi thiết bị Owner, danh tính thiết bị và xác thực peer | NOT STARTED |
+| P26 | P2P transport WebRTC, trao đổi change log mã hóa đầu cuối | NOT STARTED – không dùng cloud storage/signaling lưu dữ liệu |
+| P27 | Đồng bộ trí nhớ + dữ liệu Dexie, conflict resolution và offline recovery | NOT STARTED |
+| P28 | Gemini cố vấn tùy chọn, chỉ nhận dữ liệu được Owner cho phép | NOT STARTED – không có quyền ghi/điều khiển |
+| P29 | Membership AI theo vai trò và hỗ trợ chủ động | NOT STARTED; Employee AI chỉ sau Employee Auth/Membership |
 | E01 | Employee App độc lập theo vai trò | GIAI ĐOẠN 2 – CHƯA TRIỂN KHAI |
+## Nguyên tắc kiến trúc P2P-only đã chốt – 2026-11-23
+- Owner chọn phương án A: chỉ P2P, không lưu dữ liệu nghiệp vụ, trí nhớ hoặc kiến thức AI trên Firebase/Google Drive/cloud storage.
+- Mỗi thiết bị giữ bản dữ liệu cục bộ; chỉ trao đổi trực tiếp với peer đã được Owner ghép đôi và phê duyệt. Mọi payload P2P phải mã hóa đầu cuối; không coi signaling/identity service là nơi lưu dữ liệu.
+- Thiết bị offline giữ dữ liệu local và đồng bộ khi có kết nối trực tiếp trở lại. Không hứa đồng bộ khi peer không online/không reachable.
+- Nếu tất cả thiết bị mất/hỏng thì không có cloud recovery. Chủ tiệm cần tự xuất và giữ file backup mã hóa offline trên USB/ổ cứng; tuyệt đối không tự upload.
+- Firebase chỉ làm Auth/Membership/kiểm soát hệ thống, không làm kho dữ liệu salon hoặc trí nhớ AI.
+
 ## Definition of Done
 Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail; unit/integration/regression tests; typecheck, lint, build; mobile/desktop verification; tài liệu và session log. Chỉ PASS khi có bằng chứng.
 ## P04 + P05 – 2026-11-18

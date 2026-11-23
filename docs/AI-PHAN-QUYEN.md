@@ -71,3 +71,13 @@ P19 local assistant chỉ xử lý tại thiết bị. P21 Gemini adviser chỉ 
 - Firebase AI Logic có App Check để hạn chế client không hợp lệ, nhưng không tự áp dụng điều kiện Firestore memberships/{uid}. AuthGate là cổng Owner trong ứng dụng, không phải lớp ủy quyền tùy chỉnh của Gemini endpoint.
 - Không bật Gemini cho Manager/Stylist/Assistant/Cashier trong kiến trúc client-only hiện tại. Muốn cấp AI theo từng Membership phải có cơ chế backend/authorization kiểm tra role trước khi chuyển yêu cầu, hoặc một thiết kế tương đương được kiểm chứng.
 - Không gửi dữ liệu nghiệp vụ chi tiết hoặc PII lên Gemini; chỉ gửi số liệu tổng hợp đã lọc.
+
+
+## P22 – Trí nhớ dài hạn và nguyên tắc lưu trữ P2P-only
+- Trí nhớ dài hạn được ghi vào Dexie cục bộ theo `salonId + ownerId`; có phân loại profile, preference, routine, project, knowledge.
+- Chỉ ghi khi Owner chủ động dùng mệnh lệnh rõ ràng như “Hãy ghi nhớ…”; câu hỏi thông thường không tự biến thành dữ liệu trí nhớ. Owner có thể xem và lưu trữ từng mục.
+- Trí nhớ P22 có trạng thái `local_only`. Chưa có transport P2P nên không được hiển thị là đã đồng bộ.
+- Không gửi nội dung trí nhớ lên Firebase hoặc Gemini. Không để Gemini sửa system rules, quyền hạn, dữ liệu hoặc bộ nhớ chính thức.
+- P2P-only: không dùng cloud database/storage/backup/signaling payload store. Thiết bị chỉ nhận dữ liệu từ peer đã ghép đôi, được Owner phê duyệt và qua mã hóa đầu cuối.
+- Không đảm bảo phục hồi nếu tất cả thiết bị mất/hỏng; backup file mã hóa offline do Owner tự quản lý sẽ được làm ở giai đoạn riêng.
+- P22 chưa triển khai đồng bộ thiết bị, chưa có khả năng nhớ chéo thiết bị và chưa cho AI tự thực hiện hành động nghiệp vụ.

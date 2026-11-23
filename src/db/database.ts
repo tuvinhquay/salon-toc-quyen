@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie'
-import type { Appointment, AuditEvent, BackupRecord, CashSession, ChangeLog, CommissionPolicy, Customer, DeviceRecord, Employee, Expense, InventoryLot, Invoice, Payment, Product, PurchaseOrder, Refund, Service, StockMovement, Supplier, SyncConflict, SyncCursor, TaxPolicy, WorkShift, WorkflowEvent } from './types'
+import type { Appointment, AuditEvent, AssistantMemoryRecord, BackupRecord, CashSession, ChangeLog, CommissionPolicy, Customer, DeviceRecord, Employee, Expense, InventoryLot, Invoice, Payment, Product, PurchaseOrder, Refund, Service, StockMovement, Supplier, SyncConflict, SyncCursor, TaxPolicy, WorkShift, WorkflowEvent } from './types'
 
 export class SalonDatabase extends Dexie {
   customers!: Table<Customer, string>
@@ -26,6 +26,7 @@ export class SalonDatabase extends Dexie {
   syncConflicts!: Table<SyncConflict, string>
   syncCursors!: Table<SyncCursor, string>
   backupRecords!: Table<BackupRecord, string>
+  assistantMemories!: Table<AssistantMemoryRecord, string>
 
   constructor() {
     super('salon-toc-quyen')
@@ -66,13 +67,18 @@ export class SalonDatabase extends Dexie {
     this.version(2).stores(v2)
     this.version(3).stores(v3)
     this.version(4).stores(v4)
-    this.version(5).stores({
+    const v5 = {
       ...v4,
       devices: 'id,salonId,deviceId,status,updatedAt,[salonId+deviceId],[salonId+status]',
       changeLogs: 'id,salonId,entityType,entityId,operation,createdAt,syncedAt,[salonId+syncedAt],[salonId+createdAt]',
       syncConflicts: 'id,salonId,entityType,entityId,status,detectedAt,[salonId+status]',
       syncCursors: 'id,salonId,peerDeviceId,lastSyncedAt,[salonId+peerDeviceId]',
       backupRecords: 'id,salonId,createdAt,schemaVersion,ciphertextHash,[salonId+createdAt]',
+    }
+    this.version(5).stores(v5)
+    this.version(6).stores({
+      ...v5,
+      assistantMemories: 'id,salonId,ownerId,category,status,updatedAt,[salonId+ownerId],[salonId+category],[salonId+status]',
     })
   }
 }
