@@ -13,8 +13,18 @@ Phạm vi giai đoạn 1: Owner App. Employee App là giai đoạn 2, không tr�
 | P09 | Dashboard và báo cáo | IN PROGRESS |
 | P10 | Thiết bị, E2E encryption, conflict | IN PROGRESS – protocol có, P2P transport còn thiếu |
 | P11 | Backup/restore mã hóa | IN PROGRESS – cần smoke test IndexedDB/Android |
-| P12 | Gemini server API, quota, quyền | IN PROGRESS – CI PASS, chờ cấu hình/deploy/smoke test |
-| P13 | PWA, bảo mật và nghiệm thu | IN PROGRESS – CI PASS, chờ cấu hình/deploy/smoke test |
+| P12 | Gemini Cloud Function (legacy path, không còn được Owner Assistant gọi) | CODE RETAINED – không cần deploy để dùng trợ lý mới |
+| P13 | PWA, bảo mật và nghiệm thu | IN PROGRESS – chờ smoke test thiết bị |
+| P14 | Dữ liệu mẫu tenant-scoped | IMPLEMENTED – chờ smoke test dữ liệu thật |
+| P15 | Dashboard số liệu Dexie | IMPLEMENTED – chờ đối chiếu runtime |
+| P16 | Quản lý nhân sự và kho | IMPLEMENTED – chờ smoke test |
+| P17 | Ổn định và nghiệm thu Owner App | IN PROGRESS – chờ acceptance Android |
+| P18 | Robot trợ lý và dữ liệu mẫu trên Owner App | IMPLEMENTED ON BRANCH – chờ CI/acceptance |
+| P19 | Trợ lý nội bộ: hỏi đáp số liệu salon bằng tiếng Việt | IMPLEMENTED ON BRANCH – chờ CI và Android smoke test |
+| P20 | Bộ nhớ học thói quen Owner, tenant-scoped, có quyền xóa | IMPLEMENTED ON BRANCH – chờ kiểm thử lưu trữ |
+| P21 | Gemini cố vấn qua Firebase AI Logic, Spark-compatible | CODE IMPLEMENTED – chờ bật AI Logic/App Check và smoke test |
+| P22 | Membership AI theo vai trò | OWNER ACTIVE; vai trò nhân viên CHƯA TRIỂN KHAI do chưa có Employee Auth/Membership |
+| P23 | Hỗ trợ chủ động, cảnh báo và đề xuất định kỳ | NOT STARTED |
 | E01 | Employee App độc lập theo vai trò | GIAI ĐOẠN 2 – CHƯA TRIỂN KHAI |
 ## Definition of Done
 Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail; unit/integration/regression tests; typecheck, lint, build; mobile/desktop verification; tài liệu và session log. Chỉ PASS khi có bằng chứng.
@@ -112,3 +122,14 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - AI chỉ phân tích/đề xuất, chưa có quyền ghi dữ liệu. Employee AI chưa bật vì Employee App và employee Membership chưa triển khai.
 - Ma trận quyền hiện tại/tương lai được ghi tại docs/AI-PHAN-QUYEN.md.
 - P18 IN PROGRESS cho đến khi CI, kiểm thử Android, kiểm tra dữ liệu mẫu và cấu hình/deploy Gemini + App Check hoàn tất.
+
+
+## P19–P21 – Trợ lý học hỏi và Gemini cố vấn – 2026-11-23
+- P19: thay giao diện hỏi AI phụ thuộc Cloud Functions bằng chat tiếng Việt local-first; tính doanh thu hóa đơn, tiền đã thu, hoàn tiền, chi phí, thu ròng, lịch hẹn, top khách, dịch vụ phổ biến và cảnh báo tồn theo salonId và Owner UID.
+- Phân biệt doanh thu hóa đơn với tiền thực thu và thu ròng; loại hóa đơn void. Múi giờ báo cáo Asia/Ho_Chi_Minh. Không xếp hạng doanh thu/hiệu suất nhân viên khi lịch hẹn/hóa đơn chưa có employeeId liên kết.
+- P20: ghi nhớ thói quen bằng bộ đếm chủ đề/khoảng thời gian trong localStorage theo salonId và Owner UID; không lưu câu hỏi nguyên văn, PII hay dữ liệu kinh doanh; có thao tác xóa bộ nhớ.
+- P21: thêm Gemini 3.8 Flash qua Firebase AI Logic SDK, chỉ gọi cho câu hỏi tư vấn/chưa nhận diện; gửi số liệu tổng hợp đã loại bỏ định danh. Không dùng Cloud Functions hoặc API key trong frontend.
+- Gemini Free Tier có giới hạn và điều khoản dữ liệu riêng; cần chủ salon cân nhắc trước khi bật. Local assistant vẫn hoạt động khi Gemini chưa bật/hết hạn mức/mất mạng.
+- Firebase AI Logic/App Check chưa được kích hoạt live trên project; P21 chưa PASS.
+- Các vai trò Manager/Stylist/Assistant/Cashier chưa được cấp AI vì hiện tại chỉ có Owner Membership được xác minh; không dùng trường role cục bộ làm bằng chứng quyền.
+- Tất cả P19–P21 chờ CI, kiểm thử trên Termux/Android và xác minh dữ liệu mẫu/thật trước khi nghiệm thu.
