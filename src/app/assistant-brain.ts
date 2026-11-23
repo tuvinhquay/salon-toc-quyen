@@ -7,7 +7,7 @@ export type ParsedMemoryInstruction = { category: AssistantMemoryCategory; title
 export function parseMemoryInstruction(question: string): ParsedMemoryInstruction | null {
   const raw = question.trim().replace(/[.!?]+$/, '').trim()
   const normalized = normalize(raw)
-  const explicit = /^(hay\s+)?(ghi nho|hay nho|nho giup|minh nho|luu lai|hay luu|tu nay hay|tu nay)/.test(normalized)
+  const explicit = /^(hay\s+)?(ghi nho|hay nho|nho giup|nho|minh nho|luu lai|hay luu|tu nay hay|tu nay)/.test(normalized)
   const identity = /^(ten toi la|ten minh la|goi toi la|goi minh la|toi ten la|minh ten la)/.test(normalized)
   if (!explicit && !identity) return null
 
