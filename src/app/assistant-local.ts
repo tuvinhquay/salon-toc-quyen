@@ -88,7 +88,7 @@ function buildSafeContext(snapshot: Snapshot, range: DateRange, intent: Assistan
   const refunded = sum(refunds, row => row.amountVnd)
   const spent = sum(expenses, row => row.amountVnd)
   const customerCounts = new Map<string, { count: number; label: string }>()
-  for (const appointment of completed) {
+  for (const appointment of booked) {
     if (!appointment.customerId) continue
     const old = customerCounts.get(appointment.customerId)
     customerCounts.set(appointment.customerId, { count: (old?.count ?? 0) + 1, label: appointment.customerNameSnapshot || 'Khách hàng' })
