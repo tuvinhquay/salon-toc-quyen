@@ -124,7 +124,8 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
     lines.push('• Tiền hoàn: **' + money(data.refunded) + '**.')
     lines.push('• Chi phí đã ghi nhận: **' + money(data.spent) + '**.')
     lines.push('• Thu ròng sau hoàn tiền và chi phí: **' + money(data.net) + '**.')
-    lines.push('Lưu ý: doanh thu hóa đơn, tiền thu thực tế và thu ròng là ba chỉ số khác nhau.')\n    if (normalize(question).includes('loi nhuan')) lines.push('Chưa thể kết luận lợi nhuận chính xác: dữ liệu hiện chưa phân bổ đầy đủ giá vốn vật tư, chi phí nhân công và hoa hồng theo dịch vụ.')
+    lines.push('Lưu ý: doanh thu hóa đơn, tiền thu thực tế và thu ròng là ba chỉ số khác nhau.')
+    if (normalize(question).includes('loi nhuan')) lines.push('Chưa thể kết luận lợi nhuận chính xác: dữ liệu hiện chưa phân bổ đầy đủ giá vốn vật tư, chi phí nhân công và hoa hồng theo dịch vụ.')
   }
   if (intent === 'appointments' || intent === 'overview') {
     lines.push('• Lịch hẹn: **' + data.appointmentCount + '**; hoàn thành ' + data.completedCount + ', đã hủy ' + data.cancelledCount + ', khách không đến ' + data.noShowCount + '.')
