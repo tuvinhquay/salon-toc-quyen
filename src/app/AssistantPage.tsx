@@ -72,7 +72,7 @@ export function AssistantPage() {
   function resetMemory() {
     if (!window.confirm('Xóa phần ghi nhớ thói quen của trợ lý trên thiết bị này? Dữ liệu kinh doanh không bị ảnh hưởng.')) return
     clearAssistantMemory(actor.salonId, actor.actorId)
-    setMemory(readAssistantMemory(actor.salonId))
+    setMemory(readAssistantMemory(actor.salonId, actor.actorId))
   }
 
   return <section className="work-page assistant-page">
