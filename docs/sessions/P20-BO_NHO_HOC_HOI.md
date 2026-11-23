@@ -4,7 +4,7 @@ Ngày: 2026-11-23
 Nhánh: `phase-19-local-learning-assistant`
 
 ## Đã triển khai
-- Bộ nhớ được tách theo salonId trong localStorage.
+- Bộ nhớ được tách theo salonId và Owner UID trong localStorage.
 - Chỉ lưu bộ đếm số lần hỏi theo nhóm chủ đề và khoảng thời gian (hôm nay/tháng/năm).
 - Không lưu nội dung câu hỏi nguyên văn, tên/điện thoại/email, dữ liệu khách hàng, dữ liệu nhân viên hay số liệu kinh doanh.
 - Hiển thị tóm tắt điều trợ lý đã học.
