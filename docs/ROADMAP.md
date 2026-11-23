@@ -102,3 +102,13 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Sửa màn hình chờ quyền Owner: bổ sung thao tác thử xác minh membership lại khi Firestore tạm thời lỗi hoặc membership vừa được cấp; giữ nguyên nguyên tắc fail-closed, không cho trình duyệt tự cấp quyền.
 - Còn bắt buộc: chạy typecheck/lint/test/build trên Termux; smoke test Android/IndexedDB; kiểm tra nạp/xóa dữ liệu mẫu không ảnh hưởng dữ liệu thật; kiểm tra luồng hóa đơn/thanh toán/hoàn tiền/đóng ca; backup và restore trên thiết bị.
 - P17 chưa PASS, không được merge PR hoặc tuyên bố sẵn sàng dữ liệu thật trước khi có kết quả kiểm tra thực tế.
+
+
+## P18 – Trợ lý AI đồng hành và truy cập theo Membership – 2026-11-22
+- Bổ sung robot trợ lý nổi toàn Owner App, có hoạt ảnh và mở nhanh trang AI.
+- Thêm lối tắt Dữ liệu mẫu ở header trên mọi màn hình; tiếp tục dùng chức năng nạp/xóa tenant-scoped đã có trong Settings.
+- Trợ lý tự tạo snapshot phân tích từ IndexedDB hiện tại: lịch, khách, nhân sự, dịch vụ, kho, hóa đơn, thu/hoàn và chi phí; chỉ gửi số liệu tổng hợp, không gửi PII.
+- Cloud Function vẫn xác minh Firebase Auth + Owner Membership + App Check; quota chống lạm dụng tăng lên 30/phút, context tối đa 12.000 ký tự.
+- AI chỉ phân tích/đề xuất, chưa có quyền ghi dữ liệu. Employee AI chưa bật vì Employee App và employee Membership chưa triển khai.
+- Ma trận quyền hiện tại/tương lai được ghi tại docs/AI-PHAN-QUYEN.md.
+- P18 IN PROGRESS cho đến khi CI, kiểm thử Android, kiểm tra dữ liệu mẫu và cấu hình/deploy Gemini + App Check hoàn tất.
