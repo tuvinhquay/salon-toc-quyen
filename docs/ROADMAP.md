@@ -13,8 +13,13 @@ Phạm vi giai đoạn 1: Owner App. Employee App là giai đoạn 2, không tr�
 | P09 | Dashboard và báo cáo | IN PROGRESS |
 | P10 | Thiết bị, E2E encryption, conflict | IN PROGRESS – protocol có, P2P transport còn thiếu |
 | P11 | Backup/restore mã hóa | IN PROGRESS – cần smoke test IndexedDB/Android |
-| P12 | Gemini server API, quota, quyền | IN PROGRESS – CI PASS, chờ cấu hình/deploy/smoke test |
-| P13 | PWA, bảo mật và nghiệm thu | IN PROGRESS – CI PASS, chờ cấu hình/deploy/smoke test |
+| P12 | Gemini Cloud Function (legacy path, không còn được Owner Assistant gọi) | CODE RETAINED – không cần deploy để dùng trợ lý mới |
+| P13 | PWA, bảo mật và nghiệm thu | IN PROGRESS – chờ smoke test thiết bị |
+| P14 | Dữ liệu mẫu tenant-scoped | IMPLEMENTED – chờ smoke test dữ liệu thật |
+| P15 | Dashboard số liệu Dexie | IMPLEMENTED – chờ đối chiếu runtime |
+| P16 | Quản lý nhân sự và kho | IMPLEMENTED – chờ smoke test |
+| P17 | Ổn định và nghiệm thu Owner App | IN PROGRESS – chờ acceptance Android |
+| P18 | Robot trợ lý và dữ liệu mẫu trên Owner App | IMPLEMENTED ON BRANCH – chờ CI/acceptance |
 | P19 | Trợ lý nội bộ: hỏi đáp số liệu salon bằng tiếng Việt | IMPLEMENTED ON BRANCH – chờ CI và Android smoke test |
 | P20 | Bộ nhớ học thói quen Owner, tenant-scoped, có quyền xóa | IMPLEMENTED ON BRANCH – chờ kiểm thử lưu trữ |
 | P21 | Gemini cố vấn qua Firebase AI Logic, Spark-compatible | CODE IMPLEMENTED – chờ bật AI Logic/App Check và smoke test |
