@@ -30,6 +30,6 @@ export const navigation: NavigationItem[] = [
   { label: 'Báo cáo', to: '/reports', Icon: ChartNoAxesCombined, description: 'Báo cáo vận hành và tài chính có thể truy xuất nguồn.' },
   { label: 'Thiết bị & đồng bộ', to: '/devices', Icon: ShieldCheck, description: 'Thiết bị được duyệt, trạng thái đồng bộ và thu hồi quyền.' },
   { label: 'Backup & khôi phục', to: '/backup', Icon: ShieldCheck, description: 'Sao lưu mã hóa, kiểm tra toàn vẹn và khôi phục dữ liệu.' },
-  { label: 'Trợ lý AI', to: '/assistant', Icon: Sparkles, description: 'Trợ lý Gemini phía máy chủ với giới hạn quyền và chi phí.' },
+  { label: 'Trợ lý AI', to: '/assistant', Icon: Sparkles, description: 'Trợ lý nội bộ học thói quen; Gemini cố vấn khi cần.' },
   { label: 'Cài đặt', to: '/settings', Icon: Settings, description: 'Thông tin salon, tiền tệ, múi giờ và chính sách vận hành.' },
 ]
