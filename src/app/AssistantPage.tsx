@@ -25,7 +25,7 @@ export function AssistantPage() {
     content: 'Chào chủ tiệm! Mình là trợ lý TÓC QUYỀN. Mình có thể xem số liệu ngay trên thiết bị, ghi nhớ những chủ đề bạn thường quan tâm và gọi Gemini khi cần tư vấn chuyên sâu.',
     source: 'local',
   }])
-  const [memory, setMemory] = useState(() => readAssistantMemory(actor.salonId))
+  const [memory, setMemory] = useState(() => readAssistantMemory(actor.salonId, actor.actorId))
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const geminiReady = isGeminiAssistantReady()
@@ -39,7 +39,7 @@ export function AssistantPage() {
     setBusy(true)
     try {
       const local = await answerOwnerQuestion(actor.salonId, prompt)
-      const nextMemory = learnAssistantHabit(actor.salonId, local.intent, local.period)
+      const nextMemory = learnAssistantHabit(actor.salonId, actor.actorId, local.intent, local.period)
       setMemory(nextMemory)
       let answer = local.answer
       let source: Message['source'] = 'local'
@@ -70,7 +70,7 @@ export function AssistantPage() {
 
   function resetMemory() {
     if (!window.confirm('Xóa phần ghi nhớ thói quen của trợ lý trên thiết bị này? Dữ liệu kinh doanh không bị ảnh hưởng.')) return
-    clearAssistantMemory(actor.salonId)
+    clearAssistantMemory(actor.salonId, actor.actorId)
     setMemory(readAssistantMemory(actor.salonId))
   }
 
