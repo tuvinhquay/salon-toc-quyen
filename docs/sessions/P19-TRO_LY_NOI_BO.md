@@ -22,8 +22,8 @@ Trợ lý có thể hiểu câu hỏi tiếng Việt thông dụng và tính to�
 
 ## Kiểm thử
 - Đã thêm unit tests cho nhận diện câu hỏi và ranh giới ngày/tháng/năm Việt Nam.
-- GitHub Actions đã phát hiện và sửa lỗi cú pháp TypeScript trong nhánh làm việc trước; đang chạy lại kiểm tra trên nhánh rebased. Tiếp tục chờ typecheck/lint/test/build và kiểm tra Termux.
+- GitHub Actions run #45134378001 đã PASS: typecheck, lint, unit tests, production build/PWA, Functions dependency install và Functions build. Còn chờ kiểm thử trên Termux và Android.
 - Chờ smoke test Android với dữ liệu mẫu và đối chiếu thủ công doanh thu/thu/hoàn/chi.
 
 ## Trạng thái
-IMPLEMENTED ON BRANCH – chưa PASS cho tới khi CI và smoke test thực tế thành công.
+CI PASS – chờ smoke test Termux/Android và đối chiếu số liệu thực tế.
