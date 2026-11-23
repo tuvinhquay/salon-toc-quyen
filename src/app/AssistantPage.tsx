@@ -1,8 +1,11 @@
-import { useState, type FormEvent } from 'react'
-import { Bot, Brain, Eraser, Send, Sparkles, UserRound } from 'lucide-react'
+import { useEffect, useState, type FormEvent } from 'react'
+import { Bot, Brain, Eraser, Send, Sparkles, UserRound, Trash2 } from 'lucide-react'
 import { useOwnerContext } from '../auth/OwnerContext'
+import type { AssistantMemoryRecord } from '../db/types'
 import { answerOwnerQuestion, redactQuestionForGemini } from './assistant-local'
 import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, readAssistantMemory } from './assistant-memory'
+import { answerFromMemories, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
+import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assistant-brain-store'
 import { askGeminiAdviser, isGeminiAssistantReady } from './assistant-gemini'
 
 type Message = { id: string; role: 'assistant' | 'user'; content: string; source?: 'local' | 'gemini' }
@@ -22,13 +25,26 @@ export function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([{
     id: 'welcome',
     role: 'assistant',
-    content: 'Chào chủ tiệm! Mình là trợ lý TÓC QUYỀN. Mình có thể xem số liệu ngay trên thiết bị, ghi nhớ những chủ đề bạn thường quan tâm và gọi Gemini khi cần tư vấn chuyên sâu.',
+    content: 'Chào chủ tiệm! Mình là bộ não trợ lý TÓC QUYỀN. Mình có thể phân tích số liệu, ghi nhớ điều bạn dạy và truy xuất trí nhớ dài hạn được lưu trên thiết bị này.',
     source: 'local',
   }])
   const [memory, setMemory] = useState(() => readAssistantMemory(actor.salonId, actor.actorId))
+  const [longTermMemories, setLongTermMemories] = useState<AssistantMemoryRecord[]>([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const geminiReady = isGeminiAssistantReady()
+
+  useEffect(() => {
+    let active = true
+    void listOwnerMemories(actor.salonId, actor.actorId).then(rows => { if (active) setLongTermMemories(rows) }).catch(() => { if (active) setError('Không đọc được trí nhớ nội bộ trên thiết bị.') })
+    return () => { active = false }
+  }, [actor.salonId, actor.actorId])
+
+  async function refreshLongTermMemories() {
+    const rows = await listOwnerMemories(actor.salonId, actor.actorId)
+    setLongTermMemories(rows)
+    return rows
+  }
 
   async function send(value = question) {
     const prompt = value.trim()
@@ -38,11 +54,29 @@ export function AssistantPage() {
     setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'user', content: prompt }])
     setBusy(true)
     try {
+      const instruction = parseMemoryInstruction(prompt)
+      if (instruction) {
+        const saved = await saveOwnerMemory(actor, instruction.category, instruction.title, instruction.content)
+        await refreshLongTermMemories()
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Mình đã lưu vào trí nhớ dài hạn trên thiết bị này.\n\n**' + saved.title + '**\n' + saved.content + '\n\nMục này hiện chỉ nằm trên thiết bị đang dùng; chưa được đồng bộ P2P sang thiết bị khác. Khi hệ thống ghép đôi P2P hoàn thành, bộ nhớ sẽ được đưa vào hàng đợi đồng bộ mã hóa.', source: 'local' }])
+        return
+      }
+
+      if (isMemoryRecallQuestion(prompt)) {
+        const rows = await refreshLongTermMemories()
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answerFromMemories(rows), source: 'local' }])
+        return
+      }
+
       const local = await answerOwnerQuestion(actor.salonId, prompt)
       const nextMemory = learnAssistantHabit(actor.salonId, actor.actorId, local.intent, local.period)
       setMemory(nextMemory)
+      const relevant = selectRelevantMemories(longTermMemories, prompt)
       let answer = local.answer
       let source: Message['source'] = 'local'
+      if (relevant.length && /(ke hoach|lap ke hoach|nen lam gi|thoi quen|uu tien|buoi sang|hang ngay)/i.test(prompt.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))) {
+        answer += '\n\n**Điều mình đã ghi nhớ có liên quan**\n' + relevant.map(item => '• ' + item.content).join('\n')
+      }
       if (needsAdviser(prompt, local.intent)) {
         if (geminiReady) {
           try {
@@ -53,12 +87,12 @@ export function AssistantPage() {
             answer += '\n\n_Gemini hiện chưa kết nối được. Mình vẫn trả lời bằng số liệu nội bộ; bạn có thể thử lại sau._'
           }
         } else {
-          answer += '\n\n_Gemini chưa được bật trong Firebase AI Logic hoặc App Check chưa sẵn sàng. Trợ lý nội bộ vẫn hoạt động bình thường._'
+          answer += '\n\n_Gemini chưa được bật trong Firebase AI Logic hoặc App Check chưa sẵn sàng. Trí nhớ nội bộ và thống kê trên thiết bị vẫn hoạt động bình thường._'
         }
       }
       setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answer, source }])
     } catch {
-      setError('Mình chưa đọc được dữ liệu trên thiết bị. Bạn kiểm tra lại ứng dụng và thử gửi câu hỏi lần nữa nhé.')
+      setError('Mình chưa xử lý được yêu cầu trên thiết bị. Bạn kiểm tra lại ứng dụng và thử gửi câu hỏi lần nữa nhé.')
     } finally {
       setBusy(false)
     }
@@ -70,18 +104,24 @@ export function AssistantPage() {
   }
 
   function resetMemory() {
-    if (!window.confirm('Xóa phần ghi nhớ thói quen của trợ lý trên thiết bị này? Dữ liệu kinh doanh không bị ảnh hưởng.')) return
+    if (!window.confirm('Xóa phần ghi nhớ thói quen sử dụng trên thiết bị này? Trí nhớ dài hạn và dữ liệu kinh doanh không bị ảnh hưởng.')) return
     clearAssistantMemory(actor.salonId, actor.actorId)
     setMemory(readAssistantMemory(actor.salonId, actor.actorId))
   }
 
+  async function forgetLongTermMemory(memoryId: string) {
+    if (!window.confirm('Lưu trữ mục trí nhớ này? Trợ lý sẽ không sử dụng mục đó nữa.')) return
+    await archiveOwnerMemory(actor, memoryId)
+    await refreshLongTermMemories()
+  }
+
   return <section className="work-page assistant-page">
     <div className="work-intro">
-      <div><small>TRỢ LÝ ĐỒNG HÀNH TÓC QUYỀN</small><h2>Trợ lý của chủ tiệm</h2><p>Trợ lý nội bộ xử lý số liệu; Gemini là chuyên gia được gọi đến khi cần tư vấn sâu.</p></div>
+      <div><small>TRỢ LÝ ĐỒNG HÀNH TÓC QUYỀN</small><h2>Bộ não trợ lý của chủ tiệm</h2><p>Trí nhớ dài hạn được lưu cục bộ. Gemini chỉ là cố vấn tùy chọn, không điều khiển quyền của trợ lý.</p></div>
       <span className="assistant-role-badge">OWNER</span>
     </div>
     <div className="assistant-status-row">
-      <div><span className="assistant-status-dot"/> Trợ lý nội bộ đang hoạt động</div>
+      <div><span className="assistant-status-dot"/> Bộ não nội bộ đang hoạt động</div>
       <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Gemini {geminiReady ? 'đã có App Check' : 'chưa cấu hình App Check'}</div>
     </div>
     <div className="assistant-chat" aria-live="polite">
@@ -92,19 +132,27 @@ export function AssistantPage() {
           <div className="assistant-message-content">{message.content.split('\n').map((line, index) => <p key={index}>{line.replaceAll('**', '').replaceAll('_', '') || '\u00a0'}</p>)}</div>
         </div>
       </article>)}
-      {busy && <div className="assistant-thinking"><Brain size={16}/> Mình đang xem dữ liệu và chuẩn bị câu trả lời…</div>}
+      {busy && <div className="assistant-thinking"><Brain size={16}/> Mình đang tìm trong dữ liệu và trí nhớ nội bộ…</div>}
     </div>
     {error && <p className="form-error" role="alert">{error}</p>}
     <form className="assistant-composer" onSubmit={submit}>
-      <textarea aria-label="Nhập câu hỏi cho trợ lý" rows={2} maxLength={2000} value={question} onChange={event => setQuestion(event.target.value)} placeholder="Bạn muốn hỏi điều gì về tiệm hôm nay?" />
+      <textarea aria-label="Nhập câu hỏi cho trợ lý" rows={2} maxLength={2000} value={question} onChange={event => setQuestion(event.target.value)} placeholder="Ví dụ: Hãy ghi nhớ tên tôi là Quay…" />
       <button className="primary-button" disabled={busy || !question.trim()}><Send size={16}/> Gửi câu hỏi</button>
     </form>
     <div className="assistant-suggestions"><div className="assistant-section-title">Gợi ý câu hỏi</div><div>{suggestions.map(item => <button key={item} type="button" className="assistant-suggestion" onClick={() => void send(item)} disabled={busy}>{item}</button>)}</div></div>
     <div className="assistant-memory">
       <div className="assistant-memory-icon"><Brain size={19}/></div>
-      <div><strong>Trợ lý đang học thói quen sử dụng</strong><p>{describeAssistantMemory(memory)}</p><small>Chỉ lưu số lần hỏi theo chủ đề và khoảng thời gian; không lưu nội dung câu hỏi, tên khách hàng hay dữ liệu kinh doanh.</small></div>
-      <button type="button" className="subtle-button" onClick={resetMemory}><Eraser size={14}/> Xóa ghi nhớ</button>
+      <div><strong>Trí nhớ thói quen</strong><p>{describeAssistantMemory(memory)}</p><small>Thống kê lượt hỏi được lưu riêng trên thiết bị này.</small></div>
+      <button type="button" className="subtle-button" onClick={resetMemory}><Eraser size={14}/> Xóa</button>
     </div>
-    <p className="assistant-privacy-note">Dữ liệu phân tích được đọc từ IndexedDB của salon hiện tại trên thiết bị này. Gemini chỉ nhận số liệu tổng hợp; ứng dụng lọc email, số điện thoại và tên đã có trong hồ sơ salon trước khi gửi câu hỏi. Không nhập thông tin cá nhân mới vào câu hỏi tư vấn. Gemini không được quyền sửa hóa đơn, lịch hẹn, nhân sự hoặc kho.</p>
+    <div className="assistant-memory">
+      <div className="assistant-memory-icon"><Brain size={19}/></div>
+      <div><strong>Trí nhớ dài hạn · {longTermMemories.length} mục</strong>
+        <p>Lưu thông tin cá nhân, sở thích, thói quen, kế hoạch và kiến thức do chủ tiệm chủ động dạy.</p>
+        {longTermMemories.length > 0 ? <ul>{longTermMemories.map(item => <li key={item.id}><strong>{item.title}:</strong> {item.content} <button type="button" className="subtle-button" onClick={() => void forgetLongTermMemory(item.id)} aria-label="Lưu trữ trí nhớ"><Trash2 size={13}/></button></li>)}</ul> : <small>Chưa có mục nào. Hãy bắt đầu bằng “Hãy ghi nhớ…”</small>}
+        <small>Dữ liệu chỉ nằm trong IndexedDB trên thiết bị hiện tại. P2P chưa được triển khai nên chưa thể xuất hiện trên thiết bị khác.</small>
+      </div>
+    </div>
+    <p className="assistant-privacy-note">Trợ lý chỉ lưu trí nhớ dài hạn khi chủ tiệm chủ động yêu cầu. Mục đã lưu có thể được xem và lưu trữ. Không có dữ liệu trí nhớ nào được gửi lên Firebase hoặc Gemini. Trợ lý chưa có quyền tự sửa dữ liệu nghiệp vụ.</p>
   </section>
 }
