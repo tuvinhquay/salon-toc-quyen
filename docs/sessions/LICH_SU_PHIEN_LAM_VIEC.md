@@ -171,7 +171,7 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 ### Đã triển khai trên phase-18-ai-companion-demo-shortcuts
 - Kiểm tra AssistantPage và xác nhận bản cũ chỉ gửi prompt nhập tay, không tự đọc dữ liệu Dexie.
 - Thêm robot AI nổi trên mọi trang Owner và lối tắt Dữ liệu mẫu ở header.
-- Thêm bộ tạo ngữ cảnh AI theo salonId, chỉ tổng hợp số liệu lịch hẹn, khách, nhân viên, dịch vụ, kho và tài chính tháng hiện tại; loại bỏ trường định danh cá nhân.
+- Thêm bộ tạo ngữ cảnh AI theo salonId và Owner UID, chỉ tổng hợp số liệu lịch hẹn, khách, nhân viên, dịch vụ, kho và tài chính tháng hiện tại; loại bỏ trường định danh cá nhân.
 - Nối AssistantPage với snapshot tự động; giữ quyền Owner, App Check và Secret Manager ở server.
 - Nới context 12.000 ký tự và quota fair-use 30 yêu cầu/phút/UID.
 - Ghi tài liệu ma trận quyền AI; Employee App chưa có nên không cấp quyền AI nhân viên bằng dữ liệu role cục bộ.
@@ -180,3 +180,32 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - Smoke test robot, shortcut dữ liệu mẫu, seed/clear demo và bảo toàn dữ liệu thật trên Android.
 - Cấu hình/deploy Gemini Function, Secret Manager và App Check để gọi AI thực tế.
 - P18 chưa PASS, chưa merge.
+
+
+## Phiên 15 – 2026-11-23 – P19–P21: Trợ lý học hỏi và Gemini cố vấn
+### Nhánh làm việc
+- Tạo nhánh `phase-19-local-learning-assistant` từ `phase-18-ai-companion-demo-shortcuts`; không sửa main, không merge các PR nền tảng.
+
+### P19 – Trợ lý nội bộ
+- Thay UI gọi Cloud Functions bằng chat local-first, xử lý câu hỏi tiếng Việt về tài chính, lịch hẹn, khách hàng, dịch vụ, nhân viên và kho.
+- Tính số liệu trực tiếp từ Dexie theo salonId và Owner UID; phân biệt doanh thu hóa đơn, tiền đã thu, hoàn tiền, chi phí và thu ròng; loại hóa đơn void.
+- Dùng ranh giới ngày/tháng/năm theo Asia/Ho_Chi_Minh. Không xếp hạng nhân viên khi dữ liệu chưa có employeeId liên kết.
+- Thêm test cho bộ nhận diện ý định và mốc thời gian Việt Nam.
+
+### P20 – Bộ nhớ học hỏi
+- Lưu thống kê thói quen theo salonId và Owner UID: số lần hỏi theo chủ đề và khoảng thời gian. Không lưu prompt nguyên văn hoặc PII. Có chức năng xóa bộ nhớ riêng.
+
+### P21 – Gemini cố vấn
+- Tích hợp Firebase AI Logic SDK với Gemini Developer API model `gemini-3.8-flash`; gọi khi cần tư vấn/giải thích, không gọi cho mọi phép tính.
+- Chỉ gửi số liệu tổng hợp đã lọc; không dùng Cloud Functions hoặc nhúng Gemini API key. Local bot vẫn chạy khi Gemini chưa bật hoặc không kết nối.
+- Cập nhật ma trận quyền AI và CI trigger cho nhánh P19.
+
+### Còn chờ kiểm chứng
+- GitHub Actions: typecheck, lint, unit tests, production build/PWA và Functions CI regression.
+- Termux: đồng bộ nhánh, chạy toàn bộ lệnh kiểm tra, sửa mọi lỗi và chạy lại regression.
+- Android: đăng nhập Owner, chat local, các câu hỏi hôm nay/tháng/năm, kiểm tra bộ nhớ sau reload và thao tác xóa.
+- Firebase Console: bật Firebase AI Logic với Gemini Developer API Free Tier, kiểm tra App Check; sau đó thử câu hỏi tư vấn live.
+- Kiểm tra quyền Owner, không rò dữ liệu tenant, không gửi PII, không để Gemini tự sửa dữ liệu.
+
+### Trạng thái
+P19–P21 IMPLEMENTED ON BRANCH / CODE IMPLEMENTED; CHƯA PASS vì chưa có CI mới nhất và smoke test Android/Firebase thực tế.
