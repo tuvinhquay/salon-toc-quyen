@@ -10,6 +10,8 @@ describe('owner assistant long-term memory', () => {
     expect(parseMemoryInstruction('Tên tôi là Quay')?.category).toBe('profile')
     expect(parseMemoryInstruction('Từ nay hãy lập kế hoạch công việc mỗi sáng')?.category).toBe('routine')
     expect(parseMemoryInstruction('Hãy nhớ tôi ưu tiên việc quan trọng trước')?.category).toBe('preference')
+    expect(parseMemoryInstruction('Nhớ rằng tôi thích làm việc buổi sáng')?.category).toBe('preference')
+    expect(parseMemoryInstruction('Hãy nhớ giúp tôi kiểm tra lịch hẹn đầu ngày')?.category).toBe('routine')
   })
   it('does not store an ordinary question as a memory instruction', () => {
     expect(parseMemoryInstruction('Hôm nay doanh thu bao nhiêu?')).toBeNull()
