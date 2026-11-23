@@ -125,9 +125,9 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 
 
 ## P19–P21 – Trợ lý học hỏi và Gemini cố vấn – 2026-11-23
-- P19: thay giao diện hỏi AI phụ thuộc Cloud Functions bằng chat tiếng Việt local-first; tính doanh thu hóa đơn, tiền đã thu, hoàn tiền, chi phí, thu ròng, lịch hẹn, top khách, dịch vụ phổ biến và cảnh báo tồn theo salonId.
+- P19: thay giao diện hỏi AI phụ thuộc Cloud Functions bằng chat tiếng Việt local-first; tính doanh thu hóa đơn, tiền đã thu, hoàn tiền, chi phí, thu ròng, lịch hẹn, top khách, dịch vụ phổ biến và cảnh báo tồn theo salonId và Owner UID.
 - Phân biệt doanh thu hóa đơn với tiền thực thu và thu ròng; loại hóa đơn void. Múi giờ báo cáo Asia/Ho_Chi_Minh. Không xếp hạng doanh thu/hiệu suất nhân viên khi lịch hẹn/hóa đơn chưa có employeeId liên kết.
-- P20: ghi nhớ thói quen bằng bộ đếm chủ đề/khoảng thời gian trong localStorage theo salonId; không lưu câu hỏi nguyên văn, PII hay dữ liệu kinh doanh; có thao tác xóa bộ nhớ.
+- P20: ghi nhớ thói quen bằng bộ đếm chủ đề/khoảng thời gian trong localStorage theo salonId và Owner UID; không lưu câu hỏi nguyên văn, PII hay dữ liệu kinh doanh; có thao tác xóa bộ nhớ.
 - P21: thêm Gemini 3.8 Flash qua Firebase AI Logic SDK, chỉ gọi cho câu hỏi tư vấn/chưa nhận diện; gửi số liệu tổng hợp đã loại bỏ định danh. Không dùng Cloud Functions hoặc API key trong frontend.
 - Gemini Free Tier có giới hạn và điều khoản dữ liệu riêng; cần chủ salon cân nhắc trước khi bật. Local assistant vẫn hoạt động khi Gemini chưa bật/hết hạn mức/mất mạng.
 - Firebase AI Logic/App Check chưa được kích hoạt live trên project; P21 chưa PASS.
