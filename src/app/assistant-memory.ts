@@ -27,7 +27,7 @@ export function learnAssistantHabit(salonId: string, intent: string, period: str
     periodCounts: { ...current.periodCounts, [period]: (current.periodCounts[period] ?? 0) + 1 },
     lastUsedAt: new Date().toISOString(),
   }
-  if (typeof window !== 'undefined' && salonId.trim()) window.localStorage.setItem(storageKey(salonId), JSON.stringify(next))
+  if (typeof window !== 'undefined' && salonId.trim()) { try { window.localStorage.setItem(storageKey(salonId), JSON.stringify(next)) } catch { /* Assistant remains usable when browser storage is unavailable. */ } }
   return next
 }
 export function describeAssistantMemory(memory: AssistantMemory): string {
