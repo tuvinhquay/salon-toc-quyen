@@ -22,7 +22,7 @@ Trợ lý có thể hiểu câu hỏi tiếng Việt thông dụng và tính to�
 
 ## Kiểm thử
 - Đã thêm unit tests cho nhận diện câu hỏi và ranh giới ngày/tháng/năm Việt Nam.
-- Chờ GitHub Actions và chạy lại typecheck/lint/test/build trên Termux.
+- GitHub Actions đã phát hiện và sửa lỗi cú pháp TypeScript trong nhánh làm việc trước; đang chạy lại kiểm tra trên nhánh rebased. Tiếp tục chờ typecheck/lint/test/build và kiểm tra Termux.
 - Chờ smoke test Android với dữ liệu mẫu và đối chiếu thủ công doanh thu/thu/hoàn/chi.
 
 ## Trạng thái
