@@ -13,7 +13,6 @@ export function parseMemoryInstruction(question: string): ParsedMemoryInstructio
 
   let content = raw
     .replace(/^(hãy\s+)?(ghi nhớ|nhớ giúp|mình nhớ|lưu lại|hãy lưu|từ nay hãy|từ nay)\s*/i, '')
-    .replace(/^(tên tôi là|tên mình là|gọi tôi là|gọi mình là|tôi tên là|mình tên là)\s*/i, '')
     .replace(/^(rằng|là)\s*/i, '')
     .trim()
   content = content.replace(/\s+(nhé|nha|bạn nhé|giúp mình)$/i, '').trim()
