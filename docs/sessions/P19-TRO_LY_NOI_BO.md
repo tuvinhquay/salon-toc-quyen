@@ -22,7 +22,7 @@ Trợ lý có thể hiểu câu hỏi tiếng Việt thông dụng và tính to�
 
 ## Kiểm thử
 - Đã thêm unit tests cho nhận diện câu hỏi và ranh giới ngày/tháng/năm Việt Nam.
-- GitHub Actions run #45134378001 đã PASS: typecheck, lint, unit tests, production build/PWA, Functions dependency install và Functions build. Còn chờ kiểm thử trên Termux và Android.
+- GitHub Actions run #45134545399 đã PASS: typecheck, lint, unit tests, production build/PWA, Functions dependency install và Functions build. Còn chờ kiểm thử trên Termux và Android.
 - Chờ smoke test Android với dữ liệu mẫu và đối chiếu thủ công doanh thu/thu/hoàn/chi.
 
 ## Trạng thái
