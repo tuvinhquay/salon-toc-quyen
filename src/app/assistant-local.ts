@@ -160,12 +160,13 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
 
 /** Redact known local customer/employee names and contact details before an optional Gemini request. */
 export async function redactQuestionForGemini(salonId: string, question: string): Promise<string> {
-  const [customers, employees] = await Promise.all([
+  const [customers, employees, appointments] = await Promise.all([
     salonDb.customers.where('salonId').equals(salonId).toArray(),
     salonDb.employees.where('salonId').equals(salonId).toArray(),
+    salonDb.appointments.where('salonId').equals(salonId).toArray(),
   ])
   let safe = question.toLocaleLowerCase('vi')
-  const names = [...customers.map(row => row.fullName), ...employees.map(row => row.fullName)]
+  const names = [...customers.map(row => row.fullName), ...employees.map(row => row.fullName), ...appointments.map(row => row.customerNameSnapshot)]
     .filter(name => name.trim().length >= 2)
     .sort((a, b) => b.length - a.length)
   for (const name of names) {
