@@ -208,4 +208,4 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 - Kiểm tra quyền Owner, không rò dữ liệu tenant, không gửi PII, không để Gemini tự sửa dữ liệu.
 
 ### Trạng thái
-P19–P21: GitHub Actions run #45134378001 PASS toàn bộ Typecheck, Lint, Unit tests, Production Build/PWA, Cloud Functions dependency install và Functions build. Còn chờ Termux/Android smoke test, kiểm tra IndexedDB/localStorage, bật Firebase AI Logic + App Check và kiểm thử Gemini live. Chưa nghiệm thu tổng thể.
+P19–P21: GitHub Actions run #45134545399 PASS toàn bộ Typecheck, Lint, Unit tests, Production Build/PWA, Cloud Functions dependency install và Functions build. Còn chờ Termux/Android smoke test, kiểm tra IndexedDB/localStorage, bật Firebase AI Logic + App Check và kiểm thử Gemini live. Chưa nghiệm thu tổng thể.
