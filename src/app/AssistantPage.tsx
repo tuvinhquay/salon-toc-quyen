@@ -46,7 +46,8 @@ export function AssistantPage() {
       if (needsAdviser(prompt, local.intent)) {
         if (geminiReady) {
           try {
-            answer += '\n\n**Góc nhìn cố vấn Gemini**\n' + await askGeminiAdviser(prompt, local.safeContext, describeAssistantMemory(nextMemory))
+            const safeQuestion = await redactQuestionForGemini(actor.salonId, prompt)
+            answer += '\n\n**Góc nhìn cố vấn Gemini**\n' + await askGeminiAdviser(safeQuestion, local.safeContext, describeAssistantMemory(nextMemory))
             source = 'gemini'
           } catch {
             answer += '\n\n_Gemini hiện chưa kết nối được. Mình vẫn trả lời bằng số liệu nội bộ; bạn có thể thử lại sau._'
