@@ -171,7 +171,7 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 ### Đã triển khai trên phase-18-ai-companion-demo-shortcuts
 - Kiểm tra AssistantPage và xác nhận bản cũ chỉ gửi prompt nhập tay, không tự đọc dữ liệu Dexie.
 - Thêm robot AI nổi trên mọi trang Owner và lối tắt Dữ liệu mẫu ở header.
-- Thêm bộ tạo ngữ cảnh AI theo salonId, chỉ tổng hợp số liệu lịch hẹn, khách, nhân viên, dịch vụ, kho và tài chính tháng hiện tại; loại bỏ trường định danh cá nhân.
+- Thêm bộ tạo ngữ cảnh AI theo salonId và Owner UID, chỉ tổng hợp số liệu lịch hẹn, khách, nhân viên, dịch vụ, kho và tài chính tháng hiện tại; loại bỏ trường định danh cá nhân.
 - Nối AssistantPage với snapshot tự động; giữ quyền Owner, App Check và Secret Manager ở server.
 - Nới context 12.000 ký tự và quota fair-use 30 yêu cầu/phút/UID.
 - Ghi tài liệu ma trận quyền AI; Employee App chưa có nên không cấp quyền AI nhân viên bằng dữ liệu role cục bộ.
@@ -188,12 +188,12 @@ P04 + P05 IN PROGRESS; chưa được đánh dấu PASS.
 
 ### P19 – Trợ lý nội bộ
 - Thay UI gọi Cloud Functions bằng chat local-first, xử lý câu hỏi tiếng Việt về tài chính, lịch hẹn, khách hàng, dịch vụ, nhân viên và kho.
-- Tính số liệu trực tiếp từ Dexie theo salonId; phân biệt doanh thu hóa đơn, tiền đã thu, hoàn tiền, chi phí và thu ròng; loại hóa đơn void.
+- Tính số liệu trực tiếp từ Dexie theo salonId và Owner UID; phân biệt doanh thu hóa đơn, tiền đã thu, hoàn tiền, chi phí và thu ròng; loại hóa đơn void.
 - Dùng ranh giới ngày/tháng/năm theo Asia/Ho_Chi_Minh. Không xếp hạng nhân viên khi dữ liệu chưa có employeeId liên kết.
 - Thêm test cho bộ nhận diện ý định và mốc thời gian Việt Nam.
 
 ### P20 – Bộ nhớ học hỏi
-- Lưu thống kê thói quen theo salonId: số lần hỏi theo chủ đề và khoảng thời gian. Không lưu prompt nguyên văn hoặc PII. Có chức năng xóa bộ nhớ riêng.
+- Lưu thống kê thói quen theo salonId và Owner UID: số lần hỏi theo chủ đề và khoảng thời gian. Không lưu prompt nguyên văn hoặc PII. Có chức năng xóa bộ nhớ riêng.
 
 ### P21 – Gemini cố vấn
 - Tích hợp Firebase AI Logic SDK với Gemini Developer API model `gemini-3.8-flash`; gọi khi cần tư vấn/giải thích, không gọi cho mọi phép tính.
