@@ -85,7 +85,7 @@ export function answerAssistantAbout(question: string): string | null {
     '• Ghi nhớ câu hỏi nghiệp vụ do chủ tiệm dạy để lần sau hiểu cách hỏi tự nhiên hơn.',
     '• Đối chiếu dữ liệu và nêu rõ chỉ số chưa đủ dữ liệu để kết luận.',
     'Mình chỉ đọc và phân tích dữ liệu; không tự ý sửa hóa đơn, tiền hoặc hồ sơ kinh doanh.'
-  ].join('\\n')
+  ].join('\n')
   if (isAssistantCreatorQuestion(question)) return 'Mình là trợ lý phần mềm được tích hợp trong ứng dụng Salon TÓC QUYỀN. Phần mềm do chủ dự án Salon TÓC QUYỀN xây dựng; khả năng AI có thể dùng Gemini của Google khi dịch vụ này được cấu hình. Mình không phải một con người và không tự biết danh tính cá nhân của người viết từng thành phần nếu thông tin đó chưa được cung cấp.'
   return null
 }
