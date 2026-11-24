@@ -152,6 +152,14 @@ function staffProfileLookup(snapshot: Snapshot, question: string): string | null
   const totalHours = completed.reduce((total, shift) => total + Math.max(0, Date.parse(shift.endAt) - Date.parse(shift.startAt)) / 3600000, 0)
   const periodRange = getAssistantRange(detectAssistantPeriod(question))
   const current = completed.filter(shift => within(shift.startAt, periodRange))
+  const attributed = snapshot.invoices.filter(invoice => invoice.status !== 'void').flatMap(invoice => invoice.lines.filter(line => line.employeeId === employee.id).map(line => ({ invoice, line })))
+  const periodAttributed = attributed.filter(row => within(row.invoice.issuedAt, periodRange))
+  const serviceRevenue = attributed.filter(row => row.line.lineType === 'service').reduce((sum, row) => sum + row.line.totalVnd, 0)
+  const productRevenue = attributed.filter(row => row.line.lineType === 'product').reduce((sum, row) => sum + row.line.totalVnd, 0)
+  const productQuantity = attributed.filter(row => row.line.lineType === 'product').reduce((sum, row) => sum + row.line.quantity, 0)
+  const attributedCustomers = new Set(attributed.map(row => row.invoice.customerId).filter((id): id is string => Boolean(id)))
+  const periodRevenue = periodAttributed.reduce((sum, row) => sum + row.line.totalVnd, 0)
+  const periodCustomers = new Set(periodAttributed.map(row => row.invoice.customerId).filter((id): id is string => Boolean(id)))
   const joined = new Date(employee.joinedAt)
   const today = new Date()
   const months = Number.isFinite(joined.getTime()) ? Math.max(0, (today.getFullYear() - joined.getFullYear()) * 12 + today.getMonth() - joined.getMonth() - (today.getDate() < joined.getDate() ? 1 : 0)) : null
@@ -164,8 +172,11 @@ function staffProfileLookup(snapshot: Snapshot, question: string): string | null
     '• Ngày vào làm: ' + new Intl.DateTimeFormat('vi-VN', { dateStyle: 'long', timeZone: 'Asia/Ho_Chi_Minh' }).format(joined) + ' · Thâm niên ước tính: ' + tenure + '.',
     '• Tổng ca đã hoàn thành: ' + completed.length + ' · Tổng giờ ca ghi nhận: ' + Math.round(totalHours * 10) / 10 + ' giờ.',
     '• Trong ' + periodRange.label + ': ' + current.length + ' ca hoàn thành.',
-    '• Thành tích xác minh được: ' + (completed.length ? completed.length + ' ca làm và ' + (Math.round(totalHours * 10) / 10) + ' giờ đã hoàn thành.' : 'Chưa có ca làm hoàn thành được ghi nhận.'),
-    'Lưu ý: hệ thống chưa gắn nhân viên thực hiện vào từng dịch vụ/hóa đơn, nên chưa thể xác nhận doanh thu cá nhân, số khách phục vụ hoặc thành tích bán sản phẩm. Em không suy đoán các chỉ số này.'
+    '• Doanh thu trên các dòng hóa đơn được gán cho nhân viên: ' + money(serviceRevenue + productRevenue) + ' (dịch vụ ' + money(serviceRevenue) + ', sản phẩm ' + money(productRevenue) + ').',
+    '• Khách hàng có hóa đơn được gán: ' + attributedCustomers.size + ' · Sản phẩm đã bán: ' + productQuantity + '.',
+    '• Trong ' + periodRange.label + ': doanh thu được gán ' + money(periodRevenue) + ' · ' + periodCustomers.size + ' khách hàng có hóa đơn · ' + periodAttributed.length + ' dòng hàng.',
+    '• Thành tích xác minh được: ' + (completed.length ? completed.length + ' ca làm và ' + (Math.round(totalHours * 10) / 10) + ' giờ đã hoàn thành.' : 'Chưa có ca làm hoàn thành được ghi nhận.') + (attributed.length ? ' Có thêm ' + money(serviceRevenue + productRevenue) + ' doanh thu được gán qua hóa đơn.' : ' Chưa có dòng hóa đơn nào được gán cho nhân viên.'),
+    'Lưu ý: doanh thu chỉ tính từ ngày các hóa đơn bắt đầu được gán nhân viên; hóa đơn lịch sử chưa có phân công không được suy đoán hoặc tự gán.'
   ].join('\n')
 }
 
@@ -177,7 +188,7 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
   const data = buildSafeContext(snapshot, range, intent)
   if (intent === 'staff') {
     const profile = staffProfileLookup(snapshot, question)
-    if (profile) return { answer: profile, safeContext: 'Hồ sơ và ca làm của một nhân viên thuộc salon hiện tại; chưa có employee attribution cho doanh thu.', intent, period }
+    if (profile) return { answer: profile, safeContext: 'Hồ sơ, ca làm và các dòng hóa đơn được gán nhân viên trong salon hiện tại.', intent, period }
     const detailRequest = /(thong tin nhan vien|ho so nhan vien|chi tiet nhan vien|nhan vien co so dien thoai)/.test(normalizeAssistantText(question)) || question.replace(/\D/g, '').length >= 8
     if (detailRequest) return { answer: 'Em chưa tìm thấy một hồ sơ nhân viên khớp duy nhất với tên hoặc số điện thoại anh cung cấp. Anh kiểm tra lại chính tả hoặc số điện thoại trong mục Nhân viên giúp em nhé. Em không tự chọn hồ sơ gần giống để tránh nhầm người.', safeContext: 'Không tìm thấy kết quả hồ sơ nhân viên duy nhất trong salon hiện tại.', intent, period }
   }
