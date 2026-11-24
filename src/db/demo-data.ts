@@ -339,13 +339,15 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
     if (remaining > 0.0001) throw new Error('Không đủ tồn kho mô phỏng cho sản phẩm ' + products[use.productIndex].name)
   }
 
-  const refundsCandidates = invoices.filter((_, index) => index % 47 === 0)
+  const refundsCandidates = invoices.filter((invoice, index) => index % 47 === 0 && Date.parse(invoice.issuedAt) < Date.parse(endAt.toISOString()))
   for (let index = 0; index < refundsCandidates.length; index += 1) {
     const invoice = refundsCandidates[index]
     const payment = payments.find(item => item.invoiceId === invoice.id)
     if (!payment) continue
     const amountVnd = Math.max(10000, Math.floor(invoice.totalVnd * (0.15 + random() * 0.25)))
-    const refundedAt = iso(addDays(new Date(invoice.issuedAt), 1))
+    const refundDate = addDays(new Date(invoice.issuedAt), 1)
+    if (refundDate > endAt) continue
+    const refundedAt = iso(refundDate)
     const session = sessionFor(new Date(refundedAt))
     const refund: Refund = {
       ...base(prefix + 'refund_' + (index + 1), refundedAt), invoiceId: invoice.id,
@@ -378,7 +380,8 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
       })
     }
     const cogs = money(cogsByMonth.get(monthLabel(month)) ?? 0)
-    const cogsDate = localDate(month.getFullYear(), month.getMonth(), Math.min(27, new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()), 17)
+    const cogsDay = monthIndex === 4 ? now.getDate() : Math.min(27, new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate())
+    const cogsDate = localDate(month.getFullYear(), month.getMonth(), cogsDay, 17)
     const cogsSession = sessionFor(cogsDate)
     expenses.push({
       ...base(prefix + 'expense_' + (++expenseIndex), iso(cogsDate)),
@@ -402,10 +405,20 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
     const cashRefunds = refunds.filter(refund => refund.cashSessionId === session.id && refund.method === 'cash').reduce((sum, refund) => sum + refund.amountVnd, 0)
     const cashExpenses = expenses.filter(expense => expense.cashSessionId === session.id && expense.method === 'cash').reduce((sum, expense) => sum + expense.amountVnd, 0)
     const expected = session.openingFloatVnd + cashPayments - cashRefunds - cashExpenses
-    const difference = rand(-15000, 15000)
+    const weekEnd = new Date(session.openedAt)
+    weekEnd.setDate(weekEnd.getDate() + 6)
+    const isCurrentWeek = weekEnd >= new Date(now.getFullYear(), now.getMonth(), now.getDate())
     session.expectedCashVnd = expected
-    session.countedCashVnd = expected + difference
-    session.differenceVnd = difference
+    if (isCurrentWeek) {
+      session.status = 'open'
+      session.closedAt = null
+      session.countedCashVnd = null
+      session.differenceVnd = null
+    } else {
+      const difference = rand(-15000, 15000)
+      session.countedCashVnd = expected + difference
+      session.differenceVnd = difference
+    }
   }
 
   const taxes: TaxPolicy[] = [{
