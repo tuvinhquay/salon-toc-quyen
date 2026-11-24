@@ -104,7 +104,8 @@ export function AssistantPage() {
       }
 
       const about = answerAssistantAbout(prompt)
-      if (about) {\n        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: about, source: 'local' }])
+      if (about) {
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: about, source: 'local' }])
         return
       }
 
