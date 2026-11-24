@@ -19,7 +19,7 @@ function ModulePage({item}:{item:NavigationItem}){if(item.to==='/settings')retur
 function RootLayout(){
  const pathname=useRouterState({select:s=>s.location.pathname})
  const current=navigation.find(x=>x.to===pathname)??navigation[0]
- const {user,logOut}=useAuth()
+ const {user,logOut,error:authError}=useAuth()
  const owner=useOwnerContext()
  const accountEmail=user?.email??'Tài khoản Owner'
  return <main className="shell">
@@ -40,7 +40,7 @@ function RootLayout(){
      <button type="button" className="account-logout-button" onClick={()=>void logOut()}><LogOut size={15}/> Đăng xuất</button>
     </div>
    </header>
-   <div className="content"><Outlet/></div>
+   <div className="content">{authError&&<p className="form-error" role="alert">{authError}</p>}<Outlet/></div>
   </section>
   <FloatingAssistant/>
  </main>
