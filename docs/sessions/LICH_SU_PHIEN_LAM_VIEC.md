@@ -374,3 +374,26 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Còn thiếu: bot chưa tự tạo/sửa sản phẩm hoặc hồ sơ; kiểm thử CI cuối và Android runtime.
 - Không thay Firestore Rules, Firebase Auth hoặc Membership; Dexie nâng lên v7 có migration bổ sung customerGroups, không xóa bảng/dữ liệu cũ. Không deploy Firebase, không merge.
 - Phase 29 chưa PASS cho tới khi CI, Termux và Android smoke test đạt.
+
+
+## Phiên 20 – 2026-11-25 – Phase 30: Thay bộ dữ liệu mẫu bằng mô phỏng 5 tháng
+- Đọc trạng thái mới nhất của repo: P29 branch/PR #22 vẫn Draft; tạo branch P30 từ P29, không merge hoặc deploy.
+- Thay `src/db/demo-data.ts`: bộ dữ liệu giả lập 5 tháng lịch gần nhất, tự cập nhật phạm vi; 120 khách, 10 nhân viên, ca làm, lịch hẹn, 8 dịch vụ, 12 sản phẩm, 4 nhà cung cấp, đơn nhập/lô/xuất kho, hóa đơn/thu tiền/hoàn tiền, ca thu ngân, chi phí và giá vốn.
+- Khách hàng có custom fields theo khu vực Ngã Giao / TP.HCM; tất cả danh tính và liên hệ là giả lập, số điện thoại mẫu không hợp lệ để tránh sử dụng liên hệ thật.
+- Thay phần UI mẫu cũ trong Settings bằng tạo/thay mới dataset 5 tháng, xem số lượng và xóa dataset.
+- Thay/xóa chỉ record có tiền tố demo_<salonId>_; transaction và kiểm tra tham chiếu ngăn xóa khi giao dịch thật đang phụ thuộc vào dữ liệu mẫu.
+- Thêm `tests/demo-data.test.ts` cho khoảng thời gian rolling 5 tháng và ranh giới năm.
+- Tạo `docs/sessions/P30-FIVE-MONTH-DEMO-DATA.md` và cập nhật ROADMAP.
+- CI chưa chạy/đang chờ PR; chưa được đánh dấu PASS. Cần kiểm tra typecheck, lint, tests, production build và Termux/Android acceptance. Không merge, không deploy.
+
+
+### Kết quả CI P30 – 2026-11-25
+- CI run 45512975364 trên commit code `679e207746eedab3aebb0370372fc9e7232dc154`: Typecheck PASS, ESLint PASS, 13/13 test files, 53/53 tests PASS, Production build/PWA PASS.
+- Test bundle xác nhận 120 khách giả lập, 10 nhân viên, 8 dịch vụ, 12 sản phẩm, 288 hóa đơn, 5 PO, 60 lots; hóa đơn và payment liên kết, tổng hóa đơn khớp các dòng, tồn kho = nhập - xuất.
+- Các lần CI đầu phát hiện lỗi tham chiếu và một assertion test sai; đã sửa, CI cuối cùng PASS. Không che lỗi hoặc bỏ test.
+- P30 còn chờ Owner kiểm tra thực tế trên Termux/Android; PR #23 vẫn Draft, không merge/deploy.
+
+
+### Lưu ý vận hành bổ sung P30
+- Thêm cảnh báo rõ trong Settings: dataset được lưu trong salon hiện tại và sẽ hiển thị cộng với dữ liệu thật ở Dashboard/báo cáo. Owner chỉ nên tạo trong tenant dành cho demo hoặc chấp nhận báo cáo bị trộn; dữ liệu thật vẫn không bị xóa.
+- Không tạo dataset demo trên salon đang dùng báo cáo tài chính thật nếu cần số liệu thuần thực tế.

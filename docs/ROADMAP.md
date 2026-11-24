@@ -172,3 +172,12 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Tests added for natural query phrasing and chart bucket aggregation.
 - Remaining: employee attribution on invoice/service lines, safe confirmed write/archive actions from chat, customer groups/custom fields CRUD, product category management, and Android runtime acceptance.
 - Status: IN PROGRESS; do not mark PASS or merge until CI + Termux + Android smoke tests pass.
+
+
+## P30 – Bộ dữ liệu mô phỏng kinh doanh 5 tháng – 2026-11-25
+- Thay bộ demo P14 đơn giản bằng dataset rolling 5 tháng có khách giả lập, nhân viên/ca, lịch hẹn, dịch vụ, POS invoices/payments/refunds, sản phẩm, PO/lot/stock movement, cash sessions và expenses/COGS.
+- Cài đặt dùng thao tác tạo/thay mới bộ mô phỏng và xóa bộ mô phỏng; không còn UI nạp/xóa sample cũ.
+- Dataset có ID demo tenant-scoped; giao dịch thật tham chiếu record demo sẽ khóa thay/xóa để giữ lịch sử.
+- Có test cho khoảng 5 tháng và qua năm. Session note: `docs/sessions/P30-FIVE-MONTH-DEMO-DATA.md`.
+- CI run 45512975364: Typecheck PASS, ESLint PASS, 53/53 tests PASS, Production build/PWA PASS.
+- Trạng thái: CI PASS; chờ Owner Android/Termux acceptance. Chưa PASS tổng thể, chưa merge, chưa deploy.
