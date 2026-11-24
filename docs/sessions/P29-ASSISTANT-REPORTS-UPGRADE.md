@@ -10,6 +10,8 @@ Base: `phase-28-tenant-isolation-handover-v2`
 - Khi không tìm thấy hồ sơ nhân viên khớp duy nhất, bot yêu cầu kiểm tra lại thay vì tự chọn người gần giống.
 - Bổ sung thống kê khách hàng theo số lịch đặt và theo chi tiêu hóa đơn; có thể xếp hạng theo số lượng sản phẩm mua khi câu hỏi yêu cầu rõ.
 - Chỉnh lời chào thành giọng trợ lý “em – anh/chị”, sử dụng tên hiển thị Google nếu có; không lấy email làm tên.
+- Bổ sung cơ chế học từ vựng do Owner dạy bằng câu “Hãy ghi nhớ từ … nghĩa là …”; những câu hỏi sau sẽ được thay thế alias trước khi nhận diện intent, dữ liệu học vẫn lưu local-only theo salonId + ownerId.
+- FAQ giải thích rõ trợ lý cơ sở có giới hạn, khuyến khích câu hỏi ngắn; phân biệt chức năng chat chỉ đọc với CRUD trong màn hình quản lý.
 - Bổ sung biểu đồ cột thu/chi thực tế từ Payment và Expense, tự đổi ngày/tháng theo khoảng thời gian; thêm kiểm thử cho bucket theo ngày, tháng và ngày kết thúc.
 - Bổ sung regression tests cho cách diễn đạt câu hỏi nhân viên và khách mua nhiều sản phẩm.
 - Giữ nguyên tenant scope: mọi dữ liệu lấy từ IndexedDB theo salonId hiện tại. Không gửi hồ sơ nhân viên hoặc dữ liệu khách hàng lên Gemini qua luồng tra cứu này.
