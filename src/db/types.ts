@@ -22,7 +22,7 @@ export type AuditEvent={id:string;salonId:string;entityType:'assistant_memory'|'
 export type ActorContext={salonId:string;actorId:string;deviceId:string}
 
 export type InvoiceStatus='issued'|'partially_paid'|'paid'|'void'|'refunded'
-export type InvoiceLineSnapshot={id:string;lineType:'service'|'product'|'custom';referenceId:string|null;description:string;quantity:number;unitPriceVnd:number;discountVnd:number;taxRatePercent:number;taxVnd:number;totalVnd:number}
+export type InvoiceLineSnapshot={id:string;lineType:'service'|'product'|'custom';referenceId:string|null;description:string;quantity:number;unitPriceVnd:number;discountVnd:number;taxRatePercent:number;taxVnd:number;totalVnd:number;employeeId?:string|null;employeeNameSnapshot?:string|null}
 export type Invoice=BaseEntity&{invoiceNumber:string;customerId:string|null;customerNameSnapshot:string;customerPhoneSnapshot:string|null;status:InvoiceStatus;issuedAt:string;subtotalVnd:number;discountVnd:number;taxVnd:number;totalVnd:number;amountPaidVnd:number;lines:InvoiceLineSnapshot[];notes:string;voidedAt:string|null}
 export type PaymentMethod='cash'|'bank_transfer'|'card'|'other'
 export type Payment=BaseEntity&{invoiceId:string;cashSessionId:string|null;method:PaymentMethod;amountVnd:number;paidAt:string;reference:string;status:'completed'|'partially_refunded'|'refunded'|'void'}
