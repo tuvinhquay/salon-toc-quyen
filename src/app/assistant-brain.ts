@@ -8,12 +8,12 @@ export function parseMemoryInstruction(question: string): ParsedMemoryInstructio
   const raw = question.trim().replace(/[.!?]+$/, '').trim()
   if (!raw) return null
   const normalized = normalize(raw)
-  const explicit = /^(?:xin\s+)?(?:hay\s+)?(?:ghi nho|hay nho|nho giup|minh nho|minh muon ban nho|luu lai|hay luu|tu nay)\b/.test(normalized)
+  const explicit = /^(?:xin\s+)?(?:hay\s+)?(?:ghi nho|hay nho|nho rang|nho giup|minh nho|minh muon ban nho|luu lai|hay luu|tu nay)\b/.test(normalized)
   const identity = /^(?:ten toi la|ten minh la|goi toi la|goi minh la|toi ten la|minh ten la)\b/.test(normalized)
   if (!explicit && !identity) return null
 
   const content = raw
-    .replace(/^(?:xin\s+)?(?:hãy\s+)?(?:ghi nhớ|hãy nhớ|nhớ giúp(?: mình| tôi)?|mình nhớ|nhớ|lưu lại|hãy lưu|từ nay(?: hãy)?)\s*/i, '')
+    .replace(/^(?:xin\s+)?(?:hãy\s+)?(?:ghi nhớ|hãy nhớ|mình muốn bạn nhớ(?: rằng)?|nhớ giúp(?: mình| tôi)?|nhớ rằng|mình nhớ|nhớ|lưu lại|hãy lưu|từ nay(?: hãy)?)\s*/i, '')
     .replace(/^(?:giúp mình|giúp tôi|rằng|là)\s*/i, '')
     .replace(/\s+(?:nhé|nha|bạn nhé|giúp mình|giúp tôi)$/i, '')
     .trim()
