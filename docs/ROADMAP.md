@@ -164,3 +164,11 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Bổ sung regression tests cho: chỉ liệt kê khách thuộc salon hiện tại; từ chối sửa hồ sơ thuộc salon cũ; mọi truy vấn dữ liệu của trợ lý dùng salonId đang xác thực; trí nhớ dài hạn giới hạn theo salonId + ownerId; không cho Owner mới lưu trữ trí nhớ của Owner cũ.
 - Đây là lớp bảo vệ logic ứng dụng trên cùng thiết bị, không phải mã hóa dữ liệu IndexedDB theo từng tài khoản. Dữ liệu local cũ được giữ nguyên và không tự động chuyển sang tenant mới.
 - Chờ CI và Termux regression; hai tài khoản Firebase vẫn cần smoke test riêng trước khi bàn giao.
+
+
+## Phase 29 – Assistant & configurable analytics – 2026-11-24
+- Branch: `phase-29-assistant-natural-language-and-configurable-analytics` (base P28 tenant isolation).
+- Implemented first code wave: Vietnamese owner greeting; local staff profile lookup by exact name/phone; employee tenure and completed-shift summary; customer appointment frequency and invoice spend/product quantity rankings; responsive collected-vs-expense chart.
+- Tests added for natural query phrasing and chart bucket aggregation.
+- Remaining: employee attribution on invoice/service lines, safe confirmed write/archive actions from chat, customer groups/custom fields CRUD, product category management, and Android runtime acceptance.
+- Status: IN PROGRESS; do not mark PASS or merge until CI + Termux + Android smoke tests pass.

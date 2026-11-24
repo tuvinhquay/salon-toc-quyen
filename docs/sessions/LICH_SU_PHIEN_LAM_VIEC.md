@@ -354,3 +354,23 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Tổng hợp với GitHub Actions run `45379618184`: TypeScript, ESLint, unit tests, production build/PWA đều PASS.
 - Chưa chạy app trên browser, chưa smoke test tài khoản Google mới, chưa deploy Hosting và chưa merge PR #21.
 - Hướng dẫn xem giao diện: chạy `npm run dev -- --host 0.0.0.0` trong Termux, mở `http://127.0.0.1:5173` trên trình duyệt cùng điện thoại. Dừng server bằng Ctrl+C.
+
+
+## Phiên 19 – 2026-11-24 – Phase 29: Trợ lý nghiệp vụ và báo cáo trực quan
+- Tạo nhánh `phase-29-assistant-natural-language-and-configurable-analytics` từ `phase-28-tenant-isolation-handover-v2`.
+- Tra cứu hồ sơ nhân viên local theo tên/số điện thoại, báo cáo ngày vào làm, thâm niên, ca đã hoàn thành và số giờ; không bịa doanh thu cá nhân khi chưa có liên kết employee attribution.
+- Bổ sung xếp hạng khách theo lịch đặt, chi tiêu hóa đơn và số lượng sản phẩm đã mua trong kỳ.
+- Đổi lời chào trợ lý sang xưng hô tự nhiên; lấy tên hiển thị Google, không dùng email làm tên.
+- Thêm học từ vựng theo chỉ dẫn tường minh “Hãy ghi nhớ từ … nghĩa là …”; áp dụng alias vào câu hỏi sau, lưu local-only theo tenant/Owner.
+- Giữ tra cứu hồ sơ nhân viên trên thiết bị, không gửi dữ liệu cá nhân lên Gemini.
+- Báo cáo có biểu đồ tiền thu/hoàn tiền/chi phí từ Payment/Refund/Expense, bộ lọc nhanh ngày/tháng/quý/năm và bucket ngày/tháng.
+- Bổ sung unit tests cho intent tiếng Việt, memory vocabulary, chart buckets, customer groups/custom fields và chặn bulk archive xuyên tenant.
+- Dexie v7 thêm customerGroups; Customer/Product lưu customFields tùy chỉnh trực tiếp trong record.
+- Owner có thể tạo/sửa/lưu trữ nhóm khách theo tháng/quý/tùy chỉnh, gắn nhóm vào hồ sơ khách hàng; sản phẩm có thể sửa/ngừng/kích hoạt mà không xóa lịch sử.
+- Thêm lưu trữ hàng loạt khách hàng trong UI và bot chat: preview hồ sơ, xác nhận tường minh, transaction/audit; chỉ lưu trữ, không xóa hóa đơn/thanh toán.
+- Nâng backup mã hóa lên schema v7, gồm customerGroups và assistantMemories; restore backup cũ chỉ thay các bảng có trong tệp.
+- Tạo tài liệu chi tiết `docs/sessions/P29-ASSISTANT-REPORTS-UPGRADE.md`; cập nhật `docs/ROADMAP.md`.
+- POS đã thêm chọn nhân viên trên từng dòng hóa đơn; trợ lý tính doanh số gộp dịch vụ/sản phẩm, số khách có hóa đơn và số sản phẩm bán từ các dòng được gán. Dữ liệu lịch sử chưa có phân công không được suy đoán; hoàn tiền chưa phân bổ theo nhân viên.
+- Còn thiếu: bot chưa tự tạo/sửa sản phẩm hoặc hồ sơ; kiểm thử CI cuối và Android runtime.
+- Không thay Firestore Rules, Firebase Auth hoặc Membership; Dexie nâng lên v7 có migration bổ sung customerGroups, không xóa bảng/dữ liệu cũ. Không deploy Firebase, không merge.
+- Phase 29 chưa PASS cho tới khi CI, Termux và Android smoke test đạt.

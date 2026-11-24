@@ -1,8 +1,9 @@
 import Dexie, { type Table } from 'dexie'
-import type { Appointment, AuditEvent, AssistantMemoryRecord, BackupRecord, CashSession, ChangeLog, CommissionPolicy, Customer, DeviceRecord, Employee, Expense, InventoryLot, Invoice, Payment, Product, PurchaseOrder, Refund, Service, StockMovement, Supplier, SyncConflict, SyncCursor, TaxPolicy, WorkShift, WorkflowEvent } from './types'
+import type { Appointment, AuditEvent, AssistantMemoryRecord, BackupRecord, CustomerGroup, CashSession, ChangeLog, CommissionPolicy, Customer, DeviceRecord, Employee, Expense, InventoryLot, Invoice, Payment, Product, PurchaseOrder, Refund, Service, StockMovement, Supplier, SyncConflict, SyncCursor, TaxPolicy, WorkShift, WorkflowEvent } from './types'
 
 export class SalonDatabase extends Dexie {
   customers!: Table<Customer, string>
+  customerGroups!: Table<CustomerGroup, string>
   appointments!: Table<Appointment, string>
   services!: Table<Service, string>
   workflowEvents!: Table<WorkflowEvent, string>
@@ -79,6 +80,11 @@ export class SalonDatabase extends Dexie {
     this.version(6).stores({
       ...v5,
       assistantMemories: 'id,salonId,ownerId,category,status,updatedAt,[salonId+ownerId],[salonId+category],[salonId+status]',
+    })
+    this.version(7).stores({
+      ...v5,
+      assistantMemories: 'id,salonId,ownerId,category,status,updatedAt,[salonId+ownerId],[salonId+category],[salonId+status]',
+      customerGroups: 'id,salonId,name,period,active,updatedAt,[salonId+active],[salonId+period]',
     })
   }
 }

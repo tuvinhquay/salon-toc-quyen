@@ -6,6 +6,11 @@ describe('tax and invoice schemas',()=>{
   expect(taxPolicyInputSchema.safeParse({name:'VAT',ratePercent:10,inclusive:false,effectiveFrom:at}).success).toBe(true)
   expect(taxPolicyInputSchema.safeParse({name:'VAT',ratePercent:101,inclusive:false,effectiveFrom:at}).success).toBe(false)
  })
+ it('accepts an optional employee assignment on each invoice line',()=>{
+  const assigned={invoiceNumber:'HD-002',issuedAt:at,lines:[{lineType:'service',referenceId:'service-1',description:'Cắt tóc',quantity:1,unitPriceVnd:200000,employeeId:'employee-1'}]}
+  expect(invoiceInputSchema.safeParse(assigned).success).toBe(true)
+  expect(invoiceInputSchema.safeParse({...assigned,lines:[{...assigned.lines[0],employeeId:''}]}).success).toBe(false)
+ })
  it('rejects invalid invoice discounts and missing referenced items',()=>{
   const base={invoiceNumber:'HD-001',issuedAt:at,lines:[{lineType:'custom',description:'Dịch vụ khác',quantity:1,unitPriceVnd:100000}]}
   expect(invoiceInputSchema.safeParse(base).success).toBe(true)
