@@ -49,7 +49,7 @@ function buildRevenueBuckets(payments: Payment[], expenses: Expense[], startAt: 
  }
  const buckets = new Map<string, RevenueBucket>()
  const cursor = new Date(startDate.getFullYear(), startDate.getMonth(), monthMode ? 1 : startDate.getDate())
- const endCursor = new Date(endDate.getFullYear(), endDate.getMonth(), monthMode ? 1 : endDate.getDate())
+ const endIncludesPartialPeriod = endDate.getDate() > 1 || endDate.getHours() > 0 || endDate.getMinutes() > 0 || endDate.getSeconds() > 0\n const endCursor = monthMode ? new Date(endDate.getFullYear(), endDate.getMonth() + (endIncludesPartialPeriod ? 1 : 0), 1) : new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate() + (endDate.getHours() > 0 || endDate.getMinutes() > 0 || endDate.getSeconds() > 0 ? 1 : 0))
  for (let guard=0; cursor < endCursor && guard<400; guard++) {
   const key = keyOf(cursor.toISOString())
   const label = monthMode ? cursor.toLocaleDateString('vi-VN',{month:'short',year:'2-digit'}) : cursor.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})
