@@ -5,7 +5,7 @@ import { useAuth } from '../auth/AuthProvider'
 import type { AssistantMemoryRecord } from '../db/types'
 import { answerOwnerQuestion, redactQuestionForGemini } from './assistant-local'
 import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, readAssistantMemory } from './assistant-memory'
-import { answerAssistantAbout, answerFromMemories, findMatchingAssistantShortcut, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
+import { answerAssistantAbout, answerFromMemories, applyLearnedVocabulary, findMatchingAssistantShortcut, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
 import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assistant-brain-store'
 import { askGeminiAdviser, isGeminiAssistantReady } from './assistant-gemini'
 
@@ -124,7 +124,8 @@ export function AssistantPage() {
       }
 
       const trainedShortcut = findMatchingAssistantShortcut(longTermMemories, prompt)
-      const local = await answerOwnerQuestion(actor.salonId, trainedShortcut?.content ?? prompt)
+      const learnedPrompt = applyLearnedVocabulary(longTermMemories, prompt)
+      const local = await answerOwnerQuestion(actor.salonId, trainedShortcut?.content ?? learnedPrompt)
       const nextMemory = learnAssistantHabit(actor.salonId, actor.actorId, local.intent, local.period)
       setMemory(nextMemory)
       const relevant = selectRelevantMemories(longTermMemories, prompt)
