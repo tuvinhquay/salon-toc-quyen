@@ -342,5 +342,5 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Rà soát Dexie/repositories: dữ liệu nghiệp vụ được giữ local-first và truy vấn theo salonId; thao tác sửa hồ sơ cũ kiểm tra salonId trước khi ghi; trí nhớ dài hạn dùng cặp salonId + ownerId.
 - Thêm regression tests `tests/tenant-isolation.test.ts` để khóa các điều kiện trên và ngăn hồi quy khi chuyển tài khoản.
 - Không xóa IndexedDB, không xóa hoặc đổi `memberships/{uid cũ}`, không tạo collection mới, không sửa Firestore Rules.
-- Còn chờ GitHub Actions và chạy typecheck/lint/test/build trên Termux. Chưa đánh dấu PASS cho tới khi có kết quả.
+- GitHub Actions run `45379133999` PASS: Typecheck, ESLint, Unit tests và Production build/PWA. Còn chờ Termux regression và Android smoke test; chưa đánh dấu runtime PASS.
 - Sau khi kiểm thử tự động đạt, hướng dẫn người dùng đăng nhập Google mới, tạo salon mới và xác nhận salonId mới; kiểm tra dữ liệu cũ vẫn được giữ nguyên và không xuất hiện trong workspace mới.
