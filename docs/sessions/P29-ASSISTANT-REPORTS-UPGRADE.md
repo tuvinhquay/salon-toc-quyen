@@ -29,8 +29,8 @@ Base: `phase-28-tenant-isolation-handover-v2`
 
 ## Bảo mật và dữ liệu
 - Không thay đổi Firestore Rules, Firebase project, Firebase Auth, Membership hoặc dữ liệu salon.
-- Không đổi IndexedDB schema và không chạy migration.
-- Không tự xóa hoặc sửa dữ liệu kinh doanh.
+- Dexie được nâng từ v6 lên v7 để bổ sung customerGroups; các Customer/Product cũ giữ tương thích vì groupIds/customFields là trường tùy chọn.
+- Thao tác archive/update chỉ thực hiện qua repository có kiểm tra salonId, xác nhận rõ ràng và audit; không hard-delete hóa đơn/thanh toán.
 - Không merge PR, không deploy Firebase Hosting/Rules.
 - Không đưa dữ liệu cá nhân vào Gemini trong luồng tra cứu hồ sơ nhân viên.
 
