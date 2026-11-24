@@ -8,7 +8,7 @@ export function parseMemoryInstruction(question: string): ParsedMemoryInstructio
   const raw = question.trim().replace(/[.!?]+$/, '').trim()
   if (!raw) return null
   const normalized = normalize(raw)
-  const explicit = /^(?:xin\s+)?(?:hay\s+)?(?:ghi nho|hay nho|nho giup|minh nho|luu lai|hay luu|tu nay)\b/.test(normalized)
+  const explicit = /^(?:xin\s+)?(?:hay\s+)?(?:ghi nho|hay nho|nho giup|minh nho|minh muon ban nho|luu lai|hay luu|tu nay)\b/.test(normalized)
   const identity = /^(?:ten toi la|ten minh la|goi toi la|goi minh la|toi ten la|minh ten la)\b/.test(normalized)
   if (!explicit && !identity) return null
 
@@ -36,7 +36,7 @@ export function parseMemoryInstruction(question: string): ParsedMemoryInstructio
 
 export function isMemoryRecallQuestion(question: string): boolean {
   const q = normalize(question)
-  return /(ban nho gi|nho gi ve toi|ban co nho toi|toi ten gi|ten toi la gi|so thich cua toi|toi thich gi|toi da dan gi|toi da bao ban|nho cua ban|bo nho cua ban|nhung gi ban da ghi nho|thong tin ban nho|ban con nho)/.test(q)
+  return /(ban nho gi|nho gi ve toi|ban co nho toi|toi ten gi|minh ten gi|ten minh la gi|ten toi la gi|ban nho ten minh|so thich cua toi|toi thich gi|toi da dan gi|toi da bao ban|nho cua ban|bo nho cua ban|nhung gi ban da ghi nho|thong tin ban nho|ban con nho)/.test(q)
 }
 
 export function answerFromMemories(memories: AssistantMemoryRecord[]): string {
