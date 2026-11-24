@@ -206,7 +206,7 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
       for (let productIndex = 0; productIndex < productLineCount; productIndex += 1) {
         const index = rand(0, products.length - 1)
         const product = products[index]
-        const employee = random() < 0.75 ? staff : cashier
+        const employee = random() < 0.75 ? pick(serviceStaff) : cashier
         const quantity = rand(1, 2)
         lineData.push({ lineType: 'product', referenceId: product.id, description: product.name, quantity, unitPriceVnd: productDefs[index][5], employee })
         pendingUses.push({ productIndex: index, quantity, occurredAt: issuedAt, sourceId: invoiceId, monthKey: monthLabel(date) })
@@ -306,7 +306,7 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
       lots.push(lot); lotsByProduct[productIndex].push(lot); lotRemaining.set(lotId, lot.quantityRemaining)
       movements.push({
         ...base(prefix + 'movement_receipt_' + (monthIndex + 1) + '_' + (productIndex + 1), receivedAt),
-        productId: product.id, lotId, movementType: 'receipt', direction: 'in',
+        productId: products[productIndex].id, lotId, movementType: 'receipt', direction: 'in',
         quantity: line.quantity, unitCostVnd: line.unitCostVnd, occurredAt: receivedAt,
         sourceId: orderId, notes: 'Nhập kho theo đơn mua mô phỏng.',
       })
