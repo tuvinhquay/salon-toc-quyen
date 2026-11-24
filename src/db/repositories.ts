@@ -49,9 +49,11 @@ export async function createInvoice(a:ActorContext,input:InvoiceInput){
  for(const line of d.lines){
   if(line.lineType==='service'){const service=await salonDb.services.get(line.referenceId!);if(!service||service.salonId!==a.salonId||!service.active)throw Error('Dịch vụ trong hóa đơn không hợp lệ.')}
   if(line.lineType==='product'){const product=await salonDb.products.get(line.referenceId!);if(!product||product.salonId!==a.salonId||!product.active)throw Error('Sản phẩm trong hóa đơn không hợp lệ.')}
+  let employeeNameSnapshot:string|null=null
+  if(line.employeeId){const employee=await salonDb.employees.get(line.employeeId);if(!employee||employee.salonId!==a.salonId||employee.status!=='active')throw Error('Nhân viên thực hiện không hợp lệ trong salon hiện tại.');employeeNameSnapshot=employee.fullName}
   const gross=Math.round(line.quantity*line.unitPriceVnd),net=gross-line.discountVnd,taxVnd=Math.round(inclusive?net*rate/(100+rate):net*rate/100),totalVnd=inclusive?net:net+taxVnd
   subtotal+=gross;discount+=line.discountVnd;tax+=taxVnd
-  resolved.push({id:id(),...line,referenceId:line.referenceId??null,taxRatePercent:rate,taxVnd,totalVnd})
+  resolved.push({id:id(),...line,referenceId:line.referenceId??null,employeeId:line.employeeId??null,employeeNameSnapshot,taxRatePercent:rate,taxVnd,totalVnd})
  }
  const t=now(),invoiceId=id()
  const v:Invoice={id:invoiceId,salonId:a.salonId,invoiceNumber:d.invoiceNumber,customerId:d.customerId??null,customerNameSnapshot:d.customerNameSnapshot,customerPhoneSnapshot:d.customerPhoneSnapshot??null,status:'issued',issuedAt:d.issuedAt,subtotalVnd:subtotal,discountVnd:discount,taxVnd:tax,totalVnd:resolved.reduce((sum,l)=>sum+l.totalVnd,0),amountPaidVnd:0,lines:resolved,notes:d.notes,voidedAt:null,createdAt:t,updatedAt:t,revision:1,createdBy:a.actorId,updatedBy:a.actorId,deviceId:a.deviceId}
