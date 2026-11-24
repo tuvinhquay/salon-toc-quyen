@@ -392,3 +392,8 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Test bundle xác nhận 120 khách giả lập, 10 nhân viên, 8 dịch vụ, 12 sản phẩm, 288 hóa đơn, 5 PO, 60 lots; hóa đơn và payment liên kết, tổng hóa đơn khớp các dòng, tồn kho = nhập - xuất.
 - Các lần CI đầu phát hiện lỗi tham chiếu và một assertion test sai; đã sửa, CI cuối cùng PASS. Không che lỗi hoặc bỏ test.
 - P30 còn chờ Owner kiểm tra thực tế trên Termux/Android; PR #23 vẫn Draft, không merge/deploy.
+
+
+### Lưu ý vận hành bổ sung P30
+- Thêm cảnh báo rõ trong Settings: dataset được lưu trong salon hiện tại và sẽ hiển thị cộng với dữ liệu thật ở Dashboard/báo cáo. Owner chỉ nên tạo trong tenant dành cho demo hoặc chấp nhận báo cáo bị trộn; dữ liệu thật vẫn không bị xóa.
+- Không tạo dataset demo trên salon đang dùng báo cáo tài chính thật nếu cần số liệu thuần thực tế.
