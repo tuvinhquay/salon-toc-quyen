@@ -35,8 +35,8 @@ export function PosPage(){
  <div className="record-list"><h3>Giao dịch và chi phí</h3>{payments.slice().reverse().slice(0,10).map(p=><article className="record" key={p.id}><div><b>Thu {formatVnd(p.amountVnd)}</b><p>{p.method} · {new Date(p.paidAt).toLocaleString('vi-VN')}</p></div></article>)}{refunds.slice().reverse().slice(0,10).map(r=><article className="record" key={r.id}><div><b>Hoàn {formatVnd(r.amountVnd)}</b><p>{r.reason}</p></div></article>)}{expenses.slice().reverse().slice(0,10).map(x=><article className="record" key={x.id}><div><b>Chi {formatVnd(x.amountVnd)}</b><p>{x.category}</p></div></article>)}</div>
  </section>
 }
-export type RevenueBucket = { label: string; collected: number; expenses: number }
-export function buildRevenueBuckets(payments: Payment[], expenses: Expense[], startAt: string, endAt: string): RevenueBucket[] {
+export type RevenueBucket = { label: string; collected: number; refunded: number; expenses: number }
+export function buildRevenueBuckets(payments: Payment[], expenses: Expense[], refunds: Refund[], startAt: string, endAt: string): RevenueBucket[] {
  const startDate = new Date(startAt)
  const endDate = new Date(endAt)
  if (!Number.isFinite(startDate.getTime()) || !Number.isFinite(endDate.getTime()) || endDate <= startDate) return []
@@ -54,11 +54,11 @@ export function buildRevenueBuckets(payments: Payment[], expenses: Expense[], st
  for (let guard=0; cursor < endCursor && guard<400; guard++) {
   const key = keyOf(cursor.toISOString())
   const label = monthMode ? cursor.toLocaleDateString('vi-VN',{month:'short',year:'2-digit'}) : cursor.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})
-  buckets.set(key,{label,collected:0,expenses:0})
+  buckets.set(key,{label,collected:0,refunded:0,expenses:0})
   if (monthMode) cursor.setMonth(cursor.getMonth()+1); else cursor.setDate(cursor.getDate()+1)
  }
  for (const row of payments) { const key=keyOf(row.paidAt); const bucket=buckets.get(key); if(bucket&&row.status!=='void') bucket.collected+=row.amountVnd }
- for (const row of expenses) { const key=keyOf(row.paidAt); const bucket=buckets.get(key); if(bucket) bucket.expenses+=row.amountVnd }
+ for (const row of refunds) { const key=keyOf(row.refundedAt); const bucket=buckets.get(key); if(bucket) bucket.refunded+=row.amountVnd }\n for (const row of expenses) { const key=keyOf(row.paidAt); const bucket=buckets.get(key); if(bucket) bucket.expenses+=row.amountVnd }
  return [...buckets.values()]
 }
 export function ReportsPage(){
@@ -75,13 +75,13 @@ export function ReportsPage(){
  async function load(e?:FormEvent){
   e?.preventDefault();setBusy(true);setError(null)
   try{
-   const [summary,paymentRows,expenseRows]=await Promise.all([getSalesReport(actor,iso(start),iso(end)),listPayments(actor),listExpenses(actor)])
+   const [summary,paymentRows,expenseRows,refundRows]=await Promise.all([getSalesReport(actor,iso(start),iso(end)),listPayments(actor),listExpenses(actor),listRefunds(actor)])
    setReport(summary)
-   setBuckets(buildRevenueBuckets(paymentRows.filter(row=>row.paidAt>=iso(start)&&row.paidAt<iso(end)),expenseRows.filter(row=>row.paidAt>=iso(start)&&row.paidAt<iso(end)),iso(start),iso(end)))
+   setBuckets(buildRevenueBuckets(paymentRows.filter(row=>row.paidAt>=iso(start)&&row.paidAt<iso(end)),expenseRows.filter(row=>row.paidAt>=iso(start)&&row.paidAt<iso(end)),refundRows.filter(row=>row.refundedAt>=iso(start)&&row.refundedAt<iso(end)),iso(start),iso(end)))
   }catch(e){setError(e instanceof Error?e.message:'Không tải được báo cáo.')}finally{setBusy(false)}
  }
  useEffect(()=>{void load()},[actor])
- const maxValue=Math.max(1,...buckets.flatMap(row=>[row.collected,row.expenses]))
+ const maxValue=Math.max(1,...buckets.flatMap(row=>[row.collected,row.refunded,row.expenses]))
  return <section className="work-page">
   <div className="work-intro"><div><small>P09 · BÁO CÁO</small><h2>Báo cáo hoạt động</h2><p>Tổng hợp từ hóa đơn, thanh toán, hoàn tiền và chi phí đã ghi nhận.</p></div></div>
   <form className="work-form" onSubmit={e=>void load(e)}>
@@ -99,16 +99,16 @@ export function ReportsPage(){
    </div>
    <section className="work-form revenue-chart">
     <div className="list-heading"><div><h3>Biểu đồ thu – chi</h3><p className="record-note">Theo ngày khi khoảng xem không quá 45 ngày; theo tháng khi dài hơn.</p></div></div>
-    <div className="revenue-legend"><span><i className="legend-collected"/> Tiền đã thu</span><span><i className="legend-expense"/> Chi phí</span></div>
+    <div className="revenue-legend"><span><i className="legend-collected"/> Tiền đã thu</span><span><i className="legend-refunded"/> Hoàn tiền</span><span><i className="legend-expense"/> Chi phí</span></div>
     {buckets.length===0?<p className="empty-state">Chưa có dữ liệu trong khoảng thời gian này.</p>:<div className="revenue-bars" role="img" aria-label="Biểu đồ tiền đã thu và chi phí theo thời gian">
      {buckets.map((bucket,index)=><div className="revenue-bar-group" key={bucket.label+'-'+index}>
       <div className="revenue-bar-pair">
        <div className="revenue-bar collected" title={'Đã thu '+formatVnd(bucket.collected)} style={{height:Math.max(bucket.collected>0?3:0,bucket.collected/maxValue*100)+'%'}}/>
-       <div className="revenue-bar expense" title={'Chi phí '+formatVnd(bucket.expenses)} style={{height:Math.max(bucket.expenses>0?3:0,bucket.expenses/maxValue*100)+'%'}}/>
+       <div className="revenue-bar refunded" title={'Hoàn tiền '+formatVnd(bucket.refunded)} style={{height:Math.max(bucket.refunded>0?3:0,bucket.refunded/maxValue*100)+'%'}}/><div className="revenue-bar expense" title={'Chi phí '+formatVnd(bucket.expenses)} style={{height:Math.max(bucket.expenses>0?3:0,bucket.expenses/maxValue*100)+'%'}}/>
       </div><small>{bucket.label}</small>
      </div>)}
     </div>}
-    <div className="revenue-chart-foot"><span>Đã thu: <b>{formatVnd(report.collectedVnd)}</b></span><span>Chi phí: <b>{formatVnd(report.expensesVnd)}</b></span></div>
+    <div className="revenue-chart-foot"><span>Đã thu: <b>{formatVnd(report.collectedVnd)}</b></span><span>Hoàn tiền: <b>{formatVnd(report.refundedVnd)}</b></span><span>Chi phí: <b>{formatVnd(report.expensesVnd)}</b></span></div>
    </section>
   </>}
  </section>
