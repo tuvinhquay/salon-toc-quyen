@@ -361,6 +361,7 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Tra cứu hồ sơ nhân viên local theo tên/số điện thoại, báo cáo ngày vào làm, thâm niên, ca đã hoàn thành và số giờ; không bịa doanh thu cá nhân khi chưa có liên kết employee attribution.
 - Bổ sung xếp hạng khách theo lịch đặt, chi tiêu hóa đơn và số lượng sản phẩm đã mua trong kỳ.
 - Đổi lời chào trợ lý sang xưng hô tự nhiên; lấy tên hiển thị Google, không dùng email làm tên.
+- Thêm học từ vựng theo chỉ dẫn tường minh “Hãy ghi nhớ từ … nghĩa là …”; áp dụng alias vào câu hỏi sau, lưu local-only theo tenant/Owner.
 - Giữ tra cứu hồ sơ nhân viên trên thiết bị, không gửi dữ liệu cá nhân lên Gemini.
 - Báo cáo có biểu đồ thu/chi dựa trên Payment/Expense thật, theo ngày hoặc tháng tùy khoảng chọn.
 - Bổ sung unit tests cho intent tiếng Việt và bucket biểu đồ.
