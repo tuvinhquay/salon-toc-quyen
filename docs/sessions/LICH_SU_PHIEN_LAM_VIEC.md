@@ -344,3 +344,13 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Không xóa IndexedDB, không xóa hoặc đổi `memberships/{uid cũ}`, không tạo collection mới, không sửa Firestore Rules.
 - GitHub Actions run `45379133999` PASS: Typecheck, ESLint, Unit tests và Production build/PWA. Còn chờ Termux regression và Android smoke test; chưa đánh dấu runtime PASS.
 - Sau khi kiểm thử tự động đạt, hướng dẫn người dùng đăng nhập Google mới, tạo salon mới và xác nhận salonId mới; kiểm tra dữ liệu cũ vẫn được giữ nguyên và không xuất hiện trong workspace mới.
+
+
+## Phiên 20 – 2026-11-24 – Termux validation và mở giao diện PWA
+- Người dùng checkout đúng nhánh `phase-28-tenant-isolation-handover-v2`; pull báo Already up to date.
+- Kết quả Termux: `npm run typecheck` PASS; `npm run lint` 0 errors / 15 warnings (React Hook dependencies và Fast Refresh); `npm run test` PASS – 11 files, 42 tests; `npm run build` PASS, Vite tạo PWA service worker.
+- Build có cảnh báo Rollup annotation trong Zod dependency và chunk JavaScript 1,246.41 kB (>500 kB); không chặn build.
+- `git diff --check` không in lỗi, xem là PASS.
+- Tổng hợp với GitHub Actions run `45379618184`: TypeScript, ESLint, unit tests, production build/PWA đều PASS.
+- Chưa chạy app trên browser, chưa smoke test tài khoản Google mới, chưa deploy Hosting và chưa merge PR #21.
+- Hướng dẫn xem giao diện: chạy `npm run dev -- --host 0.0.0.0` trong Termux, mở `http://127.0.0.1:5173` trên trình duyệt cùng điện thoại. Dừng server bằng Ctrl+C.
