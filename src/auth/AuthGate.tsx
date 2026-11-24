@@ -25,29 +25,30 @@ type MembershipState = { status: 'checking' | 'active' | 'missing' | 'error'; ui
 
 export function AuthGate() {
  const {user,loading,logOut}=useAuth()
+ const userUid=user?.uid
  const [membership,setMembership]=useState<MembershipState>({status:'checking'})
  const [deviceId]=useState(()=>crypto.randomUUID())
  const [retryCount,setRetryCount]=useState(0)
  useEffect(()=>{
    let cancelled=false
    async function verify(){
-     if(!user){setMembership({status:'checking'});return}
-     setMembership({status:'checking',uid:user.uid})
-     if(!firestore){setMembership({status:'error',uid:user.uid});return}
+     if(!userUid){setMembership({status:'checking'});return}
+     setMembership({status:'checking',uid:userUid})
+     if(!firestore){setMembership({status:'error',uid:userUid});return}
      try{
-       const snapshot=await getDoc(doc(firestore,'memberships',user.uid))
+       const snapshot=await getDoc(doc(firestore,'memberships',userUid))
        const data=snapshot.data()
        if(cancelled)return
        const valid=snapshot.exists()&&data?.status==='active'&&data?.role==='owner'&&typeof data?.salonId==='string'&&data.salonId.trim().length>0
-       setMembership(valid?{status:'active',uid:user.uid,salonId:data.salonId}:{status:'missing',uid:user.uid})
+       setMembership(valid?{status:'active',uid:userUid,salonId:data.salonId}:{status:'missing',uid:userUid})
      }catch{
        if(!cancelled)setMembership({status:'error',uid:user.uid})
      }
    }
    void verify()
    return()=>{cancelled=true}
- },[user?.uid,retryCount])
- if(loading||(user&&(membership.status==='checking'||membership.uid!==user.uid)))return <main className="auth-screen"><div className="auth-loading"><LoaderCircle className="spin"/>Đang kiểm tra quyền truy cập…</div></main>
+ },[userUid,retryCount])
+ if(loading||(user&&(membership.status==='checking'||membership.uid!==userUid)))return <main className="auth-screen"><div className="auth-loading"><LoaderCircle className="spin"/>Đang kiểm tra quyền truy cập…</div></main>
  if(!user)return <SignInScreen/>
  if(membership.status!=='active'||!membership.salonId)return <AccessPending message={membership.status==='missing'?'Tài khoản Google đã đăng nhập nhưng chưa có hồ sơ Owner được cấp quyền. Không thể tự tạo quyền quản trị từ trình duyệt.':'Không thể xác minh membership với máy chủ. Kiểm tra kết nối mạng, cấu hình Firebase và Firestore Rules rồi thử lại.'} onRetry={()=>setRetryCount(value=>value+1)} retrying={membership.status==='checking'} onLogOut={()=>void logOut()}/>
  const actor:ActorContext={salonId:membership.salonId,actorId:user.uid,deviceId}
