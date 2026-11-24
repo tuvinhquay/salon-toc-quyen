@@ -33,7 +33,7 @@ describe('five-month business bundle', () => {
     expect(bundle.services).toHaveLength(8)
     expect(bundle.products).toHaveLength(12)
     expect(bundle.invoices).toHaveLength(288)
-    expect(bundle.purchaseOrders).toHaveLength(5)
+    expect(bundle.orders).toHaveLength(5)
     expect(bundle.lots).toHaveLength(60)
     expect(bundle.invoices.every(invoice => invoice.id.startsWith(prefix))).toBe(true)
     expect(bundle.customers.every(customer => customer.phone?.startsWith('000000'))).toBe(true)
