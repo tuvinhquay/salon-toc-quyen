@@ -278,5 +278,5 @@ Base: `phase-23-assistant-ux-account-switch`
 - Không deploy Firebase, không xóa dữ liệu cục bộ, không tự cấp quyền Owner.
 
 ## Kiểm thử
-- CI Phase 24: chờ chạy sau commit tài liệu cuối cùng.
+- GitHub Actions run `45321044138` trên commit `6bddc5bcaa7a25443d42d678fac7806bcba8b0b3`: Typecheck, ESLint, Unit tests, Production/PWA build, Cloud Functions dependency install và Functions build đều PASS. Một lỗi typecheck ban đầu do thiếu destructuring UID đã được sửa trước lượt CI PASS.
 - Cần smoke test Android cho đổi tài khoản và hội thoại; chưa đánh dấu runtime PASS trước khi người dùng xác nhận.
