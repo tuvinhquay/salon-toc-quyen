@@ -35,3 +35,9 @@
 .access-account-uid code{display:block;margin-top:5px;padding:7px 9px;border-radius:6px;background:#f3eee7;color:#594337;font-size:10px;user-select:all}
 .auth-card .google-signin+.google-signin{margin-top:9px}
 @media(max-width:700px){.assistant-chat-meta{font-size:8px}.assistant-adviser-note{font-size:9px}}
+
+
+/* P25 – owner-specific tenant onboarding */
+.owner-tenant-setup{margin:16px 0;padding:14px;border:1px solid #e7ddcf;border-radius:12px;background:#faf7f2;text-align:left}
+.owner-tenant-setup p{font-size:12px;line-height:1.65;color:#76675b}
+.owner-tenant-setup input{width:100%;margin:8px 0 10px;padding:12px;border:1px solid #ddd1c3;border-radius:8px;background:#fff;color:#392d25}
