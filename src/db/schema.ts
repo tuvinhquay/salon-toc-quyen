@@ -3,7 +3,8 @@ const text=z.string().trim().min(1)
 const phone=z.string().trim().max(30).optional().or(z.literal(''))
 const email=z.email().optional().or(z.literal(''))
 const iso=z.string().datetime({offset:true})
-export const customerInputSchema=z.object({fullName:text.max(120),phone,email,notes:z.string().trim().max(2000).optional().default('')})
+export const customerInputSchema=z.object({fullName:text.max(120),phone,email,notes:z.string().trim().max(2000).optional().default(''),groupIds:z.array(text).max(50).default([])})
+export const customerGroupInputSchema=z.object({name:text.max(100),period:z.enum(['month','quarter','custom']),description:z.string().trim().max(500).optional().default(''),active:z.boolean().default(true)})
 export const appointmentInputSchema=z.object({customerId:z.string().trim().min(1).nullable().optional(),customerNameSnapshot:text.max(120),customerPhoneSnapshot:z.string().trim().max(30).nullable().optional(),startAt:iso,endAt:iso,serviceIds:z.array(text).max(30).default([]),depositAmount:z.number().int().min(0).max(1_000_000_000).default(0),notes:z.string().trim().max(2000).optional().default('')}).refine(v=>Date.parse(v.endAt)>Date.parse(v.startAt),{message:'Thời điểm kết thúc phải sau thời điểm bắt đầu',path:['endAt']})
 export const appointmentStatusSchema=z.enum(['scheduled','confirmed','checked_in','in_service','completed','cancelled','no_show'])
 export const serviceInputSchema=z.object({name:text.max(120),description:z.string().trim().max(2000).optional().default(''),durationMinutes:z.number().int().min(5).max(1440),priceVnd:z.number().int().min(0).max(10_000_000_000),active:z.boolean().default(true)})
@@ -16,7 +17,7 @@ export const productInputSchema=z.object({name:text.max(160),sku:z.string().trim
 export const supplierInputSchema=z.object({name:text.max(160),phone,email,address:z.string().trim().max(500).optional().default(''),notes:z.string().trim().max(2000).optional().default('')})
 export const purchaseOrderInputSchema=z.object({supplierId:text,orderNumber:text.max(80),orderedAt:iso,expectedAt:iso.nullable().optional(),notes:z.string().trim().max(2000).optional().default(''),lines:z.array(z.object({productId:text,quantity:z.number().positive().max(1_000_000),unitCostVnd:z.number().int().min(0).max(10_000_000_000)})).min(1).max(200)}).superRefine((v,c)=>{const ids=new Set<string>();v.lines.forEach((line,index)=>{if(ids.has(line.productId))c.addIssue({code:'custom',message:'Không lặp sản phẩm trong cùng đơn mua hàng',path:['lines',index,'productId']});ids.add(line.productId)});if(v.expectedAt&&Date.parse(v.expectedAt)<=Date.parse(v.orderedAt))c.addIssue({code:'custom',message:'Ngày dự kiến phải sau ngày đặt',path:['expectedAt']})})
 export const receivePurchaseOrderInputSchema=z.object({purchaseOrderId:text,lines:z.array(z.object({productId:text,quantity:z.number().positive().max(1_000_000),lotCode:z.string().trim().max(100).optional().default(''),expiresAt:iso.nullable().optional()})).min(1).max(200)}).superRefine((v,c)=>{const ids=new Set<string>();v.lines.forEach((line,index)=>{if(ids.has(line.productId))c.addIssue({code:'custom',message:'Mỗi sản phẩm chỉ nhận một dòng mỗi lần',path:['lines',index,'productId']});ids.add(line.productId)})})
-export type CustomerInput=z.infer<typeof customerInputSchema>
+export type CustomerInput=z.infer<typeof customerInputSchema>\nexport type CustomerGroupInput=z.infer<typeof customerGroupInputSchema>
 export type AppointmentInput=z.infer<typeof appointmentInputSchema>
 export type ServiceInput=z.infer<typeof serviceInputSchema>
 export type WorkflowEventInput=z.infer<typeof workflowEventInputSchema>
