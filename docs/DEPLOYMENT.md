@@ -1,56 +1,54 @@
 # Triển khai Salon [TÓC QUYỀN]
 
-## 1. Cấu hình local
-- Tạo file .env.local từ .env.example và điền Firebase Web config cùng reCAPTCHA Enterprise site key.
-- Không đưa GEMINI_API_KEY vào .env.local, trình duyệt, GitHub hoặc chat.
-- Bật Google Authentication trong Firebase Authentication.
-- Bật App Check với reCAPTCHA Enterprise cho Web; thêm domain local/production phù hợp.
-- Owner membership phải được tạo bằng quy trình tin cậy phía quản trị; client không có quyền tự cấp role Owner.
+## 1. Firebase project
+Dự án Firebase đúng của ứng dụng: `salonquyen-f21fa`.
 
-## 2. Chuẩn bị billing và App Check
-- Deploy Cloud Functions yêu cầu Firebase project dùng gói Blaze và có Cloud Billing account. Trước khi deploy, thiết lập budget alerts/spend caps để kiểm soát chi phí.
-- Tạo reCAPTCHA Enterprise Web-type score-based key cho domain production; đăng ký Web app trong Firebase Console > App Check với provider reCAPTCHA Enterprise.
-- Không đưa localhost vào key production. Khi kiểm thử local, dùng key dành riêng cho môi trường dev hoặc App Check debug provider theo hướng dẫn Firebase.
-- Điền site key vào VITE_RECAPTCHA_ENTERPRISE_SITE_KEY trong .env.local. reCAPTCHA Enterprise có quota miễn phí theo tháng, vượt quota có thể phát sinh phí.
-
-## 3. Cài Firebase CLI trên Termux
+Trước khi triển khai, kiểm tra:
 ```bash
-npm install -g firebase-tools
-firebase login
-firebase use salon-quyen
+firebase use
+cat .firebaserc
 ```
+Không triển khai nếu project đang chọn không phải `salonquyen-f21fa`. Có thể chỉ định project rõ ràng trong lệnh deploy để tránh nhầm môi trường.
 
-## 4. Cài secret Gemini ở Firebase
-```bash
-firebase functions:secrets:set GEMINI_API_KEY
-```
-Firebase CLI sẽ hỏi giá trị secret trực tiếp trong terminal. Không gửi giá trị này vào ChatGPT và không commit.
+## 2. Cấu hình Authentication và App Check
+- Bật Google provider trong Firebase Authentication.
+- Thêm domain Hosting vào Authorized domains.
+- App Check dùng reCAPTCHA Enterprise nếu Gemini adviser được bật. Site key chỉ là public web configuration; không đưa secret vào frontend.
+- Gemini được gọi tùy chọn qua Firebase AI Logic. Không thêm GEMINI_API_KEY vào frontend, .env.local, GitHub hoặc chat.
 
-## 5. Kiểm tra trước deploy
+## 3. Owner onboarding và Firestore Rules
+- Tài khoản Google mới tự tạo salon lần đầu.
+- Ứng dụng ghi salon và membership trong cùng một Firestore batch.
+- Firestore Rules chỉ chấp nhận Google UID tự tạo membership của chính UID đó khi salon tương ứng được tạo đồng thời và ownerUid/salonId khớp.
+- Membership đã tồn tại không thể bị ghi đè; client không thể đổi role, cập nhật hoặc xóa membership/salon.
+- Không cần Cloud Functions, Cloud Functions API, Secret Manager hay gói Blaze cho luồng onboarding này.
+
+## 4. Kiểm tra frontend
 ```bash
 npm ci
 npm run typecheck
 npm run lint
-npm run test
+npm test
 npm run build
-npm --prefix functions install
-npm --prefix functions run build
 ```
 
-## 6. Deploy
+## 5. Triển khai Rules
+Chỉ triển khai Firestore Rules sau khi đã kiểm tra branch và project:
 ```bash
-firebase deploy --only firestore:rules,functions,hosting
+firebase deploy --only firestore:rules --project salonquyen-f21fa
+```
+Lệnh trên chỉ triển khai Firestore Rules, không triển khai Functions hoặc Hosting.
+
+## 6. Hosting (khi cần phát hành phiên bản mới)
+```bash
+firebase deploy --only hosting --project salonquyen-f21fa
 ```
 
-## 7. Kiểm tra sau deploy
-- Kiểm tra Hosting PWA qua HTTPS.
-- Kiểm tra Google sign-in và membership Owner.
-- Kiểm tra App Check token được gửi tới callable function.
-- Kiểm tra salonAssistant trả lời được, từ chối user chưa có Owner membership và rate-limit sau 10 yêu cầu/phút.
-- Không nhập dữ liệu khách hàng/thanh toán thật trong smoke test ban đầu.
-
-## Secrets và quyền
-- Gemini key chỉ được đọc bởi Cloud Function qua Secret Manager.
-- Callable function bắt buộc Firebase Auth + App Check + membership active/owner.
-- Prompt/context không được lưu vào Firestore hoặc log; chỉ metadata giới hạn lượt gọi được lưu.
-- PWA frontend không chứa Gemini key.
+## 7. Kiểm thử sau triển khai
+- Đăng xuất tài khoản phát triển khỏi ứng dụng.
+- Đăng nhập bằng Google của chủ tiệm mới và tạo salon.
+- Tải lại trang, xác nhận vẫn vào đúng salon.
+- Đăng xuất và đăng nhập lại; xác nhận membership được đọc đúng.
+- Dùng một Google UID khác: phải nhận salonId khác và không đọc được salon metadata của salon đầu tiên.
+- Kiểm tra bot nội bộ, trí nhớ local, lịch hẹn, khách hàng, nhân viên, kho, POS và báo cáo.
+- Dữ liệu IndexedDB chỉ nằm trên thiết bị hiện tại; cần backup/restore riêng khi bàn giao thiết bị.

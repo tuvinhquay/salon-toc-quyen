@@ -1,9 +1,9 @@
 # Salon TÓC QUYỀN
 
-Owner-first salon management PWA. Giai đoạn hiện tại chỉ triển khai giao diện và backend dành cho Owner; Employee App chưa thuộc phạm vi.
+Owner-first salon management PWA. Giai đoạn hiện tại triển khai giao diện và nghiệp vụ dành cho Owner.
 
 ## Stack
-React 19, TypeScript strict, Vite, Tailwind CSS, TanStack, Dexie/IndexedDB, Firebase Auth/Firestore metadata, PWA.
+React 19, TypeScript strict, Vite, Tailwind CSS, TanStack, Dexie/IndexedDB, Firebase Authentication, Firestore metadata, Firebase AI Logic (Gemini tùy chọn), PWA.
 
 ## Local development
 ```bash
@@ -12,12 +12,19 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Không điền Gemini secret vào frontend. Gemini chỉ được tích hợp ở server runtime khi có cấu hình secret an toàn.
+## Kiến trúc hiện tại
+- Chủ tiệm đăng nhập bằng Google cá nhân; lần đầu có thể tạo salon riêng.
+- Firestore Rules yêu cầu salon và membership được tạo trong cùng một batch, gắn với UID Google đang đăng nhập. Client không thể tự đổi role hoặc ghi đè membership.
+- Dữ liệu kinh doanh và trí nhớ trợ lý lưu local-first trong IndexedDB theo salonId + Owner UID; chưa đồng bộ đa thiết bị.
+- Trợ lý nội bộ xử lý nghiệp vụ tại thiết bị. Gemini là cố vấn tùy chọn qua Firebase AI Logic và App Check; không nhúng API key vào frontend.
+- Ứng dụng không sử dụng Cloud Functions.
 
-## Trạng thái hiện tại
-- P01 foundation: IN PROGRESS; CI production trên GitHub Actions đã PASS.
-- Các bước CI: `npm ci`, typecheck, lint, unit tests và production PWA build.
-- Kiểm thử Termux ngày 2026-11-18: typecheck, lint, tests và production build đều PASS theo kết quả người dùng cung cấp.
-- Chưa nghiệm thu toàn phần: còn rà soát cảnh báo dependency security và kiểm tra giao diện/PWA trên trình duyệt thực tế.
+## Kiểm tra
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run build
+```
 
-Xem [ROADMAP](docs/ROADMAP.md) và [lịch sử phiên](docs/sessions/LICH_SU_PHIEN_LAM_VIEC.md).
+Xem [ROADMAP](docs/ROADMAP.md), [hướng dẫn triển khai](docs/DEPLOYMENT.md) và [lịch sử phiên](docs/sessions/LICH_SU_PHIEN_LAM_VIEC.md).

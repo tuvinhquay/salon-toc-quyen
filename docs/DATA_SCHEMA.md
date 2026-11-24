@@ -46,10 +46,16 @@ Mỗi entity cần ID ổn định, salonId, createdAt, updatedAt, revision và 
 
 ## P25 – Tenant ownership and assistant learning
 - `salons/{salonId}`: tenant metadata; owner UID, display name, status, timestamps and plan. Client can read only its own salon metadata; no client writes.
-- `memberships/{uid}`: one active owner membership maps a Google UID to one salonId. Only the trusted callable Cloud Function provisions a first-time owner; browser writes remain denied.
+- `memberships/{uid}`: one active owner membership maps a Google UID to one salonId. A first-time Google user creates this document atomically with `salons/{salonId}`; Firestore Rules require matching ownership in both post-write states. The browser cannot create a membership alone, change roles, update, or delete it.
 - One owner UID → one salon tenant. A second Google account gets a distinct salonId and therefore a separate IndexedDB data partition.
 - All local business records continue to carry `salonId`; assistant memories are additionally scoped by `ownerId`.
 - Assistant memory category `shortcut`: an owner-authored natural-language business query that maps similar future wording to a deterministic read-only analytics query. Example: “Hãy ghi nhớ thêm. Tổng hợp danh sách nhân viên xuất sắc tháng này”.
 - Quarter reporting uses Asia/Ho_Chi_Minh calendar boundaries.
 - Staff ranking currently measures completed WorkShift hours/count only. It is not attributed service revenue or proven productivity; employee attribution must be added to service/invoice records in a later phase.
 - Local-first records and assistant shortcuts are not yet synced across devices.
+
+
+## P27 – Owner handover without Cloud Functions
+- First-time Google owner onboarding uses one Firestore write batch to create `salons/{salonId}` and `memberships/{uid}` together.
+- Firestore Rules permit only a Google-authenticated UID to create its own first active owner membership, paired atomically with a salon whose `ownerUid` and `salonId` match. Existing memberships cannot be overwritten; salon and membership updates/deletes remain denied to clients.
+- No Cloud Functions SDK or function source is used by the app. Local assistant, Dexie data, assistant memory, and optional Gemini via Firebase AI Logic remain separate.

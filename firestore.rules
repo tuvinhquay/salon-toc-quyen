@@ -1,18 +1,76 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isGoogleUser() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+
+    function membershipPath(uid) {
+      return /databases/$(database)/documents/memberships/$(uid);
+    }
+
+    function salonPath(salonId) {
+      return /databases/$(database)/documents/salons/$(salonId);
+    }
+
     match /memberships/{uid} {
       allow get: if request.auth != null && request.auth.uid == uid;
-      allow list, create, update, delete: if false;
+
+      // A first-time Google user may create exactly one self-owned membership,
+      // but only atomically with the matching salon document.
+      allow create: if isGoogleUser()
+        && request.auth.uid == uid
+        && !exists(membershipPath(uid))
+        && request.resource.data.keys().hasOnly([
+          'uid', 'salonId', 'role', 'status', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.uid == uid
+        && request.resource.data.salonId is string
+        && request.resource.data.salonId.size() > 0
+        && request.resource.data.role == 'owner'
+        && request.resource.data.status == 'active'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && existsAfter(salonPath(request.resource.data.salonId))
+        && getAfter(salonPath(request.resource.data.salonId)).data.salonId == request.resource.data.salonId
+        && getAfter(salonPath(request.resource.data.salonId)).data.ownerUid == uid
+        && getAfter(salonPath(request.resource.data.salonId)).data.status == 'active';
+
+      allow list, update, delete: if false;
     }
+
     match /salons/{salonId} {
       allow get: if request.auth != null
-        && exists(/databases/$(database)/documents/memberships/$(request.auth.uid))
-        && get(/databases/$(database)/documents/memberships/$(request.auth.uid)).data.salonId == salonId
-        && get(/databases/$(database)/documents/memberships/$(request.auth.uid)).data.status == 'active'
-        && get(/databases/$(database)/documents/memberships/$(request.auth.uid)).data.role == 'owner';
-      allow list, create, update, delete: if false;
+        && exists(membershipPath(request.auth.uid))
+        && get(membershipPath(request.auth.uid)).data.salonId == salonId
+        && get(membershipPath(request.auth.uid)).data.status == 'active'
+        && get(membershipPath(request.auth.uid)).data.role == 'owner';
+
+      // The salon and its owner membership must be committed together.
+      allow create: if isGoogleUser()
+        && !exists(salonPath(salonId))
+        && request.resource.data.keys().hasOnly([
+          'salonId', 'name', 'ownerUid', 'status', 'createdAt', 'updatedAt', 'plan'
+        ])
+        && request.resource.data.salonId == salonId
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 80
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.status == 'active'
+        && request.resource.data.plan == 'starter'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && existsAfter(membershipPath(request.auth.uid))
+        && getAfter(membershipPath(request.auth.uid)).data.uid == request.auth.uid
+        && getAfter(membershipPath(request.auth.uid)).data.salonId == salonId
+        && getAfter(membershipPath(request.auth.uid)).data.role == 'owner'
+        && getAfter(membershipPath(request.auth.uid)).data.status == 'active';
+
+      allow list, update, delete: if false;
     }
+
     match /{document=**} {
       allow read, write: if false;
     }

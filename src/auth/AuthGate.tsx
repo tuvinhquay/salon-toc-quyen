@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { doc, getDoc } from 'firebase/firestore'
-import { httpsCallable } from 'firebase/functions'
 import { RouterProvider } from '@tanstack/react-router'
-import { firebaseFunctions, firestore } from '../lib/firebase'
+import { firestore } from '../lib/firebase'
 import { Chrome, LoaderCircle, ShieldCheck, WifiOff } from 'lucide-react'
 import { router } from '../app/router'
 import { useAuth } from './AuthProvider'
 import { OwnerProvider } from './OwnerContext'
 import type { ActorContext } from '../db/types'
+import { provisionOwnerSalon } from './owner-onboarding'
 
 function SignInScreen() {
   const { configured, signIn } = useAuth()
@@ -22,13 +22,11 @@ function SignInScreen() {
 
 function friendlyCreateError(cause: unknown) {
   const code = cause && typeof cause === 'object' && 'code' in cause ? String(cause.code) : ''
-  if (code.includes('not-found')) return 'Chức năng tạo salon chưa được triển khai trên Firebase. Quản trị viên cần triển khai Cloud Function rồi thử lại.'
   if (code.includes('unauthenticated')) return 'Phiên đăng nhập đã hết hạn. Hãy đăng xuất và đăng nhập Google lại.'
-  if (code.includes('permission-denied')) return cause instanceof Error ? cause.message : 'Tài khoản đã có hồ sơ quyền chưa hợp lệ. Vui lòng liên hệ quản trị viên.'
+  if (code.includes('permission-denied')) return 'Chưa thể tạo salon. Có thể Firestore Rules mới chưa được triển khai hoặc tài khoản này đã có hồ sơ salon.'
   if (code.includes('unavailable') || code.includes('deadline-exceeded')) return 'Máy chủ đang tạm thời không phản hồi. Kiểm tra mạng rồi thử lại.'
   if (code.includes('already-exists')) return 'Tài khoản này đã có không gian salon.'
   if (code.includes('invalid-argument')) return 'Tên salon cần có từ 2 đến 80 ký tự.'
-  if (code.includes('internal')) return 'Máy chủ chưa thể tạo salon. Có thể Cloud Function chưa được triển khai đúng dự án Firebase; vui lòng thử lại sau khi kiểm tra cấu hình.'
   return 'Chưa thể tạo không gian salon. Vui lòng thử lại; dữ liệu hiện tại vẫn được giữ nguyên.'
 }
 
@@ -75,9 +73,8 @@ export function AuthGate() {
  const [deviceId]=useState(()=>crypto.randomUUID())
  const [retryCount,setRetryCount]=useState(0)
  async function createOwnerTenant(salonName:string){
-   if(!firebaseFunctions)throw new Error('Firebase Functions chưa được cấu hình.')
-   const create=httpsCallable<{salonName:string},{salonId:string}>(firebaseFunctions,'createOwnerSalon')
-   await create({salonName})
+   if(!userUid)throw new Error('Bạn cần đăng nhập Google trước khi tạo salon.')
+   await provisionOwnerSalon(userUid,salonName)
    setRetryCount(value=>value+1)
  }
  useEffect(()=>{

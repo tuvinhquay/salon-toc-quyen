@@ -146,3 +146,13 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Firebase AI Logic/App Check chưa được kích hoạt live trên project; P21 chưa PASS.
 - Các vai trò Manager/Stylist/Assistant/Cashier chưa được cấp AI vì hiện tại chỉ có Owner Membership được xác minh; không dùng trường role cục bộ làm bằng chứng quyền.
 - Tất cả P19–P21 chờ CI, kiểm thử trên Termux/Android và xác minh dữ liệu mẫu/thật trước khi nghiệm thu.
+
+
+## P27 – Bàn giao Owner, onboarding Firestore-only – 2026-11-24
+- Tách tài khoản phát triển khỏi tài khoản chủ tiệm; người nhận bàn giao đăng nhập Google cá nhân và tạo tenant riêng.
+- Thay callable `createOwnerSalon` bằng một Firestore writeBatch tạo salon + membership cùng lúc.
+- Firestore Rules chỉ cho Google UID chưa có membership tạo đúng membership của chính UID đó, kèm salon có cùng ownerUid/salonId trong trạng thái sau batch; cấm client ghi riêng membership, đổi role, cập nhật hoặc xóa.
+- Gỡ Cloud Functions SDK khỏi frontend, cấu hình Functions khỏi firebase.json, bỏ Functions khỏi CI và loại bỏ mã nguồn Functions không còn được sử dụng.
+- Không thay đổi bot local, bộ nhớ AI, Gemini Firebase AI Logic, Dexie schema, các module nghiệp vụ hoặc dữ liệu hiện tại.
+- Cần chạy CI + Termux regression; deploy riêng Firestore Rules lên đúng project `salonquyen-f21fa`; kiểm tra hai Google account độc lập và tenant isolation trước khi merge.
+- Trạng thái: IMPLEMENTED ON BRANCH; chưa deploy Rules, chưa runtime PASS, chưa merge.
