@@ -105,7 +105,7 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
   const roles: Employee['role'][] = ['manager','stylist','stylist','stylist','assistant','assistant','cashier','stylist','assistant','stylist']
   const employees: Employee[] = employeeNames.map((fullName, index) => ({
     ...base(prefix + 'employee_' + (index + 1), iso(localDate(startAt.getFullYear(), startAt.getMonth() - 12, 1 + index))),
-    fullName, phone: '09000000' + String(index + 1).padStart(2, '0'), email: null,
+    fullName, phone: '000000' + String(1001 + index).padStart(4, '0'), email: null,
     role: roles[index], status: index === 9 ? 'inactive' : 'active',
     joinedAt: iso(localDate(startAt.getFullYear(), startAt.getMonth() - (index % 10 + 3), 1 + index)),
     notes: 'NHÂN SỰ GIẢ LẬP · Thông tin phục vụ kiểm tra lịch ca, phân công và doanh số mẫu.',
@@ -141,10 +141,10 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
     customFields: { 'Giá bán mẫu': String(price), 'Giá vốn mẫu': String(cost), 'Đánh dấu': 'DỮ LIỆU MÔ PHỎNG' },
   }))
   const suppliers: Supplier[] = [
-    ['Nhà phân phối Mỹ phẩm An Tâm','0000000101','TP.HCM – địa chỉ giả lập'],
-    ['Kho vật tư Salon Việt','0000000102','TP.HCM – địa chỉ giả lập'],
-    ['Mỹ phẩm chuyên nghiệp Minh Tâm','0000000103','Đồng Nai – địa chỉ giả lập'],
-    ['Vật tư tóc Sài Gòn','0000000104','TP.HCM – địa chỉ giả lập'],
+    ['Nhà phân phối Mỹ phẩm An Tâm','0000000201','TP.HCM – địa chỉ giả lập'],
+    ['Kho vật tư Salon Việt','0000000202','TP.HCM – địa chỉ giả lập'],
+    ['Mỹ phẩm chuyên nghiệp Minh Tâm','0000000203','Đồng Nai – địa chỉ giả lập'],
+    ['Vật tư tóc Sài Gòn','0000000204','TP.HCM – địa chỉ giả lập'],
   ].map(([name, phone, address], index) => ({
     ...base(prefix + 'supplier_' + (index + 1), iso(startAt)), name, phone, email: null,
     address, notes: 'Nhà cung cấp giả lập; không phải thông tin doanh nghiệp thực.',
@@ -498,7 +498,7 @@ async function assertNoRealReferences(actor: ActorContext, prefix: string) {
   const hasReferences =
     customers.some(row => !isDemo(row.id) && (row.groupIds ?? []).some(id => groupIds.has(id))) ||
     appointments.some(row => !isDemo(row.id) && (customerIds.has(row.customerId ?? '') || row.serviceIds.some(id => serviceIds.has(id)))) ||
-    invoices.some(row => !isDemo(row.id) && (customerIds.has(row.customerId ?? '') || row.lines.some(line => serviceIds.has(line.referenceId ?? '') || productIds.has(line.referenceId ?? '')))) ||
+    invoices.some(row => !isDemo(row.id) && (customerIds.has(row.customerId ?? '') || row.lines.some(line => serviceIds.has(line.referenceId ?? '') || productIds.has(line.referenceId ?? '') || employeeIds.has(line.employeeId ?? '')))) ||
     shifts.some(row => !isDemo(row.id) && employeeIds.has(row.employeeId)) ||
     commissions.some(row => !isDemo(row.id) && (employeeIds.has(row.employeeId ?? '') || serviceIds.has(row.serviceId ?? ''))) ||
     orders.some(row => !isDemo(row.id) && (supplierIds.has(row.supplierId) || row.lines.some(line => productIds.has(line.productId)))) ||
