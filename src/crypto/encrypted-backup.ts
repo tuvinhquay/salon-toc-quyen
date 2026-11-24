@@ -4,8 +4,8 @@ import type { ActorContext, BackupRecord, AuditEvent } from '../db/types'
 import { encryptJson, decryptJson, type EncryptedEnvelope } from './secure-envelope'
 
 type BackupRow={id:string;salonId:string;revision?:number;updatedAt?:string;[key:string]:unknown}
-type BackupPayload={formatVersion:1;schemaVersion:7;salonId:string;createdAt:string;deviceId:string;tables:Record<string,BackupRow[]>}
-export type EncryptedBackupFile={metadata:{formatVersion:1;schemaVersion:5;createdAt:string;salonId:string;ciphertextHash:string;sizeBytes:number;recordCounts:Record<string,number>};envelope:EncryptedEnvelope}
+type BackupPayload={formatVersion:1;schemaVersion:number;salonId:string;createdAt:string;deviceId:string;tables:Record<string,BackupRow[]>}
+export type EncryptedBackupFile={metadata:{formatVersion:1;schemaVersion:number;createdAt:string;salonId:string;ciphertextHash:string;sizeBytes:number;recordCounts:Record<string,number>};envelope:EncryptedEnvelope}
 export type RestoreMode='merge'|'replace'
 const tableNames=['customers','customerGroups','appointments','services','workflowEvents','auditEvents','employees','workShifts','commissionPolicies','products','suppliers','purchaseOrders','inventoryLots','stockMovements','invoices','payments','refunds','cashSessions','expenses','taxPolicies','devices','changeLogs','syncConflicts','syncCursors','backupRecords','assistantMemories']
 function tables():Record<string,Table<BackupRow,string>>{return{
