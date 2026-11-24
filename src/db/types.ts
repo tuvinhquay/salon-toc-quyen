@@ -1,6 +1,6 @@
 export type EntityId=string
 export interface BaseEntity{id:EntityId;salonId:EntityId;createdAt:string;updatedAt:string;revision:number;createdBy:string;updatedBy:string;deviceId:string}
-export type Customer=BaseEntity&{fullName:string;normalizedName:string;phone:string|null;normalizedPhone:string|null;email:string|null;notes:string;archivedAt:string|null;groupIds?:string[]}
+export type Customer=BaseEntity&{fullName:string;normalizedName:string;phone:string|null;normalizedPhone:string|null;email:string|null;notes:string;archivedAt:string|null;groupIds?:string[];customFields?:Record<string,string>}
 export type CustomerGroup=BaseEntity&{name:string;period:'month'|'quarter'|'custom';description:string;active:boolean}
 export type AppointmentStatus='scheduled'|'confirmed'|'checked_in'|'in_service'|'completed'|'cancelled'|'no_show'
 export type Appointment=BaseEntity&{customerId:EntityId|null;customerNameSnapshot:string;customerPhoneSnapshot:string|null;startAt:string;endAt:string;status:AppointmentStatus;serviceIds:EntityId[];depositAmount:number;notes:string;cancelledAt:string|null}
@@ -11,7 +11,7 @@ export type EmployeeRole='manager'|'stylist'|'assistant'|'cashier'
 export type Employee=BaseEntity&{fullName:string;phone:string|null;email:string|null;role:EmployeeRole;status:'active'|'inactive';joinedAt:string;notes:string}
 export type WorkShift=BaseEntity&{employeeId:string;startAt:string;endAt:string;status:'scheduled'|'checked_in'|'completed'|'cancelled';notes:string}
 export type CommissionPolicy=BaseEntity&{employeeId:string|null;serviceId:string|null;mode:'percent'|'fixed_vnd';value:number;effectiveFrom:string;effectiveTo:string|null;active:boolean}
-export type Product=BaseEntity&{name:string;sku:string|null;category:string;unit:string;trackingMode:'simple'|'lot';minimumStock:number;active:boolean}
+export type Product=BaseEntity&{name:string;sku:string|null;category:string;unit:string;trackingMode:'simple'|'lot';minimumStock:number;active:boolean;customFields?:Record<string,string>}
 export type Supplier=BaseEntity&{name:string;phone:string|null;email:string|null;address:string;notes:string;archivedAt:string|null}
 export type PurchaseOrderStatus='draft'|'submitted'|'partially_received'|'received'|'cancelled'
 export type PurchaseOrderLine={productId:string;productNameSnapshot:string;quantity:number;receivedQuantity:number;unitCostVnd:number}
