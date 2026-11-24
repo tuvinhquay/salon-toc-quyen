@@ -12,7 +12,7 @@ export function parseMemoryInstruction(question: string): ParsedMemoryInstructio
   const identity = /^(?:ten toi la|ten minh la|goi toi la|goi minh la|toi ten la|minh ten la)\b/.test(normalized)
   if (!explicit && !identity) return null
 
-  let content = raw
+  const content = raw
     .replace(/^(?:xin\s+)?(?:hãy\s+)?(?:ghi nhớ|hãy nhớ|nhớ giúp(?: mình| tôi)?|mình nhớ|nhớ|lưu lại|hãy lưu|từ nay(?: hãy)?)\s*/i, '')
     .replace(/^(?:giúp mình|giúp tôi|rằng|là)\s*/i, '')
     .replace(/\s+(?:nhé|nha|bạn nhé|giúp mình|giúp tôi)$/i, '')
