@@ -43,7 +43,36 @@ export function AssistantPage() {
     return () => { active = false }
   }, [actor.salonId, actor.actorId])
 
-  useEffect(() => {\n    const node = chatRef.current\n    if (!node || !stickToLatestRef.current) { if (node) setShowLatest(true); return }\n    const frame = window.requestAnimationFrame(() => { node.scrollTo({ top: node.scrollHeight, behavior: messages.length > 2 ? 'smooth' : 'auto' }); setShowLatest(false) })\n    return () => window.cancelAnimationFrame(frame)\n  }, [messages, busy])\n\n  function handleChatScroll() {\n    const node = chatRef.current\n    if (!node) return\n    const atLatest = node.scrollHeight - node.clientHeight - node.scrollTop < 72\n    stickToLatestRef.current = atLatest\n    setShowLatest(!atLatest)\n  }\n\n  function goToLatest() {\n    const node = chatRef.current\n    if (!node) return\n    stickToLatestRef.current = true\n    node.scrollTo({ top: node.scrollHeight, behavior: 'smooth' })\n    setShowLatest(false)\n  }\n\n  async function refreshLongTermMemories() {
+  useEffect(() => {
+    const node = chatRef.current
+    if (!node || !stickToLatestRef.current) {
+      if (node) setShowLatest(true)
+      return
+    }
+    const frame = window.requestAnimationFrame(() => {
+      node.scrollTo({ top: node.scrollHeight, behavior: messages.length > 2 ? 'smooth' : 'auto' })
+      setShowLatest(false)
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [messages, busy])
+
+  function handleChatScroll() {
+    const node = chatRef.current
+    if (!node) return
+    const atLatest = node.scrollHeight - node.clientHeight - node.scrollTop < 72
+    stickToLatestRef.current = atLatest
+    setShowLatest(!atLatest)
+  }
+
+  function goToLatest() {
+    const node = chatRef.current
+    if (!node) return
+    stickToLatestRef.current = true
+    node.scrollTo({ top: node.scrollHeight, behavior: 'smooth' })
+    setShowLatest(false)
+  }
+
+  async function refreshLongTermMemories() {
     const rows = await listOwnerMemories(actor.salonId, actor.actorId)
     setLongTermMemories(rows)
     return rows
@@ -54,6 +83,8 @@ export function AssistantPage() {
     if (!prompt || busy) return
     setQuestion('')
     setError(null)
+    stickToLatestRef.current = true
+    setShowLatest(false)
     setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'user', content: prompt }])
     setBusy(true)
     try {
@@ -137,6 +168,7 @@ export function AssistantPage() {
       </article>)}
       {busy && <div className="assistant-thinking"><Brain size={16}/> Mình đang tìm trong dữ liệu và trí nhớ nội bộ…</div>}
     </div>
+    {showLatest && <button type="button" className="assistant-latest-button" onClick={goToLatest}>↓ Tin nhắn mới</button>}
     {error && <p className="form-error" role="alert">{error}</p>}
     <form className="assistant-composer" onSubmit={submit}>
       <textarea aria-label="Nhập câu hỏi cho trợ lý" rows={3} maxLength={4000} value={question} onChange={event => setQuestion(event.target.value)} placeholder="Ví dụ: Hãy ghi nhớ tên tôi là Quay…" />
