@@ -26,7 +26,8 @@ Giúp người dùng đổi Google account ngay từ màn hình Owner Access Con
 
 ## Kiểm thử
 - Bổ sung unit test cho câu chào tiếng Việt và tiếng Anh.
-- CI chạy typecheck, lint, unit tests, production/PWA build và Cloud Functions build.
+- GitHub Actions run `45321044138` trên commit `6bddc5bcaa7a25443d42d678fac7806bcba8b0b3`: Typecheck PASS, ESLint PASS, Unit tests PASS, Production/PWA build PASS, Cloud Functions dependency install PASS và Functions build PASS.
+- Lượt CI đầu phát hiện thiếu destructuring `uid` ở màn hình Owner Access; đã sửa và lượt CI kế tiếp PASS toàn bộ.
 - Cần kiểm tra thực tế trên Android: chọn tài khoản khác, kiểm tra membership theo UID hiển thị, xác nhận tài khoản được cấp quyền vào app và tài khoản chưa được cấp quyền vẫn bị chặn.
 - Cần kiểm tra hội thoại: “Xin chào”, báo cáo doanh thu, câu hỏi tư vấn khi Gemini chưa kết nối; xác nhận chẩn đoán nằm ngoài bong bóng chat.
 
