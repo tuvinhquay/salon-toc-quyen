@@ -48,7 +48,7 @@ export async function getDemoDataCounts(salonId: string): Promise<DemoCounts> {
 }
 
 type PendingUse = { productIndex: number; quantity: number; occurredAt: string; sourceId: string; monthKey: string }
-type DemoBundle = {
+export type DemoBundle = {
   customers: Customer[]; groups: CustomerGroup[]; appointments: Appointment[]; services: Service[];
   employees: Employee[]; shifts: WorkShift[]; commissions: CommissionPolicy[]; products: Product[];
   suppliers: Supplier[]; orders: PurchaseOrder[]; lots: InventoryLot[]; movements: StockMovement[];
@@ -56,12 +56,11 @@ type DemoBundle = {
   expenses: Expense[]; taxes: TaxPolicy[]; audit: AuditEvent
 }
 
-function createFiveMonthBundle(actor: ActorContext): DemoBundle {
+export function createFiveMonthBundle(actor: ActorContext, now = new Date()): DemoBundle {
   const prefix = prefixFor(actor.salonId)
   const random = makeRandom(actor.salonId + ':five-month-demo-v2')
   const rand = (min: number, max: number) => Math.floor(random() * (max - min + 1)) + min
   const pick = <T,>(items: readonly T[]) => items[rand(0, items.length - 1)]
-  const now = new Date()
   const period = getFiveMonthDemoPeriod(now)
   const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1, 8)
   const monthStarts = Array.from({ length: 5 }, (_, index) => {
