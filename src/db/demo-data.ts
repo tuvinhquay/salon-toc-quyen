@@ -369,7 +369,9 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
   for (let monthIndex = 0; monthIndex < monthStarts.length; monthIndex += 1) {
     const month = monthStarts[monthIndex]
     for (let itemIndex = 0; itemIndex < monthlyFixed.length; itemIndex += 1) {
-      const date = localDate(month.getFullYear(), month.getMonth(), Math.min(5 + itemIndex * 3, 26), 15)
+      const scheduledDay = Math.min(5 + itemIndex * 3, 26)
+      const expenseDay = monthIndex === 4 ? Math.min(scheduledDay, now.getDate()) : scheduledDay
+      const date = localDate(month.getFullYear(), month.getMonth(), expenseDay, 15)
       const method: Expense['method'] = itemIndex === 0 || itemIndex === 2 ? 'bank_transfer' : 'cash'
       const session = sessionFor(date)
       expenses.push({
@@ -382,7 +384,6 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
     const cogs = money(cogsByMonth.get(monthLabel(month)) ?? 0)
     const cogsDay = monthIndex === 4 ? now.getDate() : Math.min(27, new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate())
     const cogsDate = localDate(month.getFullYear(), month.getMonth(), cogsDay, 17)
-    const cogsSession = sessionFor(cogsDate)
     expenses.push({
       ...base(prefix + 'expense_' + (++expenseIndex), iso(cogsDate)),
       cashSessionId: null, category: 'Giá vốn hàng bán & hóa chất tiêu hao',
