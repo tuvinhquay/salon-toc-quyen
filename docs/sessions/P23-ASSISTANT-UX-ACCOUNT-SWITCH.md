@@ -23,9 +23,10 @@ Cải thiện hội thoại AI tiếng Việt, tự động theo dõi tin nhắn
 - Đổi tài khoản sẽ xác minh membership theo UID mới trước khi render workspace.
 
 ## Kiểm thử
-- Cần CI xác nhận typecheck, lint, unit tests và production build sau commit.
+- GitHub Actions run `45317343889` trên commit `b9d9c5ab83da4888056fff611c1364c2116c85ed`: Typecheck PASS, ESLint PASS, Unit tests PASS, Production build/PWA PASS, Cloud Functions dependency install PASS và Functions build PASS.
+- Một lượt CI trước đó phát hiện lỗi lint `prefer-const` trong parser; đã sửa và lượt CI cuối cùng PASS toàn bộ.
 - Cần smoke test Android/Termux: cuộn tự động và đọc lịch sử, nút Tin nhắn mới, đăng xuất, chọn Google account khác, Owner hợp lệ và tài khoản không có membership.
-- Chưa tuyên bố PASS runtime cho đến khi có kết quả CI và kiểm tra trên thiết bị.
+- Chỉ xác nhận CI PASS; chưa tuyên bố runtime/mobile PASS khi chưa có kiểm tra trên thiết bị.
 
 ## Giới hạn còn lại
 - Gemini vẫn là cố vấn tùy chọn; chất lượng hội thoại tư vấn phụ thuộc cấu hình Firebase AI Logic/App Check và model sẵn sàng.
