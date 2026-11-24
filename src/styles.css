@@ -102,3 +102,11 @@
 .custom-field-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; gap:.5rem; margin:.5rem 0; }
 .custom-field-row input { min-width:0; width:100%; }
 @media(max-width:520px) { .custom-field-row { grid-template-columns:1fr 1fr; } .custom-field-row button { grid-column:2; justify-self:end; } }
+
+
+.report-presets { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; margin:.5rem 0 .75rem; }
+.report-presets span { color:var(--muted,#64748b); font-size:.85rem; margin-right:.25rem; }
+.legend-refunded { background:#8b5cf6; }
+.revenue-bar.refunded { background:linear-gradient(180deg,#c4b5fd,#7c3aed); }
+.revenue-bar { width:min(26%,14px); }
+.revenue-bar-group { flex-basis:48px; min-width:48px; }
