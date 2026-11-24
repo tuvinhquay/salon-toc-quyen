@@ -11,7 +11,7 @@ export async function askGeminiAdviser(question: string, safeContext: string, me
   const ai = getAI(firebaseApp, { backend: new GoogleAIBackend() })
   const model = getGenerativeModel(ai, {
     model: MODEL,
-    generationConfig: { temperature: 0.2, maxOutputTokens: 900 },
+    generationConfig: { temperature: 0.2, maxOutputTokens: 1500 },
   })
   const prompt = [
     'Bạn là chuyên gia cố vấn vận hành salon TÓC QUYỀN. Trả lời bằng tiếng Việt rõ ràng, gần gũi, thực tế.',

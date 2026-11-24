@@ -43,17 +43,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!firebaseAuth) throw new Error('Firebase chưa được cấu hình.')
       setError(null)
       try {
-        await signInWithPopup(firebaseAuth, new GoogleAuthProvider())
+        const provider = new GoogleAuthProvider()
+        provider.setCustomParameters({ prompt: 'select_account' })
+        await signInWithPopup(firebaseAuth, provider)
       } catch (cause) {
         const code = cause instanceof Error && 'code' in cause ? String(cause.code) : ''
         if (code === 'auth/popup-closed-by-user') return
         if (code === 'auth/unauthorized-domain') throw new Error('Tên miền hiện tại chưa được cho phép trong Firebase Authentication.')
         if (code === 'auth/popup-blocked') throw new Error('Trình duyệt đã chặn cửa sổ đăng nhập. Hãy cho phép popup rồi thử lại.')
+        if (code === 'auth/cancelled-popup-request') return
         throw new Error('Đăng nhập Google chưa thành công. Vui lòng thử lại.')
       }
     },
     logOut: async () => {
-      if (firebaseAuth) await signOut(firebaseAuth)
+      if (firebaseAuth) {
+        try {
+          await signOut(firebaseAuth)
+          setError(null)
+        } catch {
+          setError('Chưa thể đăng xuất. Vui lòng kiểm tra kết nối và thử lại.')
+        }
+      }
     },
   }), [user, loading, error])
 
