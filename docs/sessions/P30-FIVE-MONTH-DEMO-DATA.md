@@ -29,7 +29,7 @@ Thay bộ mẫu P14 đơn giản (10 khách, 10 nhân viên, vài lịch hẹn v
 - Hiển thị số lượng khách, nhân viên/ca, hóa đơn, sản phẩm và chi phí.
 
 ## Kiểm thử / nghiệm thu
-- Thêm test cho rolling five-month period và year-boundary.
-- Chưa đánh dấu PASS trước khi CI typecheck/lint/test/build chạy thành công.
+- Thêm test cho rolling five-month period, year-boundary và kiểm tra bundle: số lượng, liên kết khách/nhân viên, phép tính hóa đơn, thanh toán và cân bằng nhập-xuất-tồn.
+- CI run 45512975364 tại commit code 679e207746eedab3aebb0370372fc9e7232dc154: Typecheck PASS, ESLint PASS, 53/53 tests PASS, Production build/PWA PASS.
 - Còn cần Owner smoke test trên Termux/Android: tạo dataset, xem báo cáo 5 tháng, trợ lý truy vấn, POS/kho/ca làm, thay dataset, xóa dataset và xác minh dữ liệu thật được giữ nguyên.
-- Không merge hoặc deploy cho tới khi Owner nghiệm thu.
+- CI đã PASS; P30 vẫn chưa PASS tổng thể cho tới khi Owner nghiệm thu Android/Termux. Không merge hoặc deploy.
