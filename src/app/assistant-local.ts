@@ -49,7 +49,7 @@ function within(value: string, range: DateRange) {
 export function detectAssistantIntent(question: string): AssistantIntent {
   const q = normalizeAssistantText(question)
   if (/(nhan vien|nhan su|tho nao|ai lam|nang suat|hieu suat|xuat sac|lam viec tot|gioi nhat|cham chi|nhieu ca)/.test(q)) return 'staff'
-  if (/(khach hang|khach nao|dat lich nhieu|khach quen|khach than thiet|top khach|so khach)/.test(q)) return 'customers'
+  if (/(khach hang|khach nao|khach quen|khach than thiet|top khach|so khach|khach mua|mua nhieu|chi tieu|mua nhieu san pham|tong tien khach)/.test(q)) return 'customers'
   if (/(dich vu|kieu toc|mon nao pho bien|lam nhieu nhat)/.test(q)) return 'services'
   if (/(ton kho|hang ton|san pham|my pham|dau goi|thuoc nhuom|vat tu|sap het|thieu hang|tim san pham|tra cuu san pham)/.test(q)) return 'inventory'
   if (/(lich hen|cuoc hen|hen hom|lich hom|bao nhieu lich|lich lam viec)/.test(q)) return 'appointments'
@@ -160,7 +160,7 @@ function staffProfileLookup(snapshot: Snapshot, question: string): string | null
     '**Hồ sơ nhân viên: ' + employee.fullName + '**',
     '• Số điện thoại: ' + (employee.phone ?? 'Chưa cập nhật') + '.',
     '• Email: ' + (employee.email ?? 'Chưa cập nhật') + '.',
-    '• Vị trí: ' + employee.role + ' · Trạng thái: ' + (employee.status === 'active' ? 'Đang làm việc' : 'Đã ngừng hoạt động') + '.',
+    '• Vị trí: ' + ({ manager: 'Quản lý', stylist: 'Nhà tạo mẫu', assistant: 'Trợ lý salon', cashier: 'Thu ngân' }[employee.role] ?? employee.role) + ' · Trạng thái: ' + (employee.status === 'active' ? 'Đang làm việc' : 'Đã ngừng hoạt động') + '.',
     '• Ngày vào làm: ' + new Intl.DateTimeFormat('vi-VN', { dateStyle: 'long', timeZone: 'Asia/Ho_Chi_Minh' }).format(joined) + ' · Thâm niên ước tính: ' + tenure + '.',
     '• Tổng ca đã hoàn thành: ' + completed.length + ' · Tổng giờ ca ghi nhận: ' + Math.round(totalHours * 10) / 10 + ' giờ.',
     '• Trong ' + periodRange.label + ': ' + current.length + ' ca hoàn thành.',
