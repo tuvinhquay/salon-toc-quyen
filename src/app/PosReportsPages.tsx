@@ -35,8 +35,8 @@ export function PosPage(){
  <div className="record-list"><h3>Giao dịch và chi phí</h3>{payments.slice().reverse().slice(0,10).map(p=><article className="record" key={p.id}><div><b>Thu {formatVnd(p.amountVnd)}</b><p>{p.method} · {new Date(p.paidAt).toLocaleString('vi-VN')}</p></div></article>)}{refunds.slice().reverse().slice(0,10).map(r=><article className="record" key={r.id}><div><b>Hoàn {formatVnd(r.amountVnd)}</b><p>{r.reason}</p></div></article>)}{expenses.slice().reverse().slice(0,10).map(x=><article className="record" key={x.id}><div><b>Chi {formatVnd(x.amountVnd)}</b><p>{x.category}</p></div></article>)}</div>
  </section>
 }
-type RevenueBucket = { label: string; collected: number; expenses: number }
-function buildRevenueBuckets(payments: Payment[], expenses: Expense[], startAt: string, endAt: string): RevenueBucket[] {
+export type RevenueBucket = { label: string; collected: number; expenses: number }
+export function buildRevenueBuckets(payments: Payment[], expenses: Expense[], startAt: string, endAt: string): RevenueBucket[] {
  const startDate = new Date(startAt)
  const endDate = new Date(endAt)
  if (!Number.isFinite(startDate.getTime()) || !Number.isFinite(endDate.getTime()) || endDate <= startDate) return []
