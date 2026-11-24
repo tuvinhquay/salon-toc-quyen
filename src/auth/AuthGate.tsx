@@ -42,7 +42,7 @@ export function AuthGate() {
        const valid=snapshot.exists()&&data?.status==='active'&&data?.role==='owner'&&typeof data?.salonId==='string'&&data.salonId.trim().length>0
        setMembership(valid?{status:'active',uid:userUid,salonId:data.salonId}:{status:'missing',uid:userUid})
      }catch{
-       if(!cancelled)setMembership({status:'error',uid:user.uid})
+       if(!cancelled)setMembership({status:'error',uid:userUid})
      }
    }
    void verify()
