@@ -58,7 +58,6 @@ import { answerOwnerQuestion } from '../src/app/assistant-local'
 import { archiveOwnerMemory, listOwnerMemories } from '../src/app/assistant-brain-store'
 import type { ActorContext } from '../src/db/types'
 
-const oldTenantActor: ActorContext = { salonId: 'salon-old', actorId: 'owner-old', deviceId: 'device-old' }
 const newTenantActor: ActorContext = { salonId: 'salon-new', actorId: 'owner-new', deviceId: 'device-new' }
 
 beforeEach(() => {
