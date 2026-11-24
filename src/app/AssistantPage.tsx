@@ -2,11 +2,12 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Bot, Brain, Eraser, Send, Sparkles, UserRound, Trash2 } from 'lucide-react'
 import { useOwnerContext } from '../auth/OwnerContext'
 import { useAuth } from '../auth/AuthProvider'
-import type { AssistantMemoryRecord } from '../db/types'
+import type { AssistantMemoryRecord, Customer } from '../db/types'
 import { answerOwnerQuestion, redactQuestionForGemini } from './assistant-local'
 import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, readAssistantMemory } from './assistant-memory'
 import { answerAssistantAbout, answerFromMemories, applyLearnedVocabulary, findMatchingAssistantShortcut, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
 import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assistant-brain-store'
+import { archiveCustomers, listCustomers } from '../db/repositories'
 import { askGeminiAdviser, isGeminiAssistantReady } from './assistant-gemini'
 
 type Message = { id: string; role: 'assistant' | 'user'; content: string; source?: 'local' | 'gemini' }
@@ -38,6 +39,7 @@ export function AssistantPage() {
   }])
   const [memory, setMemory] = useState(() => readAssistantMemory(actor.salonId, actor.actorId))
   const [longTermMemories, setLongTermMemories] = useState<AssistantMemoryRecord[]>([])
+  const [pendingCustomerArchive, setPendingCustomerArchive] = useState<Customer[] | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [adviserNotice, setAdviserNotice] = useState<string | null>(null)
@@ -98,6 +100,51 @@ export function AssistantPage() {
     setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'user', content: prompt }])
     setBusy(true)
     try {
+      const normalizedPrompt = prompt.toLocaleLowerCase('vi').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/đ/g, 'd')
+      if (pendingCustomerArchive) {
+        if (/^(xac nhan luu tru|xac nhan)$/.test(normalizedPrompt.trim())) {
+          const count = await archiveCustomers(actor, pendingCustomerArchive.map(customer => customer.id))
+          setPendingCustomerArchive(null)
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em đã lưu trữ ' + count + ' hồ sơ khách hàng. Lịch sử hóa đơn và thanh toán liên quan vẫn được giữ nguyên.', source: 'local' }])
+          return
+        }
+        if (/^(huy|huy bo|khong|dung lai)$/.test(normalizedPrompt.trim())) {
+          setPendingCustomerArchive(null)
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Dạ, em đã hủy thao tác. Không có hồ sơ khách hàng nào bị thay đổi.', source: 'local' }])
+          return
+        }
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em vẫn đang chờ xác nhận lưu trữ ' + pendingCustomerArchive.length + ' hồ sơ. Anh gõ “XÁC NHẬN LƯU TRỮ” để tiếp tục hoặc “HỦY” để dừng nhé.', source: 'local' }])
+        return
+      }
+
+      const archiveIntent = /(xoa|luu tru|loai bo|dua ra khoi he thong)/.test(normalizedPrompt) && /(khach hang|khach)/.test(normalizedPrompt)
+      if (archiveIntent) {
+        const customers = await listCustomers(actor)
+        const allRequested = /(tat ca|toan bo|het danh sach|toan danh sach)/.test(normalizedPrompt)
+        const digits = prompt.replace(/\\D/g, '')
+        const matched = allRequested ? customers : customers.filter(customer => {
+          const name = customer.fullName.toLocaleLowerCase('vi').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/đ/g, 'd')
+          const phone = (customer.phone ?? '').replace(/\\D/g, '')
+          return (name.length > 2 && normalizedPrompt.includes(name)) || (digits.length >= 8 && phone.length >= 8 && phone.includes(digits))
+        })
+        if (!allRequested && matched.length === 0) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em chưa xác định được khách hàng cần lưu trữ. Anh hãy nêu tên hoặc số điện thoại cụ thể, hoặc nói rõ “lưu trữ tất cả khách hàng”. Em sẽ hiển thị danh sách và xin xác nhận trước khi thực hiện.', source: 'local' }])
+          return
+        }
+        if (matched.length > 1 && !allRequested) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Có ' + matched.length + ' hồ sơ gần khớp. Anh vui lòng cung cấp số điện thoại hoặc tên đầy đủ chính xác để tránh lưu trữ nhầm người.', source: 'local' }])
+          return
+        }
+        if (!matched.length) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Danh sách khách hàng hiện tại không có hồ sơ nào để lưu trữ.', source: 'local' }])
+          return
+        }
+        setPendingCustomerArchive(matched)
+        const preview = matched.slice(0, 12).map((customer, index) => (index + 1) + '. ' + customer.fullName + (customer.phone ? ' · ' + customer.phone : '')).join('\\n')
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em tìm thấy ' + matched.length + ' hồ sơ sẽ được lưu trữ:\\n' + preview + (matched.length > 12 ? '\\n… và ' + (matched.length - 12) + ' hồ sơ khác.' : '') + '\\n\\nĐây là thao tác lưu trữ, không xóa lịch sử hóa đơn/thanh toán. Để tiếp tục, anh gõ “XÁC NHẬN LƯU TRỮ”. Gõ “HỦY” để dừng.', source: 'local' }])
+        return
+      }
+
       const instruction = parseMemoryInstruction(prompt)
       if (instruction) {
         const saved = await saveOwnerMemory(actor, instruction.category, instruction.title, instruction.content)
