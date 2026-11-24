@@ -311,3 +311,14 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Bổ sung unit tests cho quý, câu hỏi shortcut, FAQ khả năng và creator.
 - Chờ GitHub Actions typecheck/lint/test/build/Functions build.
 - Cần kiểm thử thực tế hai tài khoản Google độc lập sau khi deploy callable/rules; chưa đánh dấu runtime PASS.
+
+
+## Phiên 17 – 2026-11-24 – P26: Tinh gọn màn hình Owner onboarding
+- Tạo branch `phase-26-owner-onboarding-clean-ui` từ P25; không sửa main và không merge PR trước đó.
+- Thiết kế lại màn hình tài khoản chưa có salon: email Google, tên salon, nút tạo salon, đổi tài khoản và đăng xuất được bố trí thành các nhóm rõ ràng.
+- Ẩn Firebase UID trong mục “Thông tin kỹ thuật” thu gọn để giao diện bớt rối.
+- Chuẩn hóa lỗi callable tạo salon thành thông báo tiếng Việt có hướng dẫn; không hiển thị mã lỗi thô như `internal [0]`.
+- Giữ fail-closed: chỉ membership active + role owner + salonId hợp lệ mới được vào Owner workspace; không cấp quyền từ client.
+- Không thay đổi Firestore Rules, Firebase project, membership hiện tại hoặc dữ liệu local.
+- Tài liệu chi tiết: `docs/sessions/P26-OWNER-ONBOARDING-CLEAN-UI.md`.
+- Chờ CI và kiểm tra trên Termux/Android. Tạo salon thật vẫn phụ thuộc callable `createOwnerSalon` được deploy đúng project `salonquyen-f21fa`; chưa tuyên bố runtime PASS.
