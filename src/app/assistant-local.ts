@@ -172,11 +172,11 @@ function staffProfileLookup(snapshot: Snapshot, question: string): string | null
     '• Ngày vào làm: ' + new Intl.DateTimeFormat('vi-VN', { dateStyle: 'long', timeZone: 'Asia/Ho_Chi_Minh' }).format(joined) + ' · Thâm niên ước tính: ' + tenure + '.',
     '• Tổng ca đã hoàn thành: ' + completed.length + ' · Tổng giờ ca ghi nhận: ' + Math.round(totalHours * 10) / 10 + ' giờ.',
     '• Trong ' + periodRange.label + ': ' + current.length + ' ca hoàn thành.',
-    '• Doanh thu trên các dòng hóa đơn được gán cho nhân viên: ' + money(serviceRevenue + productRevenue) + ' (dịch vụ ' + money(serviceRevenue) + ', sản phẩm ' + money(productRevenue) + ').',
+    '• Doanh số gộp trên các dòng hóa đơn được gán cho nhân viên: ' + money(serviceRevenue + productRevenue) + ' (dịch vụ ' + money(serviceRevenue) + ', sản phẩm ' + money(productRevenue) + ').',
     '• Khách hàng có hóa đơn được gán: ' + attributedCustomers.size + ' · Sản phẩm đã bán: ' + productQuantity + '.',
-    '• Trong ' + periodRange.label + ': doanh thu được gán ' + money(periodRevenue) + ' · ' + periodCustomers.size + ' khách hàng có hóa đơn · ' + periodAttributed.length + ' dòng hàng.',
+    '• Trong ' + periodRange.label + ': doanh số gộp được gán ' + money(periodRevenue) + ' · ' + periodCustomers.size + ' khách hàng có hóa đơn · ' + periodAttributed.length + ' dòng hàng.',
     '• Thành tích xác minh được: ' + (completed.length ? completed.length + ' ca làm và ' + (Math.round(totalHours * 10) / 10) + ' giờ đã hoàn thành.' : 'Chưa có ca làm hoàn thành được ghi nhận.') + (attributed.length ? ' Có thêm ' + money(serviceRevenue + productRevenue) + ' doanh thu được gán qua hóa đơn.' : ' Chưa có dòng hóa đơn nào được gán cho nhân viên.'),
-    'Lưu ý: doanh thu chỉ tính từ ngày các hóa đơn bắt đầu được gán nhân viên; hóa đơn lịch sử chưa có phân công không được suy đoán hoặc tự gán.'
+    'Lưu ý: doanh số gộp chỉ tính từ ngày hóa đơn bắt đầu được gán nhân viên; hóa đơn lịch sử chưa có phân công không được suy đoán. Tiền hoàn chưa được phân bổ ngược về từng nhân viên.'
   ].join('\n')
 }
 
