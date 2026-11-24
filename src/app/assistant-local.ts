@@ -178,6 +178,8 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
   if (intent === 'staff') {
     const profile = staffProfileLookup(snapshot, question)
     if (profile) return { answer: profile, safeContext: 'Hồ sơ và ca làm của một nhân viên thuộc salon hiện tại; chưa có employee attribution cho doanh thu.', intent, period }
+    const detailRequest = /(thong tin nhan vien|ho so nhan vien|chi tiet nhan vien|nhan vien co so dien thoai)/.test(normalizeAssistantText(question)) || question.replace(/\D/g, '').length >= 8
+    if (detailRequest) return { answer: 'Em chưa tìm thấy một hồ sơ nhân viên khớp duy nhất với tên hoặc số điện thoại anh cung cấp. Anh kiểm tra lại chính tả hoặc số điện thoại trong mục Nhân viên giúp em nhé. Em không tự chọn hồ sơ gần giống để tránh nhầm người.', safeContext: 'Không tìm thấy kết quả hồ sơ nhân viên duy nhất trong salon hiện tại.', intent, period }
   }
   const lines = ['**Tổng hợp ' + range.label + '**']
   if (intent === 'finance' || intent === 'overview') {
@@ -202,11 +204,12 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
       current.products += invoice.lines.filter(line => line.lineType === 'product').reduce((total, line) => total + line.quantity, 0)
       spendByCustomer.set(invoice.customerId!, current)
     }
-    const topSpenders = [...spendByCustomer.values()].sort((a, b) => b.amount - a.amount).slice(0, 5)
+    const rankByProductCount = /(mua nhieu san pham|so luong san pham|mua nhieu mon)/.test(normalizeAssistantText(question))
+    const topSpenders = [...spendByCustomer.values()].sort((a, b) => rankByProductCount ? b.products - a.products || b.amount - a.amount : b.amount - a.amount).slice(0, 5)
     lines.push('• Khách đặt lịch nhiều nhất (không tính lịch hủy/không đến):')
     if (!data.topCustomers.length) lines.push('  Chưa có lịch đặt gắn với hồ sơ khách hàng trong khoảng thời gian này.')
     else data.topCustomers.forEach((row, index) => lines.push('  ' + (index + 1) + '. ' + row.label + ' – ' + row.count + ' lịch'))
-    lines.push('• Khách chi tiêu nhiều nhất theo hóa đơn đã phát hành:')
+    lines.push(rankByProductCount ? '• Khách mua nhiều sản phẩm nhất theo số lượng trên hóa đơn:' : '• Khách chi tiêu nhiều nhất theo hóa đơn đã phát hành:')
     if (!topSpenders.length) lines.push('  Chưa có hóa đơn gắn với khách hàng trong kỳ.')
     else topSpenders.forEach((row, index) => lines.push('  ' + (index + 1) + '. ' + row.name + ' – ' + money(row.amount) + ' · ' + row.invoices + ' hóa đơn · ' + row.products + ' sản phẩm') )
   }
