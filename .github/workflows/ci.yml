@@ -28,7 +28,3 @@ jobs:
         run: npm test
       - name: Production build (including optimized PWA service worker)
         run: npm run build
-      - name: Install Cloud Functions dependencies
-        run: npm --prefix functions install --no-audit --no-fund
-      - name: Build Cloud Functions
-        run: npm --prefix functions run build
