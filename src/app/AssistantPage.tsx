@@ -23,7 +23,7 @@ const suggestions = [
   'Bạn có thể làm được gì?',
   'Ai đã tạo ra bạn?',
 ]
-const needsAdviser = (question: string, intent: string) => intent === 'general' || intent === 'staff' || /(tu van|giai thich|de xuat|nen lam gi|lam sao|chien luoc|ke hoach|vi sao)/i.test(question.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))
+const needsAdviser = (question: string, intent: string) => intent === 'general' || /(tu van|giai thich|de xuat|nen lam gi|lam sao|chien luoc|ke hoach|vi sao)/i.test(question.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))
 
 export function AssistantPage() {
   const actor = useOwnerContext()
