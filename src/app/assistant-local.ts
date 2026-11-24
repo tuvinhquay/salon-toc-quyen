@@ -148,7 +148,6 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
   if (intent === 'general') {
     lines.push('Mình chưa nhận diện chắc loại câu hỏi. Bạn có thể hỏi về doanh thu, lịch hẹn, khách hàng đặt lịch nhiều, dịch vụ phổ biến, nhân viên hoặc tồn kho.')
   }
-  lines.push('', '_Dữ liệu lấy từ IndexedDB trên thiết bị hiện tại, giới hạn theo salon đã đăng nhập. Đây không phải dữ liệu đồng bộ từ thiết bị khác._')
   const safeContext = [
     'Dữ liệu phân tích đã được tính bằng mã nghiệp vụ, không yêu cầu mô hình tự tính tiền.',
     'Chỉ số VND: grossInvoiceRevenue=' + data.gross + '; collected=' + data.collected + '; refunds=' + data.refunded + '; expenses=' + data.spent + '; netCollectedAfterRefundsAndExpenses=' + data.net + '.',
