@@ -280,3 +280,34 @@ Base: `phase-23-assistant-ux-account-switch`
 ## Kiểm thử
 - GitHub Actions run `45321044138` trên commit `6bddc5bcaa7a25443d42d678fac7806bcba8b0b3`: Typecheck, ESLint, Unit tests, Production/PWA build, Cloud Functions dependency install và Functions build đều PASS. Một lỗi typecheck ban đầu do thiếu destructuring UID đã được sửa trước lượt CI PASS.
 - Cần smoke test Android cho đổi tài khoản và hội thoại; chưa đánh dấu runtime PASS trước khi người dùng xác nhận.
+
+# P25 – Business Brain và Tenant riêng cho từng chủ salon
+Ngày: 2026-11-24
+Branch: `phase-25-business-brain-multitenant`
+Base: `phase-24-assistant-clean-chat-google-switch`
+
+## Đã triển khai trên branch
+- Mở rộng bộ nhận diện câu hỏi nội bộ cho doanh thu, tài chính, lịch hẹn, khách hàng, dịch vụ, nhân viên, tồn kho và tìm sản phẩm.
+- Thêm kỳ báo cáo quý theo múi giờ Việt Nam; giữ ngày/tháng/năm.
+- Báo cáo tổng quan đối chiếu hóa đơn, tiền thu, hoàn tiền, chi phí, lịch, dịch vụ, khách hàng và tồn kho.
+- Tra cứu sản phẩm theo tên/SKU/danh mục và tồn khả dụng.
+- Xếp hạng ca làm đã hoàn thành theo giờ và số ca; không gán nhầm thành doanh thu/năng suất dịch vụ.
+- Trả lời FAQ về khả năng trợ lý và nguồn gốc trợ lý bằng bộ máy nội bộ.
+- Thêm memory category `shortcut`, cho phép chủ tiệm dạy câu hỏi bằng cú pháp “Hãy ghi nhớ thêm. …”; câu hỏi tương tự được ánh xạ sang truy vấn nghiệp vụ cục bộ.
+- Thêm callable `createOwnerSalon`: mỗi Google UID mới có thể tạo đúng một tenant; Admin SDK tạo salon + membership trong transaction. Client không được tự ghi membership.
+- AuthGate thêm luồng tạo không gian salon riêng cho tài khoản chưa có membership; membership sai trạng thái vẫn bị chặn.
+- Firestore Rules chỉ cho owner đọc metadata salon thuộc membership của chính mình; vẫn cấm client ghi membership/salon.
+- Cập nhật docs/DATA_SCHEMA.md và ghi chú Phase 25.
+
+## Giới hạn và bảo mật
+- Không xóa/migrate dữ liệu hiện tại, không đổi membership hiện tại của owner cũ.
+- Tài khoản mới sẽ có salonId riêng; dữ liệu IndexedDB được phân vùng theo salonId. Trí nhớ gắn salonId + ownerId.
+- Chưa đồng bộ IndexedDB/memory sang thiết bị khác.
+- Doanh thu theo nhân viên chưa thể tính cho đến khi có employee attribution ở dịch vụ/hóa đơn; xếp hạng hiện tại chỉ là giờ/ca đã hoàn thành.
+- Callable mới cần deploy lên Firebase `salonquyen-f21fa` trước khi người dùng mới có thể tự tạo tenant.
+- Chưa có invitation để nhiều nhân viên cùng tham gia một salon.
+
+## Kiểm thử
+- Bổ sung unit tests cho quý, câu hỏi shortcut, FAQ khả năng và creator.
+- Chờ GitHub Actions typecheck/lint/test/build/Functions build.
+- Cần kiểm thử thực tế hai tài khoản Google độc lập sau khi deploy callable/rules; chưa đánh dấu runtime PASS.

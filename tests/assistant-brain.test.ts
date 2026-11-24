@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { answerFromMemories, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from '../src/app/assistant-brain'
+import { answerAssistantAbout, answerFromMemories, findMatchingAssistantShortcut, isAssistantCreatorQuestion, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from '../src/app/assistant-brain'
 import type { AssistantMemoryRecord } from '../src/db/types'
 
 describe('owner assistant long-term memory', () => {
@@ -16,6 +16,17 @@ describe('owner assistant long-term memory', () => {
     expect(parseMemoryInstruction('Từ nay hãy lập kế hoạch công việc mỗi sáng')?.category).toBe('routine')
     expect(parseMemoryInstruction('Hãy nhớ dự án Q-BizOS đang phát triển')?.category).toBe('project')
     expect(parseMemoryInstruction('Hãy ghi nhớ mã quy trình nội bộ là QT-01')?.category).toBe('knowledge')
+  })
+  it('stores taught business questions as reusable shortcuts', () => {
+    const parsed = parseMemoryInstruction('Hãy ghi nhớ thêm. Tổng hợp danh sách nhân viên xuất sắc tháng này')
+    expect(parsed?.category).toBe('shortcut')
+    const shortcut = { id: 's1', salonId: 'salon-a', ownerId: 'owner-a', category: 'shortcut', title: 'Câu hỏi nghiệp vụ đã dạy', content: parsed?.content ?? '', keywords: [], status: 'active', syncState: 'local_only', createdAt: '', updatedAt: '', revision: 1, createdBy: 'owner-a', updatedBy: 'owner-a', deviceId: 'device-a' } as AssistantMemoryRecord
+    expect(findMatchingAssistantShortcut([shortcut], 'Nhân viên nào làm việc tốt nhất tháng này?')?.id).toBe('s1')
+  })
+  it('answers capability and creator questions without requiring Gemini', () => {
+    expect(answerAssistantAbout('Bạn có thể làm được gì?')).toContain('doanh thu')
+    expect(isAssistantCreatorQuestion('Bạn có biết ai đã tạo ra mình hay không?')).toBe(true)
+    expect(answerAssistantAbout('Ai đã tạo ra mình?')).toContain('TÓC QUYỀN')
   })
   it('recognizes short Vietnamese greetings as normal conversation', () => {
     expect(isAssistantGreeting('Xin chào')).toBe(true)

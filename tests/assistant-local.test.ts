@@ -11,6 +11,7 @@ describe('assistant question understanding', () => {
   it('recognizes Vietnam calendar periods', () => {
     expect(detectAssistantPeriod('Doanh thu năm nay')).toBe('year')
     expect(detectAssistantPeriod('Tháng này có bao nhiêu lịch?')).toBe('month')
+    expect(detectAssistantPeriod('Tổng kết tình hình kinh doanh quý này')).toBe('quarter')
     expect(detectAssistantPeriod('Hôm nay thu được bao nhiêu?')).toBe('today')
   })
   it('uses Asia/Ho_Chi_Minh midnight boundaries', () => {
@@ -21,6 +22,10 @@ describe('assistant question understanding', () => {
     const month = getAssistantRange('month', now)
     expect(month.start.toISOString()).toBe('2026-10-31T17:00:00.000Z')
     expect(month.end.toISOString()).toBe('2026-11-30T17:00:00.000Z')
+    const quarter = getAssistantRange('quarter', now)
+    expect(quarter.label).toBe('quý 4/2026')
+    expect(quarter.start.toISOString()).toBe('2026-09-30T17:00:00.000Z')
+    expect(quarter.end.toISOString()).toBe('2026-12-31T17:00:00.000Z')
     const year = getAssistantRange('year', now)
     expect(year.start.toISOString()).toBe('2025-12-31T17:00:00.000Z')
     expect(year.end.toISOString()).toBe('2026-12-31T17:00:00.000Z')

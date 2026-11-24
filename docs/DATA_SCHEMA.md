@@ -42,3 +42,14 @@ Mỗi entity cần ID ổn định, salonId, createdAt, updatedAt, revision và 
 - Backup payload chứa dữ liệu của đúng salon; mã hóa AES-GCM-256 với PBKDF2 SHA-256 310.000 iterations, salt và IV ngẫu nhiên.
 - Restore kiểm tra checksum, giải mã, kiểm tra salonId trên toàn bộ record; merge bỏ qua revision cũ hơn, replace chỉ xóa dữ liệu của salon đang xác thực.
 - Backup hiện tải tệp cục bộ; chưa có upload Google Drive/cloud.
+
+
+## P25 – Tenant ownership and assistant learning
+- `salons/{salonId}`: tenant metadata; owner UID, display name, status, timestamps and plan. Client can read only its own salon metadata; no client writes.
+- `memberships/{uid}`: one active owner membership maps a Google UID to one salonId. Only the trusted callable Cloud Function provisions a first-time owner; browser writes remain denied.
+- One owner UID → one salon tenant. A second Google account gets a distinct salonId and therefore a separate IndexedDB data partition.
+- All local business records continue to carry `salonId`; assistant memories are additionally scoped by `ownerId`.
+- Assistant memory category `shortcut`: an owner-authored natural-language business query that maps similar future wording to a deterministic read-only analytics query. Example: “Hãy ghi nhớ thêm. Tổng hợp danh sách nhân viên xuất sắc tháng này”.
+- Quarter reporting uses Asia/Ho_Chi_Minh calendar boundaries.
+- Staff ranking currently measures completed WorkShift hours/count only. It is not attributed service revenue or proven productivity; employee attribution must be added to service/invoice records in a later phase.
+- Local-first records and assistant shortcuts are not yet synced across devices.

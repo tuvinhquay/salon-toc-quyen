@@ -1,6 +1,7 @@
 import { getApp, getApps, initializeApp, type FirebaseOptions } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
+import { getFunctions } from 'firebase/functions'
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check'
 
 const config: FirebaseOptions = {
@@ -20,3 +21,5 @@ export const appCheck = firebaseApp && recaptchaSiteKey ? initializeAppCheck(fir
 
 export const firebaseAuth = firebaseApp ? getAuth(firebaseApp) : null
 export const firestore = firebaseApp ? getFirestore(firebaseApp) : null
+
+export const firebaseFunctions = firebaseApp ? getFunctions(firebaseApp, 'asia-southeast1') : null
