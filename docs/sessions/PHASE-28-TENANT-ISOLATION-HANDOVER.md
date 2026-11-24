@@ -30,7 +30,7 @@ Chuẩn bị bàn giao Owner App cho một Google account mới mà không sửa
 - Không thay đổi Firestore Rules, Firebase Auth users, memberships hoặc salons trong phase này.
 
 ## Kiểm thử
-- GitHub Actions: chờ kết quả trên branch.
-- Termux: `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`, `git diff --check`.
+- GitHub Actions run `45379133999`: PASS – Typecheck, ESLint, Unit tests, Production build/PWA.
+- Termux: còn chờ chạy `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`, `git diff --check`.
 - Android smoke test sau CI: đăng nhập Google mới, tạo salon mới, xác nhận salonId khác; xem khách hàng/lịch/dịch vụ/nhân viên/kho/POS/báo cáo/trí nhớ đều trống trong tenant mới; đăng xuất và xác nhận dữ liệu cũ không bị xóa.
 - Chưa đánh dấu PASS trước khi có bằng chứng CI và thiết bị.
