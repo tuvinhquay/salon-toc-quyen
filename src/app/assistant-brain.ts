@@ -91,6 +91,22 @@ export function answerAssistantAbout(question: string): string | null {
   return null
 }
 
+export function applyLearnedVocabulary(memories: AssistantMemoryRecord[], question: string): string {
+  let result = question
+  for (const memory of memories) {
+    if (memory.status !== 'active' || memory.category !== 'knowledge') continue
+    const content = memory.content.trim()
+    const match = content.match(/(?:tu|cum tu)\\s+["'“]?([^"'”]+?)["'”]?\\s+(?:nghia la|duoc hieu la|con goi la|la)\\s+["'“]?(.+?)["'”]?$/i)
+    if (!match) continue
+    const alias = match[1].trim()
+    const canonical = match[2].trim().replace(/[.!?]+$/, '')
+    if (alias.length < 3 || canonical.length < 3) continue
+    const escaped = alias.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\const SHORTCUT_STOP_WORDS = new Set')
+    result = result.replace(new RegExp(escaped, 'gi'), canonical)
+  }
+  return result
+}
+
 const SHORTCUT_STOP_WORDS = new Set(['ban','minh','toi','cua','la','gi','ve','cho','voi','hay','nhe','nha','mot','nhung','cac','nay','do','khong','co','duoc','muon','nao','nhat','lam','viec','tong','hop','danh','sach'])
 export function findMatchingAssistantShortcut(memories: AssistantMemoryRecord[], question: string): AssistantMemoryRecord | null {
   const tokens = normalize(question).split(/[^a-z0-9]+/).filter(token => token.length > 2 && !SHORTCUT_STOP_WORDS.has(token))
