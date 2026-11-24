@@ -13,6 +13,13 @@ const mondayOf = (date: Date) => {
   result.setDate(result.getDate() - ((result.getDay() + 6) % 7))
   return result
 }
+export function getFiveMonthDemoPeriod(now = new Date()) {
+  return {
+    startAt: iso(new Date(now.getFullYear(), now.getMonth() - 4, 1, 8)),
+    endAt: iso(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)),
+  }
+}
+
 const makeRandom = (seed: string) => {
   let state = 2166136261
   for (let i = 0; i < seed.length; i += 1) state = Math.imul(state ^ seed.charCodeAt(i), 16777619)
@@ -55,14 +62,15 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
   const rand = (min: number, max: number) => Math.floor(random() * (max - min + 1)) + min
   const pick = <T,>(items: readonly T[]) => items[rand(0, items.length - 1)]
   const now = new Date()
+  const period = getFiveMonthDemoPeriod(now)
   const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1, 8)
   const monthStarts = Array.from({ length: 5 }, (_, index) => {
     const date = new Date(currentMonth)
     date.setMonth(date.getMonth() - (4 - index))
     return date
   })
-  const startAt = monthStarts[0]
-  const endAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
+  const startAt = new Date(period.startAt)
+  const endAt = new Date(period.endAt)
   const base = (id: string, occurredAt: string) => ({
     id, salonId: actor.salonId, createdAt: occurredAt, updatedAt: occurredAt,
     revision: 1, createdBy: actor.actorId, updatedBy: actor.actorId, deviceId: actor.deviceId,
@@ -164,7 +172,6 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
   const refunds: Refund[] = []
   const appointments: Appointment[] = []
   const pendingUses: PendingUse[] = []
-  const invoiceMonth = new Map<string, string>()
   const serviceStaff = employees.filter(employee => employee.status === 'active' && employee.role === 'stylist')
   const cashier = employees.find(employee => employee.role === 'cashier') ?? employees[0]
   const invoiceCounts = [44, 52, 58, 64, 70]
@@ -179,7 +186,6 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
       const date = localDate(month.getFullYear(), month.getMonth(), day, rand(9, 18))
       const issuedAt = iso(date)
       const customer = pick(customers)
-      const staff = pick(serviceStaff)
       const session = sessionFor(date)
       const invoiceId = prefix + 'invoice_' + invoiceNumber
       const lineData: Array<{ lineType: 'service' | 'product'; referenceId: string; description: string; quantity: number; unitPriceVnd: number; employee: Employee }> = []
@@ -229,7 +235,6 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
         voidedAt: null,
       }
       invoices.push(invoice)
-      invoiceMonth.set(invoiceId, monthLabel(date))
       const method: Payment['method'] = random() < 0.48 ? 'cash' : random() < 0.88 ? 'bank_transfer' : 'card'
       payments.push({
         ...base(prefix + 'payment_' + invoiceNumber, issuedAt), invoiceId, cashSessionId: method === 'cash' ? session.id : null,
@@ -514,7 +519,8 @@ export async function seedDemoData(actor: ActorContext) {
       salonDb.auditEvents.add(bundle.audit),
     ])
   })
-  return { created: true, counts: await getDemoDataCounts(actor.salonId), startAt: bundle.invoices[0]?.issuedAt ?? '', endAt: new Date().toISOString() }
+  const period = getFiveMonthDemoPeriod()
+  return { created: true, counts: await getDemoDataCounts(actor.salonId), startAt: period.startAt, endAt: period.endAt }
 }
 
 export async function clearDemoData(actor: ActorContext) {
