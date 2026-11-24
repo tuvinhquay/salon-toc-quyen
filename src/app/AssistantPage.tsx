@@ -4,7 +4,7 @@ import { useOwnerContext } from '../auth/OwnerContext'
 import type { AssistantMemoryRecord } from '../db/types'
 import { answerOwnerQuestion, redactQuestionForGemini } from './assistant-local'
 import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, readAssistantMemory } from './assistant-memory'
-import { answerFromMemories, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
+import { answerAssistantAbout, answerFromMemories, findMatchingAssistantShortcut, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
 import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assistant-brain-store'
 import { askGeminiAdviser, isGeminiAssistantReady } from './assistant-gemini'
 
@@ -15,7 +15,7 @@ const suggestions = [
   'Khách hàng nào đặt lịch nhiều nhất năm nay?',
   'Dịch vụ nào được làm nhiều nhất tháng này?',
   'Kho có mặt hàng nào sắp hết không?',
-  'Tư vấn giúp mình cải thiện hoạt động tiệm.',
+  'Tư vấn giúp mình cải thiện hoạt động tiệm.',\n  'Quý này tiệm kinh doanh thế nào?',\n  'Nhân viên nào có nhiều ca làm nhất tháng này?',\n  'Tìm sản phẩm dầu gội trong kho.',\n  'Bạn có thể làm được gì?',\n  'Ai đã tạo ra bạn?',
 ]
 const needsAdviser = (question: string, intent: string) => intent === 'general' || intent === 'staff' || /(tu van|giai thich|de xuat|nen lam gi|lam sao|chien luoc|ke hoach|vi sao)/i.test(question.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))
 
@@ -98,7 +98,7 @@ export function AssistantPage() {
         return
       }
 
-      if (isAssistantGreeting(prompt)) {
+      const about = answerAssistantAbout(prompt)\n      if (about) {\n        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: about, source: 'local' }])\n        return\n      }\n\n      if (isAssistantGreeting(prompt)) {
         setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Chào bạn! Mình đây. Hôm nay bạn muốn xem tình hình salon hay cần mình tư vấn việc gì?', source: 'local' }])
         return
       }
@@ -109,11 +109,11 @@ export function AssistantPage() {
         return
       }
 
-      const local = await answerOwnerQuestion(actor.salonId, prompt)
+      const trainedShortcut = findMatchingAssistantShortcut(longTermMemories, prompt)\n      const local = await answerOwnerQuestion(actor.salonId, trainedShortcut?.content ?? prompt)
       const nextMemory = learnAssistantHabit(actor.salonId, actor.actorId, local.intent, local.period)
       setMemory(nextMemory)
       const relevant = selectRelevantMemories(longTermMemories, prompt)
-      let answer = local.answer
+      let answer = trainedShortcut ? 'Theo câu hỏi nghiệp vụ bạn đã dạy (“' + trainedShortcut.content.replace(/^\\.\\s*/, '') + '”):\\n\\n' + local.answer : local.answer
       let source: Message['source'] = 'local'
       if (relevant.length && /(ke hoach|lap ke hoach|nen lam gi|thoi quen|uu tien|buoi sang|hang ngay)/i.test(prompt.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))) {
         answer += '\n\n**Điều mình đã ghi nhớ có liên quan**\n' + relevant.map(item => '• ' + item.content).join('\n')
