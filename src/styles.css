@@ -93,3 +93,12 @@
 .customer-group-options { display:flex; flex-wrap:wrap; gap:.55rem .9rem; padding:.5rem 0; }
 .customer-group-options label { display:inline-flex; align-items:center; gap:.45rem; font-size:.9rem; color:var(--text,#334155); }
 .customer-group-options input[type="checkbox"] { width:1rem; height:1rem; accent-color:#0d9488; }
+
+
+/* Phase 29 – dynamic per-record custom fields */
+.custom-fields-editor { margin:1rem 0; padding:1rem; border:1px solid var(--border,#e2e8f0); border-radius:12px; }
+.custom-fields-editor .list-heading { margin:0 0 .65rem; }
+.custom-fields-editor h4 { margin:0; font-size:.92rem; }
+.custom-field-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; gap:.5rem; margin:.5rem 0; }
+.custom-field-row input { min-width:0; width:100%; }
+@media(max-width:520px) { .custom-field-row { grid-template-columns:1fr 1fr; } .custom-field-row button { grid-column:2; justify-self:end; } }
