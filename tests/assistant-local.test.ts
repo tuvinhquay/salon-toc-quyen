@@ -7,6 +7,9 @@ describe('assistant question understanding', () => {
     expect(detectAssistantIntent('Nhân viên nào làm được nhiều nhất?')).toBe('staff')
     expect(detectAssistantIntent('Khách hàng nào đặt lịch nhiều nhất?')).toBe('customers')
     expect(detectAssistantIntent('Mặt hàng nào sắp hết?')).toBe('inventory')
+    expect(detectAssistantIntent('Tìm thông tin nhân viên Hoàng Gia Hân số điện thoại 0909446008')).toBe('staff')
+    expect(detectAssistantIntent('Liệt kê khách mua nhiều sản phẩm nhất quý này')).toBe('customers')
+    expect(detectAssistantIntent('Khách hàng chi tiêu nhiều nhất trong tháng')).toBe('customers')
   })
   it('recognizes Vietnam calendar periods', () => {
     expect(detectAssistantPeriod('Doanh thu năm nay')).toBe('year')
