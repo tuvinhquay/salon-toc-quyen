@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await signOut(firebaseAuth)
           setError(null)
         } catch {
-          throw new Error('Chưa thể đăng xuất. Vui lòng kiểm tra kết nối và thử lại.')
+          setError('Chưa thể đăng xuất. Vui lòng kiểm tra kết nối và thử lại.')
         }
       }
     },
