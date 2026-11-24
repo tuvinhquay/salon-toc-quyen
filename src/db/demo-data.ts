@@ -94,7 +94,7 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
     const created = iso(localDate(customerMonth.getFullYear(), customerMonth.getMonth(), rand(1, Math.max(1, customerMaxDay))))
     return {
       ...base(prefix + 'customer_' + (index + 1), created), fullName,
-      normalizedName: fullName.toLocaleLowerCase('vi').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/đ/g, 'd'), phone, normalizedPhone: phone,
+      normalizedName: fullName.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'), phone, normalizedPhone: phone,
       email: null, notes: 'KHÁCH GIẢ LẬP · Khu vực phục vụ: Ngã Giao / TP.HCM (bối cảnh mô phỏng). Không phải thông tin cá nhân thật.',
       archivedAt: null, groupIds: [groups[index % groups.length].id],
       customFields: { 'Khu vực': 'Ngã Giao – giả lập', 'Sở thích': ['Tóc nhuộm','Tóc uốn','Chăm sóc tóc','Cắt tạo kiểu'][index % 4], 'Nguồn khách': ['Giới thiệu','Đi ngang','Mạng xã hội','Khách quay lại'][index % 4] },
