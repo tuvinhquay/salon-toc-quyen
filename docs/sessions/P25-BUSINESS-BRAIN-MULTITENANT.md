@@ -38,6 +38,10 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Callable function mới cần được deploy lên Firebase project `salonquyen-f21fa` trước khi nút tạo salon mới hoạt động trên production.
 - Chưa triển khai invitation/membership cho nhiều nhân viên cùng truy cập một salon. Phase này là một owner UID – một tenant riêng.
 
+## Kiểm thử
+- GitHub Actions run `45335989842` trên commit `7b6fee75e8fbdda7da1bea19fd2eeaae840c3e74`: Typecheck PASS, ESLint PASS, Unit tests PASS, Production/PWA build PASS, Cloud Functions dependency install PASS và Functions build PASS.
+- Các lần CI trước đó phát hiện ký tự xuống dòng bị escape trong test; đã sửa và lượt kiểm tra cuối cùng PASS.
+
 ## Kiểm thử dự kiến
 - Typecheck, lint, unit tests, production/PWA build và Cloud Functions build qua GitHub Actions.
 - Unit tests: câu hỏi tự nhiên, shortcut được dạy, creator/capability FAQ, quý và biên ngày Việt Nam.
