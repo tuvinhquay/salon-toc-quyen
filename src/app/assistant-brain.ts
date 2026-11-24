@@ -72,7 +72,7 @@ export function isAssistantCapabilityQuestion(question: string): boolean {
 
 export function isAssistantCreatorQuestion(question: string): boolean {
   const q = normalize(question)
-  return /(ai tao ra ban|ai da tao ra minh|ai tao ra minh|ai lap trinh ban|ai phat trien ban|ai lam ra ban|nguoi tao ra ban|ban duoc tao boi ai)/.test(q)
+  return /(ai tao ra ban|ai da tao ra ban|ai da tao ra minh|ai tao ra minh|ai lap trinh ban|ai phat trien ban|ai lam ra ban|nguoi tao ra ban|ban duoc tao boi ai)/.test(q)
 }
 
 export function answerAssistantAbout(question: string): string | null {
