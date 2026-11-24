@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase-admin/app'
-import { getFirestore } from 'firebase-admin/firestore'
+import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { logger } from 'firebase-functions'
 import { defineSecret } from 'firebase-functions/params'
 import { HttpsError, onCall } from 'firebase-functions/v2/https'
@@ -96,5 +96,53 @@ export const salonAssistant = onCall(
       logger.error('Gemini service unavailable')
       throw new HttpsError('unavailable', 'Không thể kết nối trợ lý AI lúc này.')
     }
+  },
+)
+
+
+const createSalonSchema = z.object({ salonName: z.string().trim().min(2).max(80) })
+
+/**
+ * First-time owner onboarding: one authenticated Google UID receives one private salon tenant.
+ * The membership is written only by the Admin SDK, never by the browser.
+ */
+export const createOwnerSalon = onCall(
+  { region: 'asia-southeast1', timeoutSeconds: 30, memory: '256MiB', maxInstances: 3 },
+  async request => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'Vui lòng đăng nhập bằng Google trước.')
+    const parsed = createSalonSchema.safeParse(request.data)
+    if (!parsed.success) throw new HttpsError('invalid-argument', 'Tên salon phải có từ 2 đến 80 ký tự.')
+    const uid = request.auth.uid
+    const membershipRef = db.doc('memberships/' + uid)
+    const salonRef = db.collection('salons').doc()
+    const now = FieldValue.serverTimestamp()
+    return db.runTransaction(async transaction => {
+      const existing = await transaction.get(membershipRef)
+      if (existing.exists) {
+        const data = existing.data()
+        if (data?.status === 'active' && data?.role === 'owner' && typeof data?.salonId === 'string' && data.salonId.trim()) {
+          return { salonId: data.salonId, alreadyProvisioned: true }
+        }
+        throw new HttpsError('permission-denied', 'Tài khoản đã có hồ sơ membership. Vui lòng liên hệ quản trị viên để được xử lý.')
+      }
+      transaction.create(salonRef, {
+        salonId: salonRef.id,
+        name: parsed.data.salonName,
+        ownerUid: uid,
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+        plan: 'starter',
+      })
+      transaction.create(membershipRef, {
+        uid,
+        salonId: salonRef.id,
+        role: 'owner',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      })
+      return { salonId: salonRef.id, alreadyProvisioned: false }
+    })
   },
 )
