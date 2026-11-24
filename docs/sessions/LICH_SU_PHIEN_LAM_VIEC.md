@@ -385,3 +385,10 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Thêm `tests/demo-data.test.ts` cho khoảng thời gian rolling 5 tháng và ranh giới năm.
 - Tạo `docs/sessions/P30-FIVE-MONTH-DEMO-DATA.md` và cập nhật ROADMAP.
 - CI chưa chạy/đang chờ PR; chưa được đánh dấu PASS. Cần kiểm tra typecheck, lint, tests, production build và Termux/Android acceptance. Không merge, không deploy.
+
+
+### Kết quả CI P30 – 2026-11-25
+- CI run 45512975364 trên commit code `679e207746eedab3aebb0370372fc9e7232dc154`: Typecheck PASS, ESLint PASS, 13/13 test files, 53/53 tests PASS, Production build/PWA PASS.
+- Test bundle xác nhận 120 khách giả lập, 10 nhân viên, 8 dịch vụ, 12 sản phẩm, 288 hóa đơn, 5 PO, 60 lots; hóa đơn và payment liên kết, tổng hóa đơn khớp các dòng, tồn kho = nhập - xuất.
+- Các lần CI đầu phát hiện lỗi tham chiếu và một assertion test sai; đã sửa, CI cuối cùng PASS. Không che lỗi hoặc bỏ test.
+- P30 còn chờ Owner kiểm tra thực tế trên Termux/Android; PR #23 vẫn Draft, không merge/deploy.
