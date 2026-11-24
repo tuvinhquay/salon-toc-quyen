@@ -363,9 +363,13 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Đổi lời chào trợ lý sang xưng hô tự nhiên; lấy tên hiển thị Google, không dùng email làm tên.
 - Thêm học từ vựng theo chỉ dẫn tường minh “Hãy ghi nhớ từ … nghĩa là …”; áp dụng alias vào câu hỏi sau, lưu local-only theo tenant/Owner.
 - Giữ tra cứu hồ sơ nhân viên trên thiết bị, không gửi dữ liệu cá nhân lên Gemini.
-- Báo cáo có biểu đồ thu/chi dựa trên Payment/Expense thật, theo ngày hoặc tháng tùy khoảng chọn.
-- Bổ sung unit tests cho intent tiếng Việt và bucket biểu đồ.
+- Báo cáo có biểu đồ tiền thu/hoàn tiền/chi phí từ Payment/Refund/Expense, bộ lọc nhanh ngày/tháng/quý/năm và bucket ngày/tháng.
+- Bổ sung unit tests cho intent tiếng Việt, memory vocabulary, chart buckets, customer groups/custom fields và chặn bulk archive xuyên tenant.
+- Dexie v7 thêm customerGroups; Customer/Product lưu customFields tùy chỉnh trực tiếp trong record.
+- Owner có thể tạo/sửa/lưu trữ nhóm khách theo tháng/quý/tùy chỉnh, gắn nhóm vào hồ sơ khách hàng; sản phẩm có thể sửa/ngừng/kích hoạt mà không xóa lịch sử.
+- Thêm lưu trữ hàng loạt khách hàng trong UI và bot chat: preview hồ sơ, xác nhận tường minh, transaction/audit; chỉ lưu trữ, không xóa hóa đơn/thanh toán.
+- Nâng backup mã hóa lên schema v7, gồm customerGroups và assistantMemories; restore backup cũ chỉ thay các bảng có trong tệp.
 - Tạo tài liệu chi tiết `docs/sessions/P29-ASSISTANT-REPORTS-UPGRADE.md`; cập nhật `docs/ROADMAP.md`.
-- Còn thiếu: employee attribution để thống kê doanh thu/khách/dịch vụ từng nhân viên; customer groups và custom fields CRUD; thao tác bot ghi/xóa an toàn có preview + xác nhận + audit; kiểm thử CI và Android runtime.
+- Còn thiếu: employee attribution trên dịch vụ/hóa đơn để thống kê doanh thu/khách/dịch vụ từng nhân viên; bot chưa tự tạo/sửa sản phẩm hoặc hồ sơ; kiểm thử CI và Android runtime.
 - Không thay Firestore Rules, Firebase Auth, Membership, schema IndexedDB, dữ liệu salon; không deploy, không merge.
 - Phase 29 chưa PASS cho tới khi CI, Termux và Android smoke test đạt.
