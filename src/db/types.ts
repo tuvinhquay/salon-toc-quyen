@@ -38,5 +38,5 @@ export type SyncCursor=BaseEntity&{peerDeviceId:string;lastSyncedAt:string|null;
 export type BackupRecord=BaseEntity&{createdAt:string;schemaVersion:number;formatVersion:number;ciphertextHash:string;sizeBytes:number;recordCounts:Record<string,number>}
 
 
-export type AssistantMemoryCategory='profile'|'preference'|'routine'|'project'|'knowledge'
+export type AssistantMemoryCategory='profile'|'preference'|'routine'|'project'|'knowledge'|'shortcut'
 export type AssistantMemoryRecord=BaseEntity&{ownerId:string;category:AssistantMemoryCategory;title:string;content:string;keywords:string[];status:'active'|'archived';syncState:'local_only'}
