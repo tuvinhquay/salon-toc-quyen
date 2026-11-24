@@ -354,3 +354,17 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Tổng hợp với GitHub Actions run `45379618184`: TypeScript, ESLint, unit tests, production build/PWA đều PASS.
 - Chưa chạy app trên browser, chưa smoke test tài khoản Google mới, chưa deploy Hosting và chưa merge PR #21.
 - Hướng dẫn xem giao diện: chạy `npm run dev -- --host 0.0.0.0` trong Termux, mở `http://127.0.0.1:5173` trên trình duyệt cùng điện thoại. Dừng server bằng Ctrl+C.
+
+
+## Phiên 19 – 2026-11-24 – Phase 29: Trợ lý nghiệp vụ và báo cáo trực quan
+- Tạo nhánh `phase-29-assistant-natural-language-and-configurable-analytics` từ `phase-28-tenant-isolation-handover-v2`.
+- Tra cứu hồ sơ nhân viên local theo tên/số điện thoại, báo cáo ngày vào làm, thâm niên, ca đã hoàn thành và số giờ; không bịa doanh thu cá nhân khi chưa có liên kết employee attribution.
+- Bổ sung xếp hạng khách theo lịch đặt, chi tiêu hóa đơn và số lượng sản phẩm đã mua trong kỳ.
+- Đổi lời chào trợ lý sang xưng hô tự nhiên; lấy tên hiển thị Google, không dùng email làm tên.
+- Giữ tra cứu hồ sơ nhân viên trên thiết bị, không gửi dữ liệu cá nhân lên Gemini.
+- Báo cáo có biểu đồ thu/chi dựa trên Payment/Expense thật, theo ngày hoặc tháng tùy khoảng chọn.
+- Bổ sung unit tests cho intent tiếng Việt và bucket biểu đồ.
+- Tạo tài liệu chi tiết `docs/sessions/P29-ASSISTANT-REPORTS-UPGRADE.md`; cập nhật `docs/ROADMAP.md`.
+- Còn thiếu: employee attribution để thống kê doanh thu/khách/dịch vụ từng nhân viên; customer groups và custom fields CRUD; thao tác bot ghi/xóa an toàn có preview + xác nhận + audit; kiểm thử CI và Android runtime.
+- Không thay Firestore Rules, Firebase Auth, Membership, schema IndexedDB, dữ liệu salon; không deploy, không merge.
+- Phase 29 chưa PASS cho tới khi CI, Termux và Android smoke test đạt.
