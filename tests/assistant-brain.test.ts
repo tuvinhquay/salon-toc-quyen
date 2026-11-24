@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { answerAssistantAbout, answerFromMemories, findMatchingAssistantShortcut, isAssistantCreatorQuestion, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from '../src/app/assistant-brain'
+import { answerAssistantAbout, answerFromMemories, applyLearnedVocabulary, findMatchingAssistantShortcut, isAssistantCreatorQuestion, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from '../src/app/assistant-brain'
 import type { AssistantMemoryRecord } from '../src/db/types'
 
 describe('owner assistant long-term memory', () => {
@@ -22,6 +22,12 @@ describe('owner assistant long-term memory', () => {
     expect(parsed?.category).toBe('shortcut')
     const shortcut = { id: 's1', salonId: 'salon-a', ownerId: 'owner-a', category: 'shortcut', title: 'Câu hỏi nghiệp vụ đã dạy', content: parsed?.content ?? '', keywords: [], status: 'active', syncState: 'local_only', createdAt: '', updatedAt: '', revision: 1, createdBy: 'owner-a', updatedBy: 'owner-a', deviceId: 'device-a' } as AssistantMemoryRecord
     expect(findMatchingAssistantShortcut([shortcut], 'Nhân viên nào làm việc tốt nhất tháng này?')?.id).toBe('s1')
+  })
+  it('learns owner-defined Vietnamese aliases and applies them to later questions', () => {
+    const parsed = parseMemoryInstruction('Hãy ghi nhớ từ "tinh dầu" nghĩa là dầu dưỡng tóc')
+    expect(parsed?.category).toBe('knowledge')
+    const memory = { id: 'v1', salonId: 's1', ownerId: 'o1', category: 'knowledge', title: 'Từ vựng', content: parsed?.content ?? '', keywords: ['tinh', 'dau', 'duong', 'toc'], status: 'active', syncState: 'local_only', createdAt: '', updatedAt: '', revision: 1, createdBy: 'o1', updatedBy: 'o1', deviceId: 'd1' } as AssistantMemoryRecord
+    expect(applyLearnedVocabulary([memory], 'Tìm sản phẩm tinh dầu trong kho')).toBe('Tìm sản phẩm dầu dưỡng tóc trong kho')
   })
   it('answers capability and creator questions without requiring Gemini', () => {
     expect(answerAssistantAbout('Bạn có thể làm được gì?')).toContain('doanh thu')
