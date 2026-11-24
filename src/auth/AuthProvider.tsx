@@ -7,6 +7,7 @@ type AuthContextValue = {
   loading: boolean
   configured: boolean
   signIn: () => Promise<void>
+  switchAccount: () => Promise<void>
   logOut: () => Promise<void>
   error: string | null
 }
@@ -53,6 +54,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (code === 'auth/popup-blocked') throw new Error('Trình duyệt đã chặn cửa sổ đăng nhập. Hãy cho phép popup rồi thử lại.')
         if (code === 'auth/cancelled-popup-request') return
         throw new Error('Đăng nhập Google chưa thành công. Vui lòng thử lại.')
+      }
+    },
+    switchAccount: async () => {
+      if (!firebaseAuth) throw new Error('Firebase chưa được cấu hình.')
+      setError(null)
+      try {
+        const provider = new GoogleAuthProvider()
+        provider.setCustomParameters({ prompt: 'select_account' })
+        await signInWithPopup(firebaseAuth, provider)
+      } catch (cause) {
+        const code = cause instanceof Error && 'code' in cause ? String(cause.code) : ''
+        if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return
+        if (code === 'auth/unauthorized-domain') throw new Error('Tên miền hiện tại chưa được cho phép trong Firebase Authentication.')
+        if (code === 'auth/popup-blocked') throw new Error('Trình duyệt đã chặn cửa sổ chọn tài khoản. Hãy cho phép popup rồi thử lại.')
+        throw new Error('Chưa thể đổi tài khoản Google. Vui lòng thử lại.')
       }
     },
     logOut: async () => {
