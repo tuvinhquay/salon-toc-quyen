@@ -67,12 +67,12 @@ export function isAssistantGreeting(question: string): boolean {
 
 export function isAssistantCapabilityQuestion(question: string): boolean {
   const q = normalize(question)
-  return /(ban co the lam gi|ban lam duoc gi|ban giup duoc gi|tro ly co the lam gi|ban biet lam gi|chuc nang cua ban|ban ho tro nhung gi)/.test(q)
+  return /(ban co the lam gi|ban co the lam duoc gi|ban lam duoc gi|ban giup duoc gi|tro ly co the lam gi|ban biet lam gi|chuc nang cua ban|ban ho tro nhung gi)/.test(q)
 }
 
 export function isAssistantCreatorQuestion(question: string): boolean {
   const q = normalize(question)
-  return /(ai tao ra ban|ai lap trinh ban|ai phat trien ban|ai lam ra ban|nguoi tao ra ban|ban duoc tao boi ai)/.test(q)
+  return /(ai tao ra ban|ai da tao ra minh|ai tao ra minh|ai lap trinh ban|ai phat trien ban|ai lam ra ban|nguoi tao ra ban|ban duoc tao boi ai)/.test(q)
 }
 
 export function answerAssistantAbout(question: string): string | null {
