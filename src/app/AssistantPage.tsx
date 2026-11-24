@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Bot, Brain, Eraser, Send, Sparkles, UserRound, Trash2 } from 'lucide-react'
 import { useOwnerContext } from '../auth/OwnerContext'
+import { useAuth } from '../auth/AuthProvider'
 import type { AssistantMemoryRecord } from '../db/types'
 import { answerOwnerQuestion, redactQuestionForGemini } from './assistant-local'
 import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, readAssistantMemory } from './assistant-memory'
@@ -26,11 +27,13 @@ const needsAdviser = (question: string, intent: string) => intent === 'general' 
 
 export function AssistantPage() {
   const actor = useOwnerContext()
+  const { user } = useAuth()
+  const ownerName = (user?.displayName ?? '').trim().split(/\\s+/)[0]
   const [question, setQuestion] = useState('')
   const [messages, setMessages] = useState<Message[]>([{
     id: 'welcome',
     role: 'assistant',
-    content: 'Chào chủ tiệm! Mình là bộ não trợ lý TÓC QUYỀN. Mình tra cứu số liệu salon, đối chiếu theo ngày/tháng/quý/năm và học các câu hỏi nghiệp vụ bạn chủ động dạy.',
+    content: ownerName ? 'Dạ, em chào anh ' + ownerName + '! Hôm nay anh cần em hỗ trợ gì ạ? Em có thể tra cứu nhân viên, khách hàng, sản phẩm, lịch hẹn và thống kê doanh thu. Anh cứ nói ngắn gọn; nếu chưa hiểu rõ, em sẽ hỏi lại nhé.' : 'Dạ, em chào anh/chị! Hôm nay mình cần em hỗ trợ gì ạ? Em có thể tra cứu nhân viên, khách hàng, sản phẩm, lịch hẹn và thống kê doanh thu. Anh/chị cứ nói ngắn gọn; nếu chưa hiểu rõ, em sẽ hỏi lại nhé.',
     source: 'local',
   }])
   const [memory, setMemory] = useState(() => readAssistantMemory(actor.salonId, actor.actorId))
@@ -110,7 +113,7 @@ export function AssistantPage() {
       }
 
       if (isAssistantGreeting(prompt)) {
-        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Chào bạn! Mình đây. Hôm nay bạn muốn xem tình hình salon hay cần mình tư vấn việc gì?', source: 'local' }])
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: ownerName ? 'Dạ, em đây anh ' + ownerName + '! Anh cần em tra cứu thông tin hay xem báo cáo gì ạ?' : 'Dạ, em đây ạ! Mình cần em tra cứu thông tin hay xem báo cáo gì ạ?', source: 'local' }])
         return
       }
 
