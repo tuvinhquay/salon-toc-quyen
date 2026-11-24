@@ -18,6 +18,7 @@ Thay bộ mẫu P14 đơn giản (10 khách, 10 nhân viên, vài lịch hẹn v
 - Chi phí cố định theo tháng, bảo trì và giá vốn phân bổ từ lượng sản phẩm/vật tư đã xuất dùng.
 
 ## Bảo vệ dữ liệu
+- UI cảnh báo dataset nằm trong salon hiện tại và Dashboard/báo cáo sẽ cộng dữ liệu demo với dữ liệu thật; chỉ tạo trong tenant dành cho demo hoặc khi chấp nhận trộn số liệu.
 - Mọi record giả lập có ID tiền tố `demo_<salonId>_` và chỉ thuộc salon hiện tại.
 - Tên, số điện thoại và thông tin nhà cung cấp là dữ liệu giả; số điện thoại được dùng mẫu không hợp lệ `000000...`, không phải số liên lạc thật.
 - Tạo/thay mới hoặc xóa chỉ tác động record demo. Nếu có giao dịch thật tham chiếu tới record demo, thao tác bị chặn để bảo toàn lịch sử.
