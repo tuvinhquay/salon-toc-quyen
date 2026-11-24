@@ -58,7 +58,8 @@ export function buildRevenueBuckets(payments: Payment[], expenses: Expense[], re
   if (monthMode) cursor.setMonth(cursor.getMonth()+1); else cursor.setDate(cursor.getDate()+1)
  }
  for (const row of payments) { const key=keyOf(row.paidAt); const bucket=buckets.get(key); if(bucket&&row.status!=='void') bucket.collected+=row.amountVnd }
- for (const row of refunds) { const key=keyOf(row.refundedAt); const bucket=buckets.get(key); if(bucket) bucket.refunded+=row.amountVnd }\n for (const row of expenses) { const key=keyOf(row.paidAt); const bucket=buckets.get(key); if(bucket) bucket.expenses+=row.amountVnd }
+ for (const row of refunds) { const key=keyOf(row.refundedAt); const bucket=buckets.get(key); if(bucket) bucket.refunded+=row.amountVnd }
+ for (const row of expenses) { const key=keyOf(row.paidAt); const bucket=buckets.get(key); if(bucket) bucket.expenses+=row.amountVnd }
  return [...buckets.values()]
 }
 export function ReportsPage(){
