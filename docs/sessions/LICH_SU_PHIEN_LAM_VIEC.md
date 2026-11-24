@@ -370,6 +370,7 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Thêm lưu trữ hàng loạt khách hàng trong UI và bot chat: preview hồ sơ, xác nhận tường minh, transaction/audit; chỉ lưu trữ, không xóa hóa đơn/thanh toán.
 - Nâng backup mã hóa lên schema v7, gồm customerGroups và assistantMemories; restore backup cũ chỉ thay các bảng có trong tệp.
 - Tạo tài liệu chi tiết `docs/sessions/P29-ASSISTANT-REPORTS-UPGRADE.md`; cập nhật `docs/ROADMAP.md`.
-- Còn thiếu: employee attribution trên dịch vụ/hóa đơn để thống kê doanh thu/khách/dịch vụ từng nhân viên; bot chưa tự tạo/sửa sản phẩm hoặc hồ sơ; kiểm thử CI và Android runtime.
+- POS đã thêm chọn nhân viên trên từng dòng hóa đơn; trợ lý tính doanh số gộp dịch vụ/sản phẩm, số khách có hóa đơn và số sản phẩm bán từ các dòng được gán. Dữ liệu lịch sử chưa có phân công không được suy đoán; hoàn tiền chưa phân bổ theo nhân viên.
+- Còn thiếu: bot chưa tự tạo/sửa sản phẩm hoặc hồ sơ; kiểm thử CI cuối và Android runtime.
 - Không thay Firestore Rules, Firebase Auth hoặc Membership; Dexie nâng lên v7 có migration bổ sung customerGroups, không xóa bảng/dữ liệu cũ. Không deploy Firebase, không merge.
 - Phase 29 chưa PASS cho tới khi CI, Termux và Android smoke test đạt.
