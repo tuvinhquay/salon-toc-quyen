@@ -374,3 +374,14 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Còn thiếu: bot chưa tự tạo/sửa sản phẩm hoặc hồ sơ; kiểm thử CI cuối và Android runtime.
 - Không thay Firestore Rules, Firebase Auth hoặc Membership; Dexie nâng lên v7 có migration bổ sung customerGroups, không xóa bảng/dữ liệu cũ. Không deploy Firebase, không merge.
 - Phase 29 chưa PASS cho tới khi CI, Termux và Android smoke test đạt.
+
+
+## Phiên 20 – 2026-11-25 – Phase 30: Thay bộ dữ liệu mẫu bằng mô phỏng 5 tháng
+- Đọc trạng thái mới nhất của repo: P29 branch/PR #22 vẫn Draft; tạo branch P30 từ P29, không merge hoặc deploy.
+- Thay `src/db/demo-data.ts`: bộ dữ liệu giả lập 5 tháng lịch gần nhất, tự cập nhật phạm vi; 120 khách, 10 nhân viên, ca làm, lịch hẹn, 8 dịch vụ, 12 sản phẩm, 4 nhà cung cấp, đơn nhập/lô/xuất kho, hóa đơn/thu tiền/hoàn tiền, ca thu ngân, chi phí và giá vốn.
+- Khách hàng có custom fields theo khu vực Ngã Giao / TP.HCM; tất cả danh tính và liên hệ là giả lập, số điện thoại mẫu không hợp lệ để tránh sử dụng liên hệ thật.
+- Thay phần UI mẫu cũ trong Settings bằng tạo/thay mới dataset 5 tháng, xem số lượng và xóa dataset.
+- Thay/xóa chỉ record có tiền tố demo_<salonId>_; transaction và kiểm tra tham chiếu ngăn xóa khi giao dịch thật đang phụ thuộc vào dữ liệu mẫu.
+- Thêm `tests/demo-data.test.ts` cho khoảng thời gian rolling 5 tháng và ranh giới năm.
+- Tạo `docs/sessions/P30-FIVE-MONTH-DEMO-DATA.md` và cập nhật ROADMAP.
+- CI chưa chạy/đang chờ PR; chưa được đánh dấu PASS. Cần kiểm tra typecheck, lint, tests, production build và Termux/Android acceptance. Không merge, không deploy.
