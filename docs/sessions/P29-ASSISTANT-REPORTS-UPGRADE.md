@@ -35,8 +35,8 @@ Base: `phase-28-tenant-isolation-handover-v2`
 - Không đưa dữ liệu cá nhân vào Gemini trong luồng tra cứu hồ sơ nhân viên.
 
 ## Kiểm thử
-- Đã bổ sung unit tests cho cách diễn đạt và biểu đồ; cần GitHub Actions xác nhận typecheck, lint, tests và production build.
-- Cần đồng bộ branch trên Termux, chạy typecheck/lint/test/build và smoke test trên Android với hồ sơ nhân viên thật, dữ liệu khách hàng thật đã được nhập và báo cáo thu/chi.
+- GitHub Actions run 45420082379: PASS – Typecheck, ESLint, 50 unit tests, Production build/PWA.
+- Cần đồng bộ branch trên Termux và smoke test Android với dữ liệu thật: tạo nhóm tháng/quý, thêm trường khách/sản phẩm, gán nhân viên khi lập hóa đơn, hỏi bot hồ sơ nhân viên/khách chi tiêu, thử lưu trữ qua chat và đối chiếu biểu đồ thu/hoàn/chi.
 - Không đánh dấu Phase 29 PASS cho tới khi CI và kiểm tra runtime đều đạt.
 
 ## Definition of Done còn lại
