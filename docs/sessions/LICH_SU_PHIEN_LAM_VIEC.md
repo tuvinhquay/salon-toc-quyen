@@ -322,3 +322,14 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Không thay đổi Firestore Rules, Firebase project, membership hiện tại hoặc dữ liệu local.
 - Tài liệu chi tiết: `docs/sessions/P26-OWNER-ONBOARDING-CLEAN-UI.md`.
 - Chờ CI và kiểm tra trên Termux/Android. Tạo salon thật vẫn phụ thuộc callable `createOwnerSalon` được deploy đúng project `salonquyen-f21fa`; chưa tuyên bố runtime PASS.
+
+
+## Phiên 18 – 2026-11-24 – P27: Bàn giao ứng dụng, bỏ phụ thuộc Cloud Functions
+- Tạo nhánh `phase-27-owner-handover-no-functions` từ P26; giữ nguyên P26 và PR #18, không merge tự động.
+- Tách tài khoản phát triển `hoananhtien1@gmail.com` khỏi tài khoản chủ tiệm; người nhận đăng nhập Google UID riêng và tạo tenant riêng.
+- Thay callable `createOwnerSalon` bằng Firestore writeBatch tạo đồng thời `salons/{salonId}` và `memberships/{uid}`.
+- Firestore Rules yêu cầu Google sign-in, UID tự khớp, membership chưa tồn tại, salon/membership được tạo trong cùng batch và ownerUid/salonId khớp nhau. Client không thể tự sửa role, cập nhật hoặc xóa membership/salon.
+- Gỡ Firebase Functions SDK export khỏi frontend; bỏ Functions config trong firebase.json, bỏ bước Functions CI và xóa source/package/tsconfig Functions không còn được dùng.
+- Giữ nguyên local assistant, assistant brain, IndexedDB/Dexie, trí nhớ salon, Firebase AI Logic Gemini tùy chọn, module lịch hẹn/nhân viên/kho/POS/báo cáo/backup.
+- Không deploy Firebase, không thay đổi dữ liệu/membership hiện có, không xóa tenant cũ. Firestore Rules mới cần được triển khai riêng trước khi chủ tiệm đăng ký.
+- Cần xác nhận CI, Termux typecheck/lint/test/build, kiểm thử Rules bằng emulator hoặc project test, smoke test hai tài khoản và tenant isolation. P27 chưa PASS.
