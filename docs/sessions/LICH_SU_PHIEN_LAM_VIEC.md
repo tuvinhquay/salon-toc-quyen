@@ -333,3 +333,24 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Giữ nguyên local assistant, assistant brain, IndexedDB/Dexie, trí nhớ salon, Firebase AI Logic Gemini tùy chọn, module lịch hẹn/nhân viên/kho/POS/báo cáo/backup.
 - Không deploy Firebase, không thay đổi dữ liệu/membership hiện có, không xóa tenant cũ. Firestore Rules mới cần được triển khai riêng trước khi chủ tiệm đăng ký.
 - Cần xác nhận CI, Termux typecheck/lint/test/build, kiểm thử Rules bằng emulator hoặc project test, smoke test hai tài khoản và tenant isolation. P27 chưa PASS.
+
+
+## Phiên 19 – 2026-11-24 – Kiểm thử tenant isolation trước bàn giao
+- Tạo nhánh `phase-28-tenant-isolation-handover` từ commit P27 `f3bc440a4096b3d02f4aa6e5e2f9d36fe4b223b1`; không sửa main, không merge PR #19 và không thay đổi Firebase.
+- Xác nhận P27 Firestore Rules đã được người dùng triển khai thành công lên project `salonquyen-f21fa`; chỉ triển khai Rules, chưa triển khai Hosting.
+- Rà soát AuthGate: mỗi tài khoản thiếu membership tạo salonId ngẫu nhiên và membership theo UID riêng trong cùng batch; tài khoản đã có membership không được ghi đè.
+- Rà soát Dexie/repositories: dữ liệu nghiệp vụ được giữ local-first và truy vấn theo salonId; thao tác sửa hồ sơ cũ kiểm tra salonId trước khi ghi; trí nhớ dài hạn dùng cặp salonId + ownerId.
+- Thêm regression tests `tests/tenant-isolation.test.ts` để khóa các điều kiện trên và ngăn hồi quy khi chuyển tài khoản.
+- Không xóa IndexedDB, không xóa hoặc đổi `memberships/{uid cũ}`, không tạo collection mới, không sửa Firestore Rules.
+- GitHub Actions run `45379133999` PASS: Typecheck, ESLint, Unit tests và Production build/PWA. Còn chờ Termux regression và Android smoke test; chưa đánh dấu runtime PASS.
+- Sau khi kiểm thử tự động đạt, hướng dẫn người dùng đăng nhập Google mới, tạo salon mới và xác nhận salonId mới; kiểm tra dữ liệu cũ vẫn được giữ nguyên và không xuất hiện trong workspace mới.
+
+
+## Phiên 20 – 2026-11-24 – Termux validation và mở giao diện PWA
+- Người dùng checkout đúng nhánh `phase-28-tenant-isolation-handover-v2`; pull báo Already up to date.
+- Kết quả Termux: `npm run typecheck` PASS; `npm run lint` 0 errors / 15 warnings (React Hook dependencies và Fast Refresh); `npm run test` PASS – 11 files, 42 tests; `npm run build` PASS, Vite tạo PWA service worker.
+- Build có cảnh báo Rollup annotation trong Zod dependency và chunk JavaScript 1,246.41 kB (>500 kB); không chặn build.
+- `git diff --check` không in lỗi, xem là PASS.
+- Tổng hợp với GitHub Actions run `45379618184`: TypeScript, ESLint, unit tests, production build/PWA đều PASS.
+- Chưa chạy app trên browser, chưa smoke test tài khoản Google mới, chưa deploy Hosting và chưa merge PR #21.
+- Hướng dẫn xem giao diện: chạy `npm run dev -- --host 0.0.0.0` trong Termux, mở `http://127.0.0.1:5173` trên trình duyệt cùng điện thoại. Dừng server bằng Ctrl+C.

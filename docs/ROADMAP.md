@@ -156,3 +156,11 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Không thay đổi bot local, bộ nhớ AI, Gemini Firebase AI Logic, Dexie schema, các module nghiệp vụ hoặc dữ liệu hiện tại.
 - Cần chạy CI + Termux regression; deploy riêng Firestore Rules lên đúng project `salonquyen-f21fa`; kiểm tra hai Google account độc lập và tenant isolation trước khi merge.
 - Trạng thái: IMPLEMENTED ON BRANCH; chưa deploy Rules, chưa runtime PASS, chưa merge.
+
+
+## Kiểm tra bàn giao Owner – tenant isolation regression – 2026-11-24
+- Tạo nhánh kiểm thử độc lập từ P27, không sửa membership hoặc dữ liệu Firebase hiện hữu.
+- Xác nhận kiến trúc hiện tại giữ dữ liệu nghiệp vụ trong một IndexedDB local-first, nhưng mọi repository và truy vấn trợ lý phải lọc theo salonId; trí nhớ dài hạn phải lọc đồng thời salonId + ownerId.
+- Bổ sung regression tests cho: chỉ liệt kê khách thuộc salon hiện tại; từ chối sửa hồ sơ thuộc salon cũ; mọi truy vấn dữ liệu của trợ lý dùng salonId đang xác thực; trí nhớ dài hạn giới hạn theo salonId + ownerId; không cho Owner mới lưu trữ trí nhớ của Owner cũ.
+- Đây là lớp bảo vệ logic ứng dụng trên cùng thiết bị, không phải mã hóa dữ liệu IndexedDB theo từng tài khoản. Dữ liệu local cũ được giữ nguyên và không tự động chuyển sang tenant mới.
+- Chờ CI và Termux regression; hai tài khoản Firebase vẫn cần smoke test riêng trước khi bàn giao.
