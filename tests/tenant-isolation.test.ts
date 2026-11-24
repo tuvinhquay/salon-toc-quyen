@@ -53,7 +53,7 @@ const { db, tables } = vi.hoisted(() => {
 
 vi.mock('../src/db/database', () => ({ salonDb: db }))
 
-import { listCustomers, saveCustomer } from '../src/db/repositories'
+import { archiveCustomers, listCustomers, saveCustomer } from '../src/db/repositories'
 import { answerOwnerQuestion } from '../src/app/assistant-local'
 import { archiveOwnerMemory, listOwnerMemories } from '../src/app/assistant-brain-store'
 import type { ActorContext } from '../src/db/types'
@@ -85,6 +85,17 @@ describe('tenant isolation during account handover', () => {
     await expect(saveCustomer(newTenantActor, { fullName: 'Không được sửa' }, 'customer-old'))
       .rejects.toThrow('Không tìm thấy khách hàng trong salon hiện tại.')
 
+    expect(tables.customers.put).not.toHaveBeenCalled()
+    expect(db.transaction).not.toHaveBeenCalled()
+  })
+
+  it('rejects bulk archive when any selected customer belongs to another salon', async () => {
+    tables.customers.get.mockImplementation(async (id: unknown) => ({
+      id, salonId: id === 'customer-old' ? 'salon-old' : 'salon-new',
+      revision: 1, archivedAt: null, updatedAt: '', updatedBy: '', deviceId: '',
+    }))
+    await expect(archiveCustomers(newTenantActor, ['customer-new', 'customer-old']))
+      .rejects.toThrow('Danh sách có hồ sơ không thuộc salon hiện tại hoặc không còn tồn tại.')
     expect(tables.customers.put).not.toHaveBeenCalled()
     expect(db.transaction).not.toHaveBeenCalled()
   })
