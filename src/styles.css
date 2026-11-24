@@ -25,3 +25,13 @@
 .assistant-chat{overscroll-behavior:contain;scroll-behavior:smooth;scrollbar-gutter:stable}
 @media(max-width:700px){.main header{gap:8px}.header-actions{flex-wrap:nowrap;min-width:0}.account-email,.offline{display:none}.account-logout-button{min-height:34px;padding:0 9px;font-size:9px}.quick-demo-link{white-space:nowrap}}
 @media(prefers-reduced-motion:reduce){.assistant-chat{scroll-behavior:auto}}
+
+
+/* Phase 24: keep assistant diagnostics outside the conversation stream */
+.assistant-chat-meta{margin-top:-10px;padding:0 4px;color:#9a8777;font-size:9px;line-height:1.5}
+.assistant-adviser-note{padding:9px 12px;border:1px solid #eadfce;border-radius:8px;background:#fbf7f1;color:#80664f;font-size:10px;line-height:1.6}
+.access-account-email{margin:0 0 8px!important;font-size:11px!important}
+.access-account-uid{margin:0 0 18px!important;font-size:9px!important;color:#9a8777!important;overflow-wrap:anywhere}
+.access-account-uid code{display:block;margin-top:5px;padding:7px 9px;border-radius:6px;background:#f3eee7;color:#594337;font-size:10px;user-select:all}
+.auth-card .google-signin+.google-signin{margin-top:9px}
+@media(max-width:700px){.assistant-chat-meta{font-size:8px}.assistant-adviser-note{font-size:9px}}
