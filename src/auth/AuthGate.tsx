@@ -36,11 +36,11 @@ type MembershipState = { status: 'checking' | 'active' | 'missing' | 'blocked' |
 
 export function AuthGate() {
  const {user,loading,logOut,switchAccount}=useAuth()
- async function createOwnerTenant(salonName:string){if(!firebaseFunctions)throw new Error('Firebase Functions chưa được cấu hình.');const create=httpsCallable<{salonName:string},{salonId:string}>(firebaseFunctions,'createOwnerSalon');await create({salonName});setRetryCount(value=>value+1)}
  const userUid=user?.uid
  const [membership,setMembership]=useState<MembershipState>({status:'checking'})
  const [deviceId]=useState(()=>crypto.randomUUID())
  const [retryCount,setRetryCount]=useState(0)
+ async function createOwnerTenant(salonName:string){if(!firebaseFunctions)throw new Error('Firebase Functions chưa được cấu hình.');const create=httpsCallable<{salonName:string},{salonId:string}>(firebaseFunctions,'createOwnerSalon');await create({salonName});setRetryCount(value=>value+1)}
  useEffect(()=>{
    let cancelled=false
    async function verify(){
