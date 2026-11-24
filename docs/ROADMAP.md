@@ -179,4 +179,5 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Cài đặt dùng thao tác tạo/thay mới bộ mô phỏng và xóa bộ mô phỏng; không còn UI nạp/xóa sample cũ.
 - Dataset có ID demo tenant-scoped; giao dịch thật tham chiếu record demo sẽ khóa thay/xóa để giữ lịch sử.
 - Có test cho khoảng 5 tháng và qua năm. Session note: `docs/sessions/P30-FIVE-MONTH-DEMO-DATA.md`.
-- Trạng thái: IMPLEMENTED ON BRANCH; CI và Android/Termux acceptance đang chờ. Chưa PASS, chưa merge, chưa deploy.
+- CI run 45512975364: Typecheck PASS, ESLint PASS, 53/53 tests PASS, Production build/PWA PASS.
+- Trạng thái: CI PASS; chờ Owner Android/Termux acceptance. Chưa PASS tổng thể, chưa merge, chưa deploy.
