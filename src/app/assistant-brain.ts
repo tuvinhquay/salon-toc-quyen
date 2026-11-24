@@ -106,12 +106,6 @@ export function applyLearnedVocabulary(memories: AssistantMemoryRecord[], questi
   return result
 }
 
-const SHORTCUT_STOP_WORDS = new Set')
-    result = result.replace(new RegExp(escaped, 'gi'), canonical)
-  }
-  return result
-}
-
 const SHORTCUT_STOP_WORDS = new Set(['ban','minh','toi','cua','la','gi','ve','cho','voi','hay','nhe','nha','mot','nhung','cac','nay','do','khong','co','duoc','muon','nao','nhat','lam','viec','tong','hop','danh','sach'])
 export function findMatchingAssistantShortcut(memories: AssistantMemoryRecord[], question: string): AssistantMemoryRecord | null {
   const tokens = normalize(question).split(/[^a-z0-9]+/).filter(token => token.length > 2 && !SHORTCUT_STOP_WORDS.has(token))
