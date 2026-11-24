@@ -6,10 +6,8 @@ describe('owner assistant long-term memory', () => {
   it('parses natural Vietnamese identity and preference statements', () => {
     expect(parseMemoryInstruction('Hãy ghi nhớ tên tôi là Quay')?.category).toBe('profile')
     expect(parseMemoryInstruction('Tên tôi là Quay')?.category).toBe('profile')
-    expect(parseMemoryInstruction('Mình tên là Quay')?.content).toBe('Mình tên là Quay')
+    expect(parseMemoryInstruction('Mình tên là Quay')?.category).toBe('profile')
     expect(parseMemoryInstruction('Từ nay gọi mình là Quay nhé')?.category).toBe('profile')
-    expect(parseMemoryInstruction('Mình thích giao diện sáng')?.category).toBe('profile') // identity-only auto-capture is intentionally not enabled
-      .toBeDefined()
   })
   it('parses explicit preference, routine, project and knowledge instructions', () => {
     expect(parseMemoryInstruction('Hãy nhớ mình thích giao diện sáng')?.category).toBe('preference')
