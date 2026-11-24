@@ -35,4 +35,80 @@ export function PosPage(){
  <div className="record-list"><h3>Giao dịch và chi phí</h3>{payments.slice().reverse().slice(0,10).map(p=><article className="record" key={p.id}><div><b>Thu {formatVnd(p.amountVnd)}</b><p>{p.method} · {new Date(p.paidAt).toLocaleString('vi-VN')}</p></div></article>)}{refunds.slice().reverse().slice(0,10).map(r=><article className="record" key={r.id}><div><b>Hoàn {formatVnd(r.amountVnd)}</b><p>{r.reason}</p></div></article>)}{expenses.slice().reverse().slice(0,10).map(x=><article className="record" key={x.id}><div><b>Chi {formatVnd(x.amountVnd)}</b><p>{x.category}</p></div></article>)}</div>
  </section>
 }
-export function ReportsPage(){const actor=useOwnerContext();const now=new Date();const startDefault=new Date(now.getFullYear(),now.getMonth(),now.getDate());const endDefault=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);const [start,setStart]=useState(()=>localDate(startDefault));const [end,setEnd]=useState(()=>localDate(endDefault));const [report,setReport]=useState<{invoiceCount:number;grossSalesVnd:number;collectedVnd:number;refundedVnd:number;expensesVnd:number;netCollectedVnd:number}|null>(null);const [error,setError]=useState<string|null>(null);const [busy,setBusy]=useState(false);async function load(e?:FormEvent){e?.preventDefault();setBusy(true);setError(null);try{setReport(await getSalesReport(actor,iso(start),iso(end)))}catch(e){setError(e instanceof Error?e.message:'Không tải được báo cáo.')}finally{setBusy(false)}}useEffect(()=>{void load()},[actor]);return <section className="work-page"><div className="work-intro"><div><small>P09 · BÁO CÁO</small><h2>Báo cáo hoạt động</h2><p>Tổng hợp từ hóa đơn, thanh toán, hoàn tiền và chi phí đã ghi nhận.</p></div></div><form className="work-form" onSubmit={e=>void load(e)}><div className="form-grid"><Field label="Từ ngày"><input type="datetime-local" required value={start} onChange={e=>setStart(e.target.value)}/></Field><Field label="Đến ngày"><input type="datetime-local" required value={end} onChange={e=>setEnd(e.target.value)}/></Field></div><button className="primary-button" disabled={busy}>{busy?'Đang tổng hợp…':'Xem báo cáo'}</button><ErrorText value={error}/></form>{report&&<div className="cards"><article className="card"><small>SỐ HÓA ĐƠN</small><h3>{report.invoiceCount}</h3></article><article className="card"><small>DOANH SỐ PHÁT HÀNH</small><h3>{formatVnd(report.grossSalesVnd)}</h3></article><article className="card"><small>ĐÃ THU</small><h3>{formatVnd(report.collectedVnd)}</h3></article><article className="card"><small>ĐÃ HOÀN</small><h3>{formatVnd(report.refundedVnd)}</h3></article><article className="card"><small>CHI PHÍ</small><h3>{formatVnd(report.expensesVnd)}</h3></article><article className="card"><small>THU RÒNG</small><h3>{formatVnd(report.netCollectedVnd)}</h3></article></div>}</section>}
+type RevenueBucket = { label: string; collected: number; expenses: number }
+function buildRevenueBuckets(payments: Payment[], expenses: Expense[], startAt: string, endAt: string): RevenueBucket[] {
+ const startDate = new Date(startAt)
+ const endDate = new Date(endAt)
+ if (!Number.isFinite(startDate.getTime()) || !Number.isFinite(endDate.getTime()) || endDate <= startDate) return []
+ const monthMode = endDate.getTime() - startDate.getTime() > 45 * 86400000
+ const keyOf = (value: string) => {
+  const d = new Date(value)
+  if (!Number.isFinite(d.getTime())) return ''
+  const year = d.getFullYear(), month = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0')
+  return monthMode ? year+'-'+month : year+'-'+month+'-'+day
+ }
+ const buckets = new Map<string, RevenueBucket>()
+ const cursor = new Date(startDate.getFullYear(), startDate.getMonth(), monthMode ? 1 : startDate.getDate())
+ const endCursor = new Date(endDate.getFullYear(), endDate.getMonth(), monthMode ? 1 : endDate.getDate())
+ for (let guard=0; cursor < endCursor && guard<400; guard++) {
+  const key = keyOf(cursor.toISOString())
+  const label = monthMode ? cursor.toLocaleDateString('vi-VN',{month:'short',year:'2-digit'}) : cursor.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})
+  buckets.set(key,{label,collected:0,expenses:0})
+  if (monthMode) cursor.setMonth(cursor.getMonth()+1); else cursor.setDate(cursor.getDate()+1)
+ }
+ for (const row of payments) { const key=keyOf(row.paidAt); const bucket=buckets.get(key); if(bucket&&row.status!=='void') bucket.collected+=row.amountVnd }
+ for (const row of expenses) { const key=keyOf(row.paidAt); const bucket=buckets.get(key); if(bucket) bucket.expenses+=row.amountVnd }
+ return [...buckets.values()]
+}
+export function ReportsPage(){
+ const actor=useOwnerContext()
+ const now=new Date()
+ const startDefault=new Date(now.getFullYear(),now.getMonth(),now.getDate())
+ const endDefault=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)
+ const [start,setStart]=useState(()=>localDate(startDefault))
+ const [end,setEnd]=useState(()=>localDate(endDefault))
+ const [report,setReport]=useState<{invoiceCount:number;grossSalesVnd:number;collectedVnd:number;refundedVnd:number;expensesVnd:number;netCollectedVnd:number}|null>(null)
+ const [buckets,setBuckets]=useState<RevenueBucket[]>([])
+ const [error,setError]=useState<string|null>(null)
+ const [busy,setBusy]=useState(false)
+ async function load(e?:FormEvent){
+  e?.preventDefault();setBusy(true);setError(null)
+  try{
+   const [summary,paymentRows,expenseRows]=await Promise.all([getSalesReport(actor,iso(start),iso(end)),listPayments(actor),listExpenses(actor)])
+   setReport(summary)
+   setBuckets(buildRevenueBuckets(paymentRows.filter(row=>row.paidAt>=iso(start)&&row.paidAt<iso(end)),expenseRows.filter(row=>row.paidAt>=iso(start)&&row.paidAt<iso(end)),iso(start),iso(end)))
+  }catch(e){setError(e instanceof Error?e.message:'Không tải được báo cáo.')}finally{setBusy(false)}
+ }
+ useEffect(()=>{void load()},[actor])
+ const maxValue=Math.max(1,...buckets.flatMap(row=>[row.collected,row.expenses]))
+ return <section className="work-page">
+  <div className="work-intro"><div><small>P09 · BÁO CÁO</small><h2>Báo cáo hoạt động</h2><p>Tổng hợp từ hóa đơn, thanh toán, hoàn tiền và chi phí đã ghi nhận.</p></div></div>
+  <form className="work-form" onSubmit={e=>void load(e)}>
+   <div className="form-grid"><Field label="Từ ngày"><input type="datetime-local" required value={start} onChange={e=>setStart(e.target.value)}/></Field><Field label="Đến ngày"><input type="datetime-local" required value={end} onChange={e=>setEnd(e.target.value)}/></Field></div>
+   <button className="primary-button" disabled={busy}>{busy?'Đang tổng hợp…':'Xem báo cáo'}</button><ErrorText value={error}/>
+  </form>
+  {report&&<>
+   <div className="cards">
+    <article className="card"><small>SỐ HÓA ĐƠN</small><h3>{report.invoiceCount}</h3></article>
+    <article className="card"><small>DOANH SỐ PHÁT HÀNH</small><h3>{formatVnd(report.grossSalesVnd)}</h3></article>
+    <article className="card"><small>ĐÃ THU</small><h3>{formatVnd(report.collectedVnd)}</h3></article>
+    <article className="card"><small>ĐÃ HOÀN</small><h3>{formatVnd(report.refundedVnd)}</h3></article>
+    <article className="card"><small>CHI PHÍ</small><h3>{formatVnd(report.expensesVnd)}</h3></article>
+    <article className="card"><small>THU RÒNG</small><h3>{formatVnd(report.netCollectedVnd)}</h3></article>
+   </div>
+   <section className="work-form revenue-chart">
+    <div className="list-heading"><div><h3>Biểu đồ thu – chi</h3><p className="record-note">Theo ngày khi khoảng xem không quá 45 ngày; theo tháng khi dài hơn.</p></div></div>
+    <div className="revenue-legend"><span><i className="legend-collected"/> Tiền đã thu</span><span><i className="legend-expense"/> Chi phí</span></div>
+    {buckets.length===0?<p className="empty-state">Chưa có dữ liệu trong khoảng thời gian này.</p>:<div className="revenue-bars" role="img" aria-label="Biểu đồ tiền đã thu và chi phí theo thời gian">
+     {buckets.map((bucket,index)=><div className="revenue-bar-group" key={bucket.label+'-'+index}>
+      <div className="revenue-bar-pair">
+       <div className="revenue-bar collected" title={'Đã thu '+formatVnd(bucket.collected)} style={{height:Math.max(bucket.collected>0?3:0,bucket.collected/maxValue*100)+'%'}}/>
+       <div className="revenue-bar expense" title={'Chi phí '+formatVnd(bucket.expenses)} style={{height:Math.max(bucket.expenses>0?3:0,bucket.expenses/maxValue*100)+'%'}}/>
+      </div><small>{bucket.label}</small>
+     </div>)}
+    </div>}
+    <div className="revenue-chart-foot"><span>Đã thu: <b>{formatVnd(report.collectedVnd)}</b></span><span>Chi phí: <b>{formatVnd(report.expensesVnd)}</b></span></div>
+   </section>
+  </>}
+ </section>
+}
