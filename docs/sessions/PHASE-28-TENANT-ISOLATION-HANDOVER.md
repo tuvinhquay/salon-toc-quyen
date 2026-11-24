@@ -34,3 +34,14 @@ Chuẩn bị bàn giao Owner App cho một Google account mới mà không sửa
 - Termux: còn chờ chạy `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`, `git diff --check`.
 - Android smoke test sau CI: đăng nhập Google mới, tạo salon mới, xác nhận salonId khác; xem khách hàng/lịch/dịch vụ/nhân viên/kho/POS/báo cáo/trí nhớ đều trống trong tenant mới; đăng xuất và xác nhận dữ liệu cũ không bị xóa.
 - Chưa đánh dấu PASS trước khi có bằng chứng CI và thiết bị.
+
+
+## Termux validation – 2026-11-24
+- `npm run typecheck`: PASS.
+- `npm run lint`: 0 errors, 15 warnings (React Hook dependencies / Fast Refresh).
+- `npm run test`: PASS – 11 test files, 42 tests.
+- `npm run build`: PASS; PWA service worker generated.
+- Non-blocking warnings: Rollup removes misplaced annotation comments from Zod dependency; JS chunk 1,246.41 kB exceeds 500 kB advisory threshold.
+- `git diff --check`: no output/errors.
+- GitHub Actions run `45379618184`: PASS (TypeScript, ESLint, unit tests, production build/PWA).
+- Still pending: browser preview, real Google sign-in/create-new-salon smoke test, verify old tenant data remains untouched, Hosting deployment and PR merge.
