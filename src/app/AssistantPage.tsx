@@ -30,7 +30,7 @@ export function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([{
     id: 'welcome',
     role: 'assistant',
-    content: 'Chào chủ tiệm! Mình là bộ não trợ lý TÓC QUYỀN. Mình có thể phân tích số liệu, ghi nhớ điều bạn dạy và truy xuất trí nhớ dài hạn được lưu trên thiết bị này.',
+    content: 'Chào chủ tiệm! Mình là bộ não trợ lý TÓC QUYỀN. Mình tra cứu số liệu salon, đối chiếu theo ngày/tháng/quý/năm và học các câu hỏi nghiệp vụ bạn chủ động dạy.',
     source: 'local',
   }])
   const [memory, setMemory] = useState(() => readAssistantMemory(actor.salonId, actor.actorId))
@@ -130,7 +130,7 @@ export function AssistantPage() {
       if (relevant.length && /(ke hoach|lap ke hoach|nen lam gi|thoi quen|uu tien|buoi sang|hang ngay)/i.test(prompt.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))) {
         answer += '\n\n**Điều mình đã ghi nhớ có liên quan**\n' + relevant.map(item => '• ' + item.content).join('\n')
       }
-      if (needsAdviser(prompt, local.intent)) {
+      if (!trainedShortcut && needsAdviser(prompt, local.intent)) {
         if (geminiReady) {
           try {
             const safeQuestion = await redactQuestionForGemini(actor.salonId, prompt)
@@ -192,7 +192,7 @@ export function AssistantPage() {
     {showLatest && <button type="button" className="assistant-latest-button" onClick={goToLatest}>↓ Tin nhắn mới</button>}
     {error && <p className="form-error" role="alert">{error}</p>}
     <form className="assistant-composer" onSubmit={submit}>
-      <textarea aria-label="Nhập câu hỏi cho trợ lý" rows={3} maxLength={4000} value={question} onChange={event => setQuestion(event.target.value)} placeholder="Ví dụ: Hãy ghi nhớ tên tôi là Quay…" />
+      <textarea aria-label="Nhập câu hỏi cho trợ lý" rows={3} maxLength={4000} value={question} onChange={event => setQuestion(event.target.value)} placeholder="Hỏi doanh thu, nhân viên, sản phẩm… hoặc: Hãy ghi nhớ thêm. Tổng hợp danh sách nhân viên xuất sắc tháng này" />
       <button className="primary-button" disabled={busy || !question.trim()}><Send size={16}/> Gửi câu hỏi</button>
     </form>
     <div className="assistant-suggestions"><div className="assistant-section-title">Gợi ý câu hỏi</div><div>{suggestions.map(item => <button key={item} type="button" className="assistant-suggestion" onClick={() => void send(item)} disabled={busy}>{item}</button>)}</div></div>
@@ -204,7 +204,7 @@ export function AssistantPage() {
     <div className="assistant-memory">
       <div className="assistant-memory-icon"><Brain size={19}/></div>
       <div><strong>Trí nhớ dài hạn · {longTermMemories.length} mục</strong>
-        <p>Lưu thông tin cá nhân, sở thích, thói quen, kế hoạch và kiến thức do chủ tiệm chủ động dạy.</p>
+        <p>Lưu thông tin cá nhân, sở thích và câu hỏi nghiệp vụ do chủ tiệm tự dạy. Ví dụ: “Hãy ghi nhớ thêm. Tổng hợp danh sách nhân viên xuất sắc tháng này”.</p>
         {longTermMemories.length > 0 ? <ul>{longTermMemories.map(item => <li key={item.id}><strong>{item.title}:</strong> {item.content} <button type="button" className="subtle-button" onClick={() => void forgetLongTermMemory(item.id)} aria-label="Lưu trữ trí nhớ"><Trash2 size={13}/></button></li>)}</ul> : <small>Chưa có mục nào. Hãy bắt đầu bằng “Hãy ghi nhớ…”</small>}
         <small>Dữ liệu chỉ nằm trong IndexedDB trên thiết bị hiện tại. P2P chưa được triển khai nên chưa thể xuất hiện trên thiết bị khác.</small>
       </div>
