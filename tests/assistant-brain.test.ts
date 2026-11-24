@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { answerFromMemories, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from '../src/app/assistant-brain'
+import { answerFromMemories, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from '../src/app/assistant-brain'
 import type { AssistantMemoryRecord } from '../src/db/types'
 
 describe('owner assistant long-term memory', () => {
@@ -16,6 +16,12 @@ describe('owner assistant long-term memory', () => {
     expect(parseMemoryInstruction('Từ nay hãy lập kế hoạch công việc mỗi sáng')?.category).toBe('routine')
     expect(parseMemoryInstruction('Hãy nhớ dự án Q-BizOS đang phát triển')?.category).toBe('project')
     expect(parseMemoryInstruction('Hãy ghi nhớ mã quy trình nội bộ là QT-01')?.category).toBe('knowledge')
+  })
+  it('recognizes short Vietnamese greetings as normal conversation', () => {
+    expect(isAssistantGreeting('Xin chào')).toBe(true)
+    expect(isAssistantGreeting('Chào bot!')).toBe(true)
+    expect(isAssistantGreeting('hello')).toBe(true)
+    expect(isAssistantGreeting('Hôm nay doanh thu bao nhiêu?')).toBe(false)
   })
   it('does not store an ordinary question as a memory instruction', () => {
     expect(parseMemoryInstruction('Hôm nay doanh thu bao nhiêu?')).toBeNull()

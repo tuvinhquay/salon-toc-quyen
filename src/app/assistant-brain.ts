@@ -56,3 +56,8 @@ export function selectRelevantMemories(memories: AssistantMemoryRecord[], questi
     return { memory, score }
   }).filter(item => item.score > 0).sort((a, b) => b.score - a.score).slice(0, 5).map(item => item.memory)
 }
+
+
+export function isAssistantGreeting(question: string): boolean {
+  return /^(?:xin chao|chao(?: ban| bot| tro ly| toc quyen)?|hello|hi|hey)(?: ban| bot| nhe)?[!.? ]*$/.test(normalize(question))
+}

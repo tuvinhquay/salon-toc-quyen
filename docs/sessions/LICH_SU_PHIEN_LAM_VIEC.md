@@ -256,3 +256,27 @@ Cải thiện hội thoại AI tiếng Việt, tự động theo dõi tin nhắn
 ## Giới hạn còn lại
 - Gemini vẫn là cố vấn tùy chọn; chất lượng hội thoại tư vấn phụ thuộc cấu hình Firebase AI Logic/App Check và model sẵn sàng.
 - Trí nhớ dài hạn vẫn local-only theo quyết định P2P-only; chưa đồng bộ giữa các thiết bị.
+
+# P24 – Đổi tài khoản Google và tinh gọn hội thoại trợ lý
+Ngày: 2026-11-24
+Branch: `phase-24-assistant-clean-chat-google-switch`
+Base: `phase-23-assistant-ux-account-switch`
+
+## Thay đổi
+- Thêm nút Đổi tài khoản Google trực tiếp trên màn hình Owner Access Control; mở hộp chọn Google account mà không cần đăng xuất trước.
+- Hiển thị email và Firebase UID để đối chiếu hồ sơ membership.
+- Giải thích rõ tài khoản đã đăng nhập Google nhưng chưa có Owner membership; không tự cấp quyền.
+- Câu chào hỏi được trả lời tự nhiên, không tạo báo cáo hôm nay.
+- Tách thông tin nguồn IndexedDB và trạng thái Gemini khỏi bong bóng hội thoại.
+- Không nối thông báo lỗi/kết nối Gemini vào nội dung câu trả lời nội bộ.
+- Sửa `.firebaserc` mặc định sang đúng project `salonquyen-f21fa`; alias cũ `salon-quyen` không khớp cấu hình app.
+- Thêm unit test cho câu chào hỏi.
+
+## Bảo mật
+- Giữ nguyên Firestore Rules: client chỉ đọc membership của chính UID; không được ghi membership.
+- Tài khoản thứ hai muốn truy cập phải được cấp document `memberships/{uid}` đúng UID, `status=active`, `role=owner`, `salonId` hợp lệ trong đúng project.
+- Không deploy Firebase, không xóa dữ liệu cục bộ, không tự cấp quyền Owner.
+
+## Kiểm thử
+- GitHub Actions run `45321044138` trên commit `6bddc5bcaa7a25443d42d678fac7806bcba8b0b3`: Typecheck, ESLint, Unit tests, Production/PWA build, Cloud Functions dependency install và Functions build đều PASS. Một lỗi typecheck ban đầu do thiếu destructuring UID đã được sửa trước lượt CI PASS.
+- Cần smoke test Android cho đổi tài khoản và hội thoại; chưa đánh dấu runtime PASS trước khi người dùng xác nhận.
