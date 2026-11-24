@@ -14,7 +14,7 @@ Thay bộ mẫu P14 đơn giản (10 khách, 10 nhân viên, vài lịch hẹn v
 - 10 nhân viên giả lập; ca làm 8 giờ phân bố trong ngày/tuần; trạng thái nhân sự và ca lịch sử.
 - 8 dịch vụ, 12 sản phẩm, 4 nhà cung cấp; đơn nhập hàng theo tháng, lô tồn, receipt/consumption stock movements.
 - Lịch hẹn đã hoàn thành, hủy, no-show và chờ xác nhận; hóa đơn liên kết khách, dịch vụ/sản phẩm, nhân viên thực hiện, thuế mô phỏng, thanh toán và một số hoàn tiền.
-- 25+ tuần/ca thu ngân theo tuần; số tiền dự kiến, kiểm đếm và chênh lệch.
+- khoảng 20–23 tuần/ca thu ngân theo tuần; số tiền dự kiến, kiểm đếm và chênh lệch.
 - Chi phí cố định theo tháng, bảo trì và giá vốn phân bổ từ lượng sản phẩm/vật tư đã xuất dùng.
 
 ## Bảo vệ dữ liệu
