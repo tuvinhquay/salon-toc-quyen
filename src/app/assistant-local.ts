@@ -138,12 +138,47 @@ function productLookup(snapshot: Snapshot, question: string): string | null {
     return '• ' + product.name + (product.sku ? ' · SKU ' + product.sku : '') + ' · ' + quantity + ' ' + product.unit + ' còn khả dụng · Ngưỡng tối thiểu ' + product.minimumStock
   }).join('\n')
 }
+function staffProfileLookup(snapshot: Snapshot, question: string): string | null {
+  const q = normalizeAssistantText(question)
+  const digits = question.replace(/\D/g, '')
+  const candidates = snapshot.employees.filter(employee => {
+    const name = normalizeAssistantText(employee.fullName)
+    const phone = (employee.phone ?? '').replace(/\D/g, '')
+    return (name.length > 2 && q.includes(name)) || (digits.length >= 8 && phone.length >= 8 && phone.includes(digits))
+  })
+  if (candidates.length !== 1) return null
+  const employee = candidates[0]
+  const completed = snapshot.workShifts.filter(shift => shift.employeeId === employee.id && shift.status === 'completed')
+  const totalHours = completed.reduce((total, shift) => total + Math.max(0, Date.parse(shift.endAt) - Date.parse(shift.startAt)) / 3600000, 0)
+  const periodRange = getAssistantRange(detectAssistantPeriod(question))
+  const current = completed.filter(shift => within(shift.startAt, periodRange))
+  const joined = new Date(employee.joinedAt)
+  const today = new Date()
+  const months = Number.isFinite(joined.getTime()) ? Math.max(0, (today.getFullYear() - joined.getFullYear()) * 12 + today.getMonth() - joined.getMonth() - (today.getDate() < joined.getDate() ? 1 : 0)) : null
+  const tenure = months === null ? 'chưa có ngày hợp lệ' : months < 12 ? months + ' tháng' : Math.floor(months / 12) + ' năm ' + (months % 12) + ' tháng'
+  return [
+    '**Hồ sơ nhân viên: ' + employee.fullName + '**',
+    '• Số điện thoại: ' + (employee.phone ?? 'Chưa cập nhật') + '.',
+    '• Email: ' + (employee.email ?? 'Chưa cập nhật') + '.',
+    '• Vị trí: ' + employee.role + ' · Trạng thái: ' + (employee.status === 'active' ? 'Đang làm việc' : 'Đã ngừng hoạt động') + '.',
+    '• Ngày vào làm: ' + new Intl.DateTimeFormat('vi-VN', { dateStyle: 'long', timeZone: 'Asia/Ho_Chi_Minh' }).format(joined) + ' · Thâm niên ước tính: ' + tenure + '.',
+    '• Tổng ca đã hoàn thành: ' + completed.length + ' · Tổng giờ ca ghi nhận: ' + Math.round(totalHours * 10) / 10 + ' giờ.',
+    '• Trong ' + periodRange.label + ': ' + current.length + ' ca hoàn thành.',
+    '• Thành tích xác minh được: ' + (completed.length ? completed.length + ' ca làm và ' + (Math.round(totalHours * 10) / 10) + ' giờ đã hoàn thành.' : 'Chưa có ca làm hoàn thành được ghi nhận.'),
+    'Lưu ý: hệ thống chưa gắn nhân viên thực hiện vào từng dịch vụ/hóa đơn, nên chưa thể xác nhận doanh thu cá nhân, số khách phục vụ hoặc thành tích bán sản phẩm. Em không suy đoán các chỉ số này.'
+  ].join('\n')
+}
+
 export async function answerOwnerQuestion(salonId: string, question: string, now = new Date()): Promise<LocalAssistantResult> {
   const intent = detectAssistantIntent(question)
   const period = detectAssistantPeriod(question)
   const range = getAssistantRange(period, now)
   const snapshot = await readSnapshot(salonId)
   const data = buildSafeContext(snapshot, range, intent)
+  if (intent === 'staff') {
+    const profile = staffProfileLookup(snapshot, question)
+    if (profile) return { answer: profile, safeContext: 'Hồ sơ và ca làm của một nhân viên thuộc salon hiện tại; chưa có employee attribution cho doanh thu.', intent, period }
+  }
   const lines = ['**Tổng hợp ' + range.label + '**']
   if (intent === 'finance' || intent === 'overview') {
     lines.push('• Doanh thu hóa đơn đã phát hành: **' + money(data.gross) + '** (' + data.invoiceCount + ' hóa đơn, không tính hóa đơn đã hủy).')
@@ -158,9 +193,22 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
     lines.push('• Lịch hẹn: **' + data.appointmentCount + '**; hoàn thành ' + data.completedCount + ', đã hủy ' + data.cancelledCount + ', khách không đến ' + data.noShowCount + '.')
   }
   if (intent === 'customers' || intent === 'overview') {
+    const customerInvoices = snapshot.invoices.filter(row => row.status !== 'void' && row.customerId && within(row.issuedAt, range))
+    const spendByCustomer = new Map<string, { name: string; amount: number; invoices: number; products: number }>()
+    for (const invoice of customerInvoices) {
+      const current = spendByCustomer.get(invoice.customerId!) ?? { name: invoice.customerNameSnapshot, amount: 0, invoices: 0, products: 0 }
+      current.amount += invoice.totalVnd
+      current.invoices += 1
+      current.products += invoice.lines.filter(line => line.lineType === 'product').reduce((total, line) => total + line.quantity, 0)
+      spendByCustomer.set(invoice.customerId!, current)
+    }
+    const topSpenders = [...spendByCustomer.values()].sort((a, b) => b.amount - a.amount).slice(0, 5)
     lines.push('• Khách đặt lịch nhiều nhất (không tính lịch hủy/không đến):')
     if (!data.topCustomers.length) lines.push('  Chưa có lịch đặt gắn với hồ sơ khách hàng trong khoảng thời gian này.')
     else data.topCustomers.forEach((row, index) => lines.push('  ' + (index + 1) + '. ' + row.label + ' – ' + row.count + ' lịch'))
+    lines.push('• Khách chi tiêu nhiều nhất theo hóa đơn đã phát hành:')
+    if (!topSpenders.length) lines.push('  Chưa có hóa đơn gắn với khách hàng trong kỳ.')
+    else topSpenders.forEach((row, index) => lines.push('  ' + (index + 1) + '. ' + row.name + ' – ' + money(row.amount) + ' · ' + row.invoices + ' hóa đơn · ' + row.products + ' sản phẩm') )
   }
   if (intent === 'services' || intent === 'overview') {
     lines.push('• Dịch vụ hoàn thành nhiều nhất:')
