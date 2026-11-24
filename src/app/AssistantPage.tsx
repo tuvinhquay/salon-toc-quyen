@@ -4,7 +4,7 @@ import { useOwnerContext } from '../auth/OwnerContext'
 import type { AssistantMemoryRecord } from '../db/types'
 import { answerOwnerQuestion, redactQuestionForGemini } from './assistant-local'
 import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, readAssistantMemory } from './assistant-memory'
-import { answerFromMemories, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
+import { answerFromMemories, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
 import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assistant-brain-store'
 import { askGeminiAdviser, isGeminiAssistantReady } from './assistant-gemini'
 
@@ -32,6 +32,7 @@ export function AssistantPage() {
   const [longTermMemories, setLongTermMemories] = useState<AssistantMemoryRecord[]>([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [adviserNotice, setAdviserNotice] = useState<string | null>(null)
   const chatRef = useRef<HTMLDivElement | null>(null)
   const stickToLatestRef = useRef(true)
   const [showLatest, setShowLatest] = useState(false)
@@ -83,6 +84,7 @@ export function AssistantPage() {
     if (!prompt || busy) return
     setQuestion('')
     setError(null)
+    setAdviserNotice(null)
     stickToLatestRef.current = true
     setShowLatest(false)
     setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'user', content: prompt }])
@@ -93,6 +95,11 @@ export function AssistantPage() {
         const saved = await saveOwnerMemory(actor, instruction.category, instruction.title, instruction.content)
         await refreshLongTermMemories()
         setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Mình đã lưu vào trí nhớ dài hạn trên thiết bị này.\n\n**' + saved.title + '**\n' + saved.content + '\n\nMục này hiện chỉ nằm trên thiết bị đang dùng; chưa được đồng bộ P2P sang thiết bị khác. Khi hệ thống ghép đôi P2P hoàn thành, bộ nhớ sẽ được đưa vào hàng đợi đồng bộ mã hóa.', source: 'local' }])
+        return
+      }
+
+      if (isAssistantGreeting(prompt)) {
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Chào bạn! Mình đây. Hôm nay bạn muốn xem tình hình salon hay cần mình tư vấn việc gì?', source: 'local' }])
         return
       }
 
@@ -118,10 +125,10 @@ export function AssistantPage() {
             answer += '\n\n**Góc nhìn cố vấn Gemini**\n' + await askGeminiAdviser(safeQuestion, local.safeContext, describeAssistantMemory(nextMemory))
             source = 'gemini'
           } catch {
-            answer += '\n\n_Gemini hiện chưa kết nối được. Mình vẫn trả lời bằng số liệu nội bộ; bạn có thể thử lại sau._'
+            setAdviserNotice('Gemini hiện chưa kết nối được. Câu trả lời vẫn sử dụng dữ liệu nội bộ trên thiết bị.')
           }
         } else {
-          answer += '\n\n_Gemini chưa được bật trong Firebase AI Logic hoặc App Check chưa sẵn sàng. Trí nhớ nội bộ và thống kê trên thiết bị vẫn hoạt động bình thường._'
+          setAdviserNotice('Gemini chưa được cấu hình App Check. Trợ lý nội bộ vẫn hoạt động bình thường.')
         }
       }
       setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answer, source }])
@@ -155,8 +162,8 @@ export function AssistantPage() {
       <span className="assistant-role-badge">OWNER</span>
     </div>
     <div className="assistant-status-row">
-      <div><span className="assistant-status-dot"/> Bộ não nội bộ đang hoạt động</div>
-      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Gemini {geminiReady ? 'đã có App Check' : 'chưa cấu hình App Check'}</div>
+      <div><span className="assistant-status-dot"/> Trợ lý nội bộ sẵn sàng</div>
+      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Cố vấn Gemini {geminiReady ? 'sẵn sàng' : 'chưa kết nối'}</div>
     </div>
     <div className="assistant-chat" aria-live="polite" aria-relevant="additions" ref={chatRef} onScroll={handleChatScroll}>
       {messages.map(message => <article className={'assistant-message ' + message.role} key={message.id}>
@@ -168,6 +175,8 @@ export function AssistantPage() {
       </article>)}
       {busy && <div className="assistant-thinking"><Brain size={16}/> Mình đang tìm trong dữ liệu và trí nhớ nội bộ…</div>}
     </div>
+    <div className="assistant-chat-meta">Dữ liệu phân tích: IndexedDB trên thiết bị hiện tại · Chưa đồng bộ sang thiết bị khác.</div>
+    {adviserNotice && <div className="assistant-adviser-note" role="status">{adviserNotice}</div>}
     {showLatest && <button type="button" className="assistant-latest-button" onClick={goToLatest}>↓ Tin nhắn mới</button>}
     {error && <p className="form-error" role="alert">{error}</p>}
     <form className="assistant-composer" onSubmit={submit}>
