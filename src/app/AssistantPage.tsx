@@ -28,7 +28,7 @@ const needsAdviser = (question: string, intent: string) => intent === 'general' 
 export function AssistantPage() {
   const actor = useOwnerContext()
   const { user } = useAuth()
-  const ownerName = (user?.displayName ?? '').trim().split(/\\s+/)[0]
+  const ownerName = (user?.displayName ?? '').trim().split(/\s+/)[0]
   const [question, setQuestion] = useState('')
   const [messages, setMessages] = useState<Message[]>([{
     id: 'welcome',
