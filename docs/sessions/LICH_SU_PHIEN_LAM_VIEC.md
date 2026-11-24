@@ -333,3 +333,14 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Giữ nguyên local assistant, assistant brain, IndexedDB/Dexie, trí nhớ salon, Firebase AI Logic Gemini tùy chọn, module lịch hẹn/nhân viên/kho/POS/báo cáo/backup.
 - Không deploy Firebase, không thay đổi dữ liệu/membership hiện có, không xóa tenant cũ. Firestore Rules mới cần được triển khai riêng trước khi chủ tiệm đăng ký.
 - Cần xác nhận CI, Termux typecheck/lint/test/build, kiểm thử Rules bằng emulator hoặc project test, smoke test hai tài khoản và tenant isolation. P27 chưa PASS.
+
+
+## Phiên 19 – 2026-11-24 – Kiểm thử tenant isolation trước bàn giao
+- Tạo nhánh `phase-28-tenant-isolation-handover` từ commit P27 `f3bc440a4096b3d02f4aa6e5e2f9d36fe4b223b1`; không sửa main, không merge PR #19 và không thay đổi Firebase.
+- Xác nhận P27 Firestore Rules đã được người dùng triển khai thành công lên project `salonquyen-f21fa`; chỉ triển khai Rules, chưa triển khai Hosting.
+- Rà soát AuthGate: mỗi tài khoản thiếu membership tạo salonId ngẫu nhiên và membership theo UID riêng trong cùng batch; tài khoản đã có membership không được ghi đè.
+- Rà soát Dexie/repositories: dữ liệu nghiệp vụ được giữ local-first và truy vấn theo salonId; thao tác sửa hồ sơ cũ kiểm tra salonId trước khi ghi; trí nhớ dài hạn dùng cặp salonId + ownerId.
+- Thêm regression tests `tests/tenant-isolation.test.ts` để khóa các điều kiện trên và ngăn hồi quy khi chuyển tài khoản.
+- Không xóa IndexedDB, không xóa hoặc đổi `memberships/{uid cũ}`, không tạo collection mới, không sửa Firestore Rules.
+- Còn chờ GitHub Actions và chạy typecheck/lint/test/build trên Termux. Chưa đánh dấu PASS cho tới khi có kết quả.
+- Sau khi kiểm thử tự động đạt, hướng dẫn người dùng đăng nhập Google mới, tạo salon mới và xác nhận salonId mới; kiểm tra dữ liệu cũ vẫn được giữ nguyên và không xuất hiện trong workspace mới.
