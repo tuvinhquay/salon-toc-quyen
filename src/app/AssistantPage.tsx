@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Bot, Brain, Eraser, Send, Sparkles, UserRound, Trash2 } from 'lucide-react'
 import { useOwnerContext } from '../auth/OwnerContext'
 import type { AssistantMemoryRecord } from '../db/types'
@@ -32,6 +32,9 @@ export function AssistantPage() {
   const [longTermMemories, setLongTermMemories] = useState<AssistantMemoryRecord[]>([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const chatRef = useRef<HTMLDivElement | null>(null)
+  const stickToLatestRef = useRef(true)
+  const [showLatest, setShowLatest] = useState(false)
   const geminiReady = isGeminiAssistantReady()
 
   useEffect(() => {
@@ -40,7 +43,7 @@ export function AssistantPage() {
     return () => { active = false }
   }, [actor.salonId, actor.actorId])
 
-  async function refreshLongTermMemories() {
+  useEffect(() => {\n    const node = chatRef.current\n    if (!node || !stickToLatestRef.current) { if (node) setShowLatest(true); return }\n    const frame = window.requestAnimationFrame(() => { node.scrollTo({ top: node.scrollHeight, behavior: messages.length > 2 ? 'smooth' : 'auto' }); setShowLatest(false) })\n    return () => window.cancelAnimationFrame(frame)\n  }, [messages, busy])\n\n  function handleChatScroll() {\n    const node = chatRef.current\n    if (!node) return\n    const atLatest = node.scrollHeight - node.clientHeight - node.scrollTop < 72\n    stickToLatestRef.current = atLatest\n    setShowLatest(!atLatest)\n  }\n\n  function goToLatest() {\n    const node = chatRef.current\n    if (!node) return\n    stickToLatestRef.current = true\n    node.scrollTo({ top: node.scrollHeight, behavior: 'smooth' })\n    setShowLatest(false)\n  }\n\n  async function refreshLongTermMemories() {
     const rows = await listOwnerMemories(actor.salonId, actor.actorId)
     setLongTermMemories(rows)
     return rows
@@ -124,7 +127,7 @@ export function AssistantPage() {
       <div><span className="assistant-status-dot"/> Bộ não nội bộ đang hoạt động</div>
       <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Gemini {geminiReady ? 'đã có App Check' : 'chưa cấu hình App Check'}</div>
     </div>
-    <div className="assistant-chat" aria-live="polite">
+    <div className="assistant-chat" aria-live="polite" aria-relevant="additions" ref={chatRef} onScroll={handleChatScroll}>
       {messages.map(message => <article className={'assistant-message ' + message.role} key={message.id}>
         <span className="assistant-message-icon">{message.role === 'assistant' ? <Bot size={17}/> : <UserRound size={17}/>}</span>
         <div className="assistant-message-body">
@@ -136,7 +139,7 @@ export function AssistantPage() {
     </div>
     {error && <p className="form-error" role="alert">{error}</p>}
     <form className="assistant-composer" onSubmit={submit}>
-      <textarea aria-label="Nhập câu hỏi cho trợ lý" rows={2} maxLength={2000} value={question} onChange={event => setQuestion(event.target.value)} placeholder="Ví dụ: Hãy ghi nhớ tên tôi là Quay…" />
+      <textarea aria-label="Nhập câu hỏi cho trợ lý" rows={3} maxLength={4000} value={question} onChange={event => setQuestion(event.target.value)} placeholder="Ví dụ: Hãy ghi nhớ tên tôi là Quay…" />
       <button className="primary-button" disabled={busy || !question.trim()}><Send size={16}/> Gửi câu hỏi</button>
     </form>
     <div className="assistant-suggestions"><div className="assistant-section-title">Gợi ý câu hỏi</div><div>{suggestions.map(item => <button key={item} type="button" className="assistant-suggestion" onClick={() => void send(item)} disabled={busy}>{item}</button>)}</div></div>

@@ -21,15 +21,35 @@ function SignInScreen() {
 function AccessPending({message,onRetry,onLogOut,retrying}:{message:string;onRetry:()=>void;onLogOut:()=>void;retrying:boolean}) {
  return <main className="auth-screen"><section className="auth-card"><div className="auth-mark"><ShieldCheck size={26}/></div><small>OWNER ACCESS CONTROL</small><h1>Chưa được cấp quyền</h1><p>{message}</p><button className="google-signin" onClick={onRetry} disabled={retrying}>{retrying?<LoaderCircle className="spin" size={18}/>:<ShieldCheck size={18} />}{retrying?'Đang kiểm tra…':'Thử kiểm tra lại quyền Owner'}</button><button className="subtle-button" onClick={onLogOut} disabled={retrying}>Đăng xuất</button><div className="auth-foot">CHỈ THÀNH VIÊN ĐƯỢC DUYỆT MỚI TRUY CẬP ĐƯỢC SALON</div></section></main>
 }
+type MembershipState = { status: 'checking' | 'active' | 'missing' | 'error'; uid?: string; salonId?: string }
+
 export function AuthGate() {
  const {user,loading,logOut}=useAuth()
- const [membership,setMembership]=useState<{status:'checking'|'active'|'missing'|'error';salonId?:string}>({status:'checking'})
+ const [membership,setMembership]=useState<MembershipState>({status:'checking'})
  const [deviceId]=useState(()=>crypto.randomUUID())
  const [retryCount,setRetryCount]=useState(0)
- useEffect(()=>{let cancelled=false;async function verify(){if(!user){setMembership({status:'checking'});return}setMembership({status:'checking'});if(!firestore){setMembership({status:'error'});return}try{const snapshot=await getDoc(doc(firestore,'memberships',user.uid));const data=snapshot.data();if(cancelled)return;const valid=snapshot.exists()&&data?.status==='active'&&data?.role==='owner'&&typeof data?.salonId==='string'&&data.salonId.trim().length>0;setMembership(valid?{status:'active',salonId:data.salonId}:{status:'missing'})}catch{if(!cancelled)setMembership({status:'error'})}}void verify();return()=>{cancelled=true}},[user,retryCount])
- if(loading||(user&&membership.status==='checking'))return <main className="auth-screen"><div className="auth-loading"><LoaderCircle className="spin"/>Đang kiểm tra quyền truy cập…</div></main>
+ useEffect(()=>{
+   let cancelled=false
+   async function verify(){
+     if(!user){setMembership({status:'checking'});return}
+     setMembership({status:'checking',uid:user.uid})
+     if(!firestore){setMembership({status:'error',uid:user.uid});return}
+     try{
+       const snapshot=await getDoc(doc(firestore,'memberships',user.uid))
+       const data=snapshot.data()
+       if(cancelled)return
+       const valid=snapshot.exists()&&data?.status==='active'&&data?.role==='owner'&&typeof data?.salonId==='string'&&data.salonId.trim().length>0
+       setMembership(valid?{status:'active',uid:user.uid,salonId:data.salonId}:{status:'missing',uid:user.uid})
+     }catch{
+       if(!cancelled)setMembership({status:'error',uid:user.uid})
+     }
+   }
+   void verify()
+   return()=>{cancelled=true}
+ },[user?.uid,retryCount])
+ if(loading||(user&&(membership.status==='checking'||membership.uid!==user.uid)))return <main className="auth-screen"><div className="auth-loading"><LoaderCircle className="spin"/>Đang kiểm tra quyền truy cập…</div></main>
  if(!user)return <SignInScreen/>
- if(membership.status!=='active'||!membership.salonId)return <AccessPending message={membership.status==='missing'?'Tài khoản Google đã đăng nhập nhưng chưa có hồ sơ Owner được cấp quyền. Không thể tự tạo quyền quản trị từ trình duyệt.': 'Không thể xác minh membership với máy chủ. Kiểm tra kết nối mạng, cấu hình Firebase và Firestore Rules rồi thử lại.'} onRetry={()=>setRetryCount(value=>value+1)} retrying={membership.status==='checking'} onLogOut={()=>void logOut()}/>
+ if(membership.status!=='active'||!membership.salonId)return <AccessPending message={membership.status==='missing'?'Tài khoản Google đã đăng nhập nhưng chưa có hồ sơ Owner được cấp quyền. Không thể tự tạo quyền quản trị từ trình duyệt.':'Không thể xác minh membership với máy chủ. Kiểm tra kết nối mạng, cấu hình Firebase và Firestore Rules rồi thử lại.'} onRetry={()=>setRetryCount(value=>value+1)} retrying={membership.status==='checking'} onLogOut={()=>void logOut()}/>
  const actor:ActorContext={salonId:membership.salonId,actorId:user.uid,deviceId}
  return <OwnerProvider value={actor}><RouterProvider router={router}/></OwnerProvider>
 }
