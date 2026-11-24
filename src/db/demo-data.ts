@@ -243,7 +243,7 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
       appointments.push({
         ...base(prefix + 'appointment_' + invoiceNumber, issuedAt), customerId: customer.id,
         customerNameSnapshot: customer.fullName, customerPhoneSnapshot: customer.phone,
-        startAt: issuedAt, endAt: iso(addDays(date, 0).getTime() === date.getTime() ? new Date(date.getTime() + duration * 60000) : date),
+        startAt: issuedAt, endAt: iso(new Date(date.getTime() + duration * 60000)),
         status: 'completed', serviceIds: lineData.filter(line => line.lineType === 'service').map(line => line.referenceId),
         depositAmount: random() < 0.25 ? 100000 : 0, notes: 'Lịch đã hoàn thành · dữ liệu mô phỏng.',
         cancelledAt: null,
@@ -272,7 +272,7 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
   for (let monthIndex = 0; monthIndex < monthStarts.length; monthIndex += 1) {
     const month = monthStarts[monthIndex]
     const monthKey = monthLabel(month)
-    const receivedAt = iso(localDate(month.getFullYear(), month.getMonth(), 2, 10))
+    const receivedAt = iso(localDate(month.getFullYear(), month.getMonth(), 1, 8))
     const lines = products.map((product, productIndex) => {
       const demand = pendingUses.filter(use => use.productIndex === productIndex && use.monthKey === monthKey).reduce((sum, use) => sum + use.quantity, 0)
       const quantity = Math.ceil(demand + 12)
@@ -285,7 +285,7 @@ function createFiveMonthBundle(actor: ActorContext): DemoBundle {
     orders.push({
       ...base(orderId, receivedAt), supplierId: supplier.id, supplierNameSnapshot: supplier.name,
       orderNumber: 'PO-DEMO-' + String(monthIndex + 1).padStart(3, '0'), status: 'received',
-      orderedAt: iso(localDate(month.getFullYear(), month.getMonth(), 1, 10)),
+      orderedAt: iso(localDate(month.getFullYear(), month.getMonth(), 1, 7)),
       expectedAt: receivedAt, receivedAt, lines, totalAmountVnd,
       notes: 'Đơn nhập kho mô phỏng tháng ' + monthKey + '; số liệu không phải chứng từ thật.',
     })
