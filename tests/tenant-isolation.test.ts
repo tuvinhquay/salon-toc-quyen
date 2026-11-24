@@ -97,7 +97,8 @@ describe('tenant isolation during account handover', () => {
     await expect(archiveCustomers(newTenantActor, ['customer-new', 'customer-old']))
       .rejects.toThrow('Danh sách có hồ sơ không thuộc salon hiện tại hoặc không còn tồn tại.')
     expect(tables.customers.put).not.toHaveBeenCalled()
-    expect(db.transaction).not.toHaveBeenCalled()
+    expect(tables.auditEvents.add).not.toHaveBeenCalled()
+    expect(db.transaction).toHaveBeenCalledOnce()
   })
 
   it('scopes every local assistant business-data query to the active salon', async () => {
