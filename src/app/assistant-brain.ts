@@ -95,13 +95,18 @@ export function applyLearnedVocabulary(memories: AssistantMemoryRecord[], questi
   let result = question
   for (const memory of memories) {
     if (memory.status !== 'active' || memory.category !== 'knowledge') continue
-    const content = memory.content.trim()
-    const match = content.match(/(?:tu|cum tu)\\s+["'“]?([^"'”]+?)["'”]?\\s+(?:nghia la|duoc hieu la|con goi la|la)\\s+["'“]?(.+?)["'”]?$/i)
+    const match = memory.content.trim().match(/^(?:Từ|Cụm từ)\s+["“']?(.+?)["”']?\s+(?:nghĩa là|được hiểu là|còn gọi là|là)\s+["“']?(.+?)["”']?$/i)
     if (!match) continue
     const alias = match[1].trim()
     const canonical = match[2].trim().replace(/[.!?]+$/, '')
     if (alias.length < 3 || canonical.length < 3) continue
-    const escaped = alias.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\const SHORTCUT_STOP_WORDS = new Set')
+    const index = result.toLocaleLowerCase('vi').indexOf(alias.toLocaleLowerCase('vi'))
+    if (index >= 0) result = result.slice(0, index) + canonical + result.slice(index + alias.length)
+  }
+  return result
+}
+
+const SHORTCUT_STOP_WORDS = new Set')
     result = result.replace(new RegExp(escaped, 'gi'), canonical)
   }
   return result
