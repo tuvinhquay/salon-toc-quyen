@@ -81,10 +81,11 @@ export function ReportsPage(){
  const [buckets,setBuckets]=useState<RevenueBucket[]>([])
  const [error,setError]=useState<string|null>(null)
  const [busy,setBusy]=useState(false)
- function setPreset(period:'today'|'month'|'quarter'|'year'){
+ function setPreset(period:'today'|'week'|'month'|'quarter'|'year'){
   const current=new Date()
   let from:Date,to:Date
   if(period==='today'){from=new Date(current.getFullYear(),current.getMonth(),current.getDate());to=new Date(current.getFullYear(),current.getMonth(),current.getDate()+1)}
+  else if(period==='week'){const day=(current.getDay()+6)%7;from=new Date(current.getFullYear(),current.getMonth(),current.getDate()-day);to=new Date(from.getFullYear(),from.getMonth(),from.getDate()+7)}
   else if(period==='month'){from=new Date(current.getFullYear(),current.getMonth(),1);to=new Date(current.getFullYear(),current.getMonth()+1,1)}
   else if(period==='quarter'){const first=Math.floor(current.getMonth()/3)*3;from=new Date(current.getFullYear(),first,1);to=new Date(current.getFullYear(),first+3,1)}
   else{from=new Date(current.getFullYear(),0,1);to=new Date(current.getFullYear()+1,0,1)}
@@ -102,7 +103,7 @@ export function ReportsPage(){
  const maxValue=Math.max(1,...buckets.flatMap(row=>[row.collected,row.refunded,row.expenses]))
  return <section className="work-page">
   <div className="work-intro"><div><small>P09 · BÁO CÁO</small><h2>Báo cáo hoạt động</h2><p>Tổng hợp từ hóa đơn, thanh toán, hoàn tiền và chi phí đã ghi nhận.</p></div></div>
-  <div className="report-presets"><span>Xem nhanh:</span><button type="button" className="subtle-button" onClick={()=>setPreset('today')}>Hôm nay</button><button type="button" className="subtle-button" onClick={()=>setPreset('month')}>Tháng này</button><button type="button" className="subtle-button" onClick={()=>setPreset('quarter')}>Quý này</button><button type="button" className="subtle-button" onClick={()=>setPreset('year')}>Năm nay</button></div>
+  <div className="report-presets"><span>Xem nhanh:</span><button type="button" className="subtle-button" onClick={()=>setPreset('today')}>Hôm nay</button><button type="button" className="subtle-button" onClick={()=>setPreset('week')}>Tuần này</button><button type="button" className="subtle-button" onClick={()=>setPreset('month')}>Tháng này</button><button type="button" className="subtle-button" onClick={()=>setPreset('quarter')}>Quý này</button><button type="button" className="subtle-button" onClick={()=>setPreset('year')}>Năm nay</button></div>
   <form className="work-form" onSubmit={e=>void load(e)}>
    <div className="form-grid"><Field label="Từ ngày"><input type="datetime-local" required value={start} onChange={e=>setStart(e.target.value)}/></Field><Field label="Đến ngày"><input type="datetime-local" required value={end} onChange={e=>setEnd(e.target.value)}/></Field></div>
    <button className="primary-button" disabled={busy}>{busy?'Đang tổng hợp…':'Xem báo cáo'}</button><ErrorText value={error}/>
