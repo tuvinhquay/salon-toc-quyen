@@ -514,7 +514,7 @@ export async function seedDemoData(actor: ActorContext) {
   if (!actor.salonId.trim() || !actor.actorId.trim() || !actor.deviceId.trim()) throw new Error('Thiếu ngữ cảnh Owner.')
   const bundle = createFiveMonthBundle(actor)
   const prefix = prefixFor(actor.salonId)
-  await salonDb.transaction('rw', ...demoTables, async () => {
+  await salonDb.transaction('rw', [...demoTables, salonDb.workflowEvents], async () => {
     await assertNoRealReferences(actor, prefix)
     for (const table of demoTables) {
       const rows = await table.where('salonId').equals(actor.salonId).toArray()
@@ -542,7 +542,7 @@ export async function clearDemoData(actor: ActorContext) {
   if (!actor.salonId.trim() || !actor.actorId.trim() || !actor.deviceId.trim()) throw new Error('Thiếu ngữ cảnh Owner.')
   const prefix = prefixFor(actor.salonId)
   const removed: DemoCounts = {}
-  await salonDb.transaction('rw', ...demoTables, async () => {
+  await salonDb.transaction('rw', [...demoTables, salonDb.workflowEvents], async () => {
     await assertNoRealReferences(actor, prefix)
     for (const table of demoTables) {
       const rows = await table.where('salonId').equals(actor.salonId).toArray()
