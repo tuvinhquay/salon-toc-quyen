@@ -440,3 +440,6 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Demo invoice data from P30 is used directly; demo products carry sale price. Print clearly states internal receipt is not an official tax e-invoice.
 - Added print tests, schema tests, demo price assertions. CI + owner Termux/Android test pending.
 - No merge/deploy.
+
+- CI run #409 (`45582461715`, commit `9ac51e52c296faa6b7d5f48cc2b02a722643a2dc`): PASS – Typecheck, Lint, Unit tests, Production build/PWA.
+- Owner Termux/Android smoke test and print-to-PDF acceptance: pending. PR #28 remains Draft; no merge/deploy.
