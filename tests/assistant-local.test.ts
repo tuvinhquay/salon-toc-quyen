@@ -39,8 +39,8 @@ describe('assistant question understanding', () => {
 
 const customer = (id: string, fullName: string, phone: string | null = null): Customer => ({
   id, salonId: 'salon_test', fullName,
-  normalizedName: fullName.toLocaleLowerCase('vi').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/đ/g, 'd'),
-  phone, normalizedPhone: phone?.replace(/\\D/g, '') ?? null, email: null, notes: '', archivedAt: null,
+  normalizedName: fullName.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'),
+  phone, normalizedPhone: phone?.replace(/\D/g, '') ?? null, email: null, notes: '', archivedAt: null,
   createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z', revision: 1,
   createdBy: 'owner', updatedBy: 'owner', deviceId: 'device',
 })
