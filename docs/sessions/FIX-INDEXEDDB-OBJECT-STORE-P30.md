@@ -20,3 +20,9 @@ Lỗi `Failed to execute 'objectStore' on 'IDBTransaction': The specified object
 - CI typecheck/lint/tests/build.
 - Owner cập nhật code hotfix trên thiết bị, tải lại app để Dexie chạy migration v8, sau đó thử tạo demo.
 - Không merge/deploy Firebase/Hosting nếu chưa có Owner approval.
+
+## Điều tra tiếp theo – root cause transaction seed
+- Owner xác nhận chạy local bằng Termux trên branch `fix-indexeddb-store-upgrade-p30` và lỗi vẫn xảy ra, nên migration v8 không đủ.
+- Lần sửa trước đã sai: Dexie 4 hỗ trợ truyền danh sách bảng bằng array; spread toàn bộ 19 bảng thành arguments vượt overload TypeScript (chỉ nhận 3–7 arguments trong typings), khiến typecheck/build thất bại. Không sử dụng cách spread variadic.
+- Kiểm tra lại scope transaction: `assertNoRealReferences()` đọc `salonDb.workflowEvents`, nhưng `workflowEvents` không nằm trong `demoTables`. Khi truy vấn này chạy bên trong transaction, Dexie báo object store không được bao gồm/không tồn tại trong transaction. Đây là nguyên nhân cụ thể phù hợp với lỗi runtime.
+- Sửa cả `seedDemoData` và `clearDemoData` thành `salonDb.transaction('rw', [...demoTables, salonDb.workflowEvents], async () => ...)`: truyền array theo API Dexie và bổ sung workflowEvents vào scope đọc. Không xóa hoặc ghi workflowEvents, không đụng dữ liệu salon đã lưu.
