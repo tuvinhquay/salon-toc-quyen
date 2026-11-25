@@ -236,12 +236,12 @@ export function AssistantPage() {
       if (createProductIntent) {
         const parsed = parseProductCreateCommand(prompt)
         if (!parsed) {
-          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em nhận ra bạn muốn thêm sản phẩm, nhưng chưa đọc đủ tên, mã SKU hoặc giá bán. Vui lòng viết: “Thêm sản phẩm [tên] mã [SKU] giá [giá]”.', source: 'local' }])
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em nhận ra bạn muốn thêm sản phẩm, nhưng chưa đọc đủ tên, mã sản phẩm hoặc giá bán. Vui lòng viết: “Thêm sản phẩm [tên] mã [SKU] giá [giá]”.', source: 'local' }])
           return
         }
         const existing = await listProducts(actor)
         if (existing.some(product => (product.sku ?? '').toUpperCase() === parsed.input.sku)) {
-          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Mã SKU ' + parsed.input.sku + ' đã tồn tại. Em không tạo bản trùng; hãy yêu cầu sửa sản phẩm theo mã SKU này.', source: 'local' }])
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Mã sản phẩm ' + parsed.input.sku + ' đã tồn tại. Em không tạo bản trùng; hãy yêu cầu sửa sản phẩm theo mã sản phẩm này.', source: 'local' }])
           return
         }
         setPendingProductAction({ kind: 'create', phase: parsed.quantity && parsed.unitCostVnd !== null ? 'confirm' : 'details', input: parsed.input, quantity: parsed.quantity, unitCostVnd: parsed.unitCostVnd })
@@ -270,7 +270,7 @@ export function AssistantPage() {
       if (instruction) {
         const saved = await saveOwnerMemory(actor, instruction.category, instruction.title, instruction.content)
         await refreshLongTermMemories()
-        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Mình đã lưu vào trí nhớ dài hạn trên thiết bị này.\n\n**' + saved.title + '**\n' + saved.content + '\n\nMục này hiện chỉ nằm trên thiết bị đang dùng; chưa được đồng bộ P2P sang thiết bị khác. Khi hệ thống ghép đôi P2P hoàn thành, bộ nhớ sẽ được đưa vào hàng đợi đồng bộ mã hóa.', source: 'local' }])
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Mình đã lưu vào trí nhớ dài hạn trên thiết bị này.\n\n**' + saved.title + '**\n' + saved.content + '\n\nMục này hiện chỉ nằm trên thiết bị đang dùng; chưa được chuyển sang thiết bị khác. Khi tính năng kết nối thiết bị được bật, bộ nhớ mới có thể được chuyển đi an toàn.', source: 'local' }])
         return
       }
 
