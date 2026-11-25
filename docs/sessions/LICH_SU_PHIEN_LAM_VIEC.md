@@ -397,3 +397,12 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 ### Lưu ý vận hành bổ sung P30
 - Thêm cảnh báo rõ trong Settings: dataset được lưu trong salon hiện tại và sẽ hiển thị cộng với dữ liệu thật ở Dashboard/báo cáo. Owner chỉ nên tạo trong tenant dành cho demo hoặc chấp nhận báo cáo bị trộn; dữ liệu thật vẫn không bị xóa.
 - Không tạo dataset demo trên salon đang dùng báo cáo tài chính thật nếu cần số liệu thuần thực tế.
+
+
+## Phiên tiếp theo – 2026-11-25 – Hotfix IndexedDB object store
+- Owner báo lỗi khi nhấn tạo dataset: `Failed to execute 'objectStore' on 'IDBTransaction': The specified object store was not found`.
+- Xác định transaction seed sử dụng nhiều Dexie tables; một số IndexedDB v7 đã tồn tại có thể thiếu object store do schema thay đổi trong cùng version number. Lỗi xảy ra trước khi dữ liệu demo được ghi; không cần xóa IndexedDB.
+- Tạo branch `fix-indexeddb-store-upgrade-p30` từ P30.
+- Nâng schema Dexie lên version 8, tái khai báo đầy đủ stores/indexes từ v7 để browser tự bổ sung store thiếu, không xóa records.
+- Thêm `docs/sessions/FIX-INDEXEDDB-OBJECT-STORE-P30.md` và cập nhật ROADMAP.
+- Chưa CI, chưa Android acceptance, chưa PR/merge/deploy. Tiếp tục kiểm tra CI rồi hướng dẫn Owner cập nhật branch hotfix.
