@@ -374,3 +374,13 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Còn thiếu: bot chưa tự tạo/sửa sản phẩm hoặc hồ sơ; kiểm thử CI cuối và Android runtime.
 - Không thay Firestore Rules, Firebase Auth hoặc Membership; Dexie nâng lên v7 có migration bổ sung customerGroups, không xóa bảng/dữ liệu cũ. Không deploy Firebase, không merge.
 - Phase 29 chưa PASS cho tới khi CI, Termux và Android smoke test đạt.
+
+
+## Phase 31 – Assistant intent routing/search – 2026-11-25
+- Branch: `phase-31-assistant-intent-routing-search`, base `phase-29-assistant-natural-language-and-configurable-analytics`.
+- Sửa lỗi trong ảnh Owner: câu có tên khách hàng không còn bị trả báo cáo tổng hợp hôm nay; tra cứu tên khách trả hồ sơ đúng khách và chỉ số tổng hóa đơn/lịch hẹn.
+- Hỗ trợ tên đầy đủ, tên một phần, số điện thoại; khách archived bị loại; kết quả mơ hồ được trả danh sách để Owner chọn, không tự đoán.
+- Xếp hạng khách được tách theo lịch hẹn, chi tiêu hóa đơn hoặc số lượng sản phẩm; hỏi lại nếu không có tiêu chí.
+- Sửa fallback tra cứu nhân viên: truy vấn hồ sơ không tìm thấy không bị chuyển sang thống kê ca/năng suất.
+- Thêm tests cho customer lookup intent và tenant-local records; cần CI + runtime Termux/Android trước nghiệm thu.
+- Không sửa Gemini, không thêm khả năng ghi dữ liệu từ chat, không merge/deploy.
