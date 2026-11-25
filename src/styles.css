@@ -270,3 +270,6 @@ body{background:#062e28;color:#edf5f0}
 @media(forced-colors:active){.work-form,.card,.record,.sidebar,.main header{border:1px solid CanvasText}}
 
 .field-help{display:block;margin:9px 0 2px;color:#b9cec2;font-size:10px;line-height:1.65}.custom-fields-editor{padding:13px;border:1px dashed #cdb66b66;border-radius:11px;background:#ffffff05}.custom-field-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:9px}.custom-field-row input{min-width:0;min-height:38px;padding:9px 10px;border:1px solid #b9c9bd55;border-radius:8px;background:#052f29;color:#f3f7f4;font:inherit;font-size:11px}@media(max-width:520px){.custom-field-row{grid-template-columns:1fr}.custom-field-row button{justify-self:start}}
+
+/* Hide internal phase codes from everyday salon users */
+.work-intro>div>small{display:none}.report-presets{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:#c4d6cc;font-size:11px}.report-presets .subtle-button{min-height:32px;padding:0 10px}
