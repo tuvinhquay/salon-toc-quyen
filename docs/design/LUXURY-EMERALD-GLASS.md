@@ -14,7 +14,9 @@
 - `public/icons/pwa-192.svg`, `pwa-512.svg`, `pwa-maskable.svg`: icon manifest.
 - `public/icons/apple-touch-icon.svg`: biểu tượng Apple touch tạm thời dạng SVG.
 - `src/styles.css`: token màu, glass surfaces, sidebar motion, responsive breakpoints.
-- `src/app/App.tsx`: lớp video nền toàn app; không can thiệp nghiệp vụ hoặc quyền.
+- `src/main.tsx`: lớp video nền cấp root, xuất hiện trước AuthGate trên cả đăng nhập và Owner workspace.
+- `src/styles.css`: video visibility, emerald overlay, high-contrast text và readable glass surfaces.
+- `src/lib/invoice-print.ts`: họa tiết đầu nai có sừng và watermark riêng cho hóa đơn; icon thương hiệu app vẫn là kéo.
 
 ## Sidebar interaction
 - Desktop/tablet: sidebar cố định theo chiều cao viewport, cuộn độc lập khi danh mục dài.
@@ -31,3 +33,4 @@
 - Giữ nguyên React routes, Dexie, Firebase auth, quyền Owner, nghiệp vụ và assistant.
 - Cần smoke test thực tế Android/Termux, Chrome desktop, Safari iOS/PWA trước khi nghiệm thu.
 - SVG icons hiện dùng để giữ chất lượng vector. Bộ PNG raster 192/512 và Apple 180×180 có thể được xuất bổ sung nếu cần thiết cho thiết bị iOS/manifest strict compatibility.
+\n\n## Contrast and invoice ornament (Phase 34)\n- Không áp dụng opacity/filter lên text; chỉ bề mặt glass được translucent.\n- Nội dung chính dùng chữ màu đặc, contrast cao; form control/placeholder/focus rõ trên cả nền video.\n- Video nền dùng chung cho sign-in và Owner shell, overlay giảm độ đậm để thấy video rõ hơn nhưng vẫn bảo đảm khả năng đọc.\n- Họa tiết đầu nai có sừng chỉ dùng trong invoice print; không thay biểu tượng kéo của app.\n

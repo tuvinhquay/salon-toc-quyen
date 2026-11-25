@@ -231,3 +231,12 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - No business logic, routes, auth, tenant scope, Dexie or Firebase behavior intentionally changed.
 - Validation: pending CI typecheck/lint/tests/build and Owner Android/Termux + desktop/iOS visual acceptance. Do not mark Owner project complete until those checks pass.
 - Employee App remains Phase 2 and must be started only after Owner acceptance; no employee UI is included in this phase.
+
+ 
+## Phase 34 – Owner Glass Contrast, Global Video & Invoice Deer Ornament – 2026-11-26
+- Tạo branch `phase-34-owner-glass-contrast-global-video-invoice-deer` từ Phase 33 HEAD; Phase 33/32 PR vẫn Draft, không merge/deploy.
+- Chỉnh độ tương phản toàn bộ Luxury Emerald Glass: chữ và nhãn luôn màu đặc, rõ; tính xuyên thấu áp dụng cho bề mặt kính, không làm mờ chữ. Tăng độ đục của card/form/record, thêm màu placeholder và focus rõ.
+- Video nền được đưa lên cấp root React, xuất hiện cả Sign in, Access Pending, màn kiểm tra quyền và Owner workspace; chỉ render một video, muted/autoplay/loop/playsInline. Tăng độ nhìn thấy video, giảm overlay đậm; vẫn giữ lớp tối vừa đủ để đọc.
+- Hóa đơn in A4 thay hoa văn đối xứng cũ bằng họa tiết đầu nai có sừng; thêm watermark deer-antler mờ phía sau nội dung. Logo nhận diện app/sidebar vẫn giữ icon kéo, không đổi thương hiệu.
+- Không thay nghiệp vụ, xác thực, tenant security, dữ liệu hoặc routing.
+- Chờ CI typecheck/lint/tests/build và Owner smoke test trên Termux/Android, desktop và màn hình đăng nhập. Không merge/deploy trước khi Owner nghiệm thu.

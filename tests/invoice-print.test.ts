@@ -21,6 +21,8 @@ describe('salon invoice print', () => {
   it('renders customer, employee, payment, totals and salon contact details', () => {
     const html = buildInvoicePrintHtml(invoice, [payment], salon)
     expect(html).toContain('HD-TEST-001')
+    expect(html).toContain('invoice-watermark')
+    expect(html).toContain('M58 40 L49 27')
     expect(html).toContain('Nguyễn Mai Phương &lt;VIP&gt;')
     expect(html).toContain('Lê Thu Trang')
     expect(html).toContain('0901234567')
