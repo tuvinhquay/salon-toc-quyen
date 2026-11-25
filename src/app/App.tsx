@@ -29,18 +29,18 @@ function RootLayout(){
   <div className="app-background-overlay" aria-hidden="true"/>
 
   <aside className="sidebar">
-   <Link to="/" className="brand" aria-label="TÓC QUYỀN - Tổng quan"><span className="mark"><Scissors/></span><span><b>TÓC QUYỀN</b><small>SALON MANAGEMENT</small></span></Link>
-   <p className="muted-label">KHÔNG GIAN LÀM VIỆC</p>
-   <div className="workspace">Salon {owner.salonId}<small>OWNER</small></div>
+   <Link to="/" className="brand" aria-label="TÓC QUYỀN - Tổng quan"><span className="mark"><Scissors/></span><span><b>TÓC QUYỀN</b><small>QUẢN LÝ SALON</small></span></Link>
+   <p className="muted-label">QUẢN LÝ SALON</p>
+   <div className="workspace">Salon của bạn<small>CHỦ SALON</small></div>
    <nav aria-label="Điều hướng quản lý salon">{navigation.map(({label,to,Icon})=><Link key={to} to={to as never} className={pathname===to?'selected':''} aria-current={pathname===to?'page':undefined}><Icon size={18}/>{label}{pathname===to&&<i/>}</Link>)}</nav>
    <div className="profile"><span className="avatar">{(user?.displayName??accountEmail).slice(0,1).toUpperCase()}</span><div><b>{user?.displayName??'Chủ salon'}</b><small>{accountEmail}</small></div><button className="logout-button" onClick={()=>void logOut()} aria-label="Đăng xuất tài khoản" title="Đăng xuất"><LogOut size={17}/></button></div>
   </aside>
   <section className="main">
    <header>
-    <div><small>KHÔNG GIAN CHỦ TIỆM</small><h1>{current.label}</h1></div>
+    <div><small>KHÔNG GIAN QUẢN LÝ</small><h1>{current.label}</h1></div>
     <div className="header-actions">
-     <Link to={"/settings" as never} className="quick-demo-link"><Database size={15}/> Dữ liệu mẫu</Link>
-     <span className="offline"><WifiOff size={15}/> Lưu cục bộ · Chưa đồng bộ</span>
+     <Link to={"/settings" as never} className="quick-demo-link"><Database size={15}/> Dữ liệu thử nghiệm</Link>
+     <span className="offline"><WifiOff size={15}/> Lưu trên thiết bị · Chưa đồng bộ</span>
      <span className="account-email" title={accountEmail}>{accountEmail}</span>
      <button type="button" className="account-logout-button" onClick={()=>void logOut()}><LogOut size={15}/> Đăng xuất</button>
     </div>
