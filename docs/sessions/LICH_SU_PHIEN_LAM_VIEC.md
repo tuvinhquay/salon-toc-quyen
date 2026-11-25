@@ -455,3 +455,12 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Cập nhật màu PWA manifest và khai báo SVG icons 192/512/maskable; Apple touch SVG hiện là vector, cần kiểm tra thực tế iOS và có thể cần PNG 180×180.
 - Không thay đổi nghiệp vụ, auth, quyền Owner, tenant isolation, Dexie/Firebase hay routing.
 - Kiểm tra còn chờ CI và runtime đa nền tảng; chưa đánh dấu PASS, chưa đóng dự án Owner, chưa bắt đầu Employee UI.
+
+ 
+## Phase 34 – Owner Glass Contrast, Global Video & Invoice Deer Ornament – 2026-11-26
+- Owner phản hồi Phase 33: chữ trên các bề mặt xuyên thấu bị chìm vào video/nền; video nhìn chưa rõ; muốn video hiển thị cả trang đăng nhập.
+- Mục tiêu sửa: giữ Luxury Emerald Glass nhưng chữ/nhãn có màu đặc, độ tương phản cao; làm kính vẫn trong nhưng panel/form đủ sáng để đọc; giảm overlay nền và tăng mức hiển thị video có kiểm soát.
+- Chuyển video nền khỏi Owner RootLayout lên root React để render xuyên suốt trước AuthGate: đăng nhập, xác minh quyền, tạo salon và Owner workspace. Tránh render video hai lần.
+- Hóa đơn A4: thay hoa văn hình học bằng họa tiết đầu nai có sừng và watermark nhẹ; không thay logo nhận diện app (vẫn kéo cắt tóc).
+- Branch `phase-34-owner-glass-contrast-global-video-invoice-deer`, stacked từ Phase 33; PR #29 vẫn Draft. Không merge/deploy.
+- Kiểm thử CI và Owner visual acceptance còn pending.
