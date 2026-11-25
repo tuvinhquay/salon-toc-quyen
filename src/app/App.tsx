@@ -23,10 +23,6 @@ function RootLayout(){
  const owner=useOwnerContext()
  const accountEmail=user?.email??'Tài khoản Owner'
  return <main className="shell">
-  <video className="app-background-video" autoPlay muted loop playsInline preload="metadata" aria-hidden="true" tabIndex={-1}>
-   <source src="/videos/videosalo.mp4" type="video/mp4"/>
-  </video>
-  <div className="app-background-overlay" aria-hidden="true"/>
 
   <aside className="sidebar">
    <Link to="/" className="brand" aria-label="TÓC QUYỀN - Tổng quan"><span className="mark"><Scissors/></span><span><b>TÓC QUYỀN</b><small>SALON MANAGEMENT</small></span></Link>
