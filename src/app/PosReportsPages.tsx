@@ -4,6 +4,7 @@ import { addPayment, closeCashSession, createExpense, createInvoice, getSalesRep
 import type { CashSession, Customer, Employee, Expense, Invoice, Payment, Product, Refund, Service } from '../db/types'
 import { formatVnd } from '../lib/format'
 import { buildInvoicePrintHtml, type SalonInvoiceProfile } from '../lib/invoice-print'
+import { AnalyticsChart } from './AnalyticsChart'
 function Field({label,children}:{label:string;children:ReactNode}){return <label className="field"><span>{label}</span>{children}</label>}
 function ErrorText({value}:{value:string|null}){return value?<p className="form-error" role="alert">{value}</p>:null}
 function localDate(d:Date){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}
@@ -115,18 +116,9 @@ export function ReportsPage(){
     <article className="card"><small>CHI PHÍ</small><h3>{formatVnd(report.expensesVnd)}</h3></article>
     <article className="card"><small>THU RÒNG</small><h3>{formatVnd(report.netCollectedVnd)}</h3></article>
    </div>
-   <section className="work-form revenue-chart">
-    <div className="list-heading"><div><h3>Biểu đồ thu – chi</h3><p className="record-note">Theo ngày khi khoảng xem không quá 45 ngày; theo tháng khi dài hơn.</p></div></div>
-    <div className="revenue-legend"><span><i className="legend-collected"/> Tiền đã thu</span><span><i className="legend-refunded"/> Hoàn tiền</span><span><i className="legend-expense"/> Chi phí</span></div>
-    {buckets.length===0?<p className="empty-state">Chưa có dữ liệu trong khoảng thời gian này.</p>:<div className="revenue-bars" role="img" aria-label="Biểu đồ tiền đã thu và chi phí theo thời gian">
-     {buckets.map((bucket,index)=><div className="revenue-bar-group" key={bucket.label+'-'+index}>
-      <div className="revenue-bar-pair">
-       <div className="revenue-bar collected" title={'Đã thu '+formatVnd(bucket.collected)} style={{height:Math.max(bucket.collected>0?3:0,bucket.collected/maxValue*100)+'%'}}/>
-       <div className="revenue-bar refunded" title={'Hoàn tiền '+formatVnd(bucket.refunded)} style={{height:Math.max(bucket.refunded>0?3:0,bucket.refunded/maxValue*100)+'%'}}/><div className="revenue-bar expense" title={'Chi phí '+formatVnd(bucket.expenses)} style={{height:Math.max(bucket.expenses>0?3:0,bucket.expenses/maxValue*100)+'%'}}/>
-      </div><small>{bucket.label}</small>
-     </div>)}
-    </div>}
-    <div className="revenue-chart-foot"><span>Đã thu: <b>{formatVnd(report.collectedVnd)}</b></span><span>Hoàn tiền: <b>{formatVnd(report.refundedVnd)}</b></span><span>Chi phí: <b>{formatVnd(report.expensesVnd)}</b></span></div>
+   <section className="work-form revenue-chart analytics-panel">
+    <div className="analytics-heading"><div><small>PHÂN TÍCH DÒNG TIỀN</small><h3>Tiền vào và tiền ra</h3><p className="record-note">Theo dõi số tiền đã thu, hoàn lại và chi phí trong khoảng thời gian đã chọn.</p></div><span className="analytics-period">{buckets.length} mốc thời gian</span></div>
+    {buckets.length===0?<p className="empty-state">Chưa có dữ liệu trong khoảng thời gian này. Khi salon phát sinh thu, hoàn tiền hoặc chi phí, biểu đồ sẽ hiển thị tại đây.</p>:<AnalyticsChart data={buckets}/>}
    </section>
   </>}
  </section>
