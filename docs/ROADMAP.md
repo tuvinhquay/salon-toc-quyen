@@ -193,3 +193,13 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Root cause runtime được xác định ở transaction scope: `assertNoRealReferences()` truy vấn `workflowEvents`, nhưng table này bị bỏ khỏi scope transaction.
 - Sửa `seedDemoData` và `clearDemoData` dùng `salonDb.transaction('rw', [...demoTables, salonDb.workflowEvents], callback)`. `workflowEvents` chỉ được đưa vào scope để đọc kiểm tra liên kết, không bị xóa/ghi.
 - Branch follow-up: `fix-demo-seed-dexie-transaction-tables`, base `fix-indexeddb-store-upgrade-p30`. Cần CI và Owner acceptance; chưa merge/deploy.
+
+
+## Phase 31 – Định tuyến ý định và tra cứu đúng đối tượng – 2026-11-25
+- Owner yêu cầu trợ lý ưu tiên hiểu ý định tìm kiếm/thống kê, không cần văn phong dài hoặc thuyết trình.
+- Thêm tra cứu hồ sơ khách hàng theo tên đầy đủ, tên một phần hoặc số điện thoại; loại khách đã lưu trữ; nếu có nhiều kết quả thì liệt kê để Owner chọn, không tự chọn.
+- Khi câu hỏi có tên khách cụ thể, trả hồ sơ và số liệu hóa đơn/lịch hẹn của đúng khách thay vì báo cáo tổng hợp hôm nay.
+- Tách xếp hạng khách theo số lịch hẹn, tổng chi tiêu hóa đơn hoặc số lượng sản phẩm mua; chỉ trả chỉ số người dùng yêu cầu. Nếu chưa nêu tiêu chí hoặc có nhiều tiêu chí mâu thuẫn, hỏi lại.
+- Tra cứu nhân viên không tìm thấy kết quả phải báo không tìm thấy, không chuyển thành báo cáo năng suất tổng quát; yêu cầu xếp hạng vẫn giữ luồng báo cáo.
+- Thêm unit tests cho tên khách, tên một phần, điện thoại, kết quả mơ hồ, khách đã lưu trữ và phân biệt tra cứu với xếp hạng.
+- Trạng thái: code + regression tests trên branch; chờ CI và Owner Termux/Android acceptance. Chưa merge/deploy.
