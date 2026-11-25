@@ -100,7 +100,6 @@ export function ReportsPage(){
   }catch(e){setError(e instanceof Error?e.message:'Không tải được báo cáo.')}finally{setBusy(false)}
  }
  useEffect(()=>{void load()},[actor])
- const maxValue=Math.max(1,...buckets.flatMap(row=>[row.collected,row.refunded,row.expenses]))
  return <section className="work-page">
   <div className="work-intro"><div><small>P09 · BÁO CÁO</small><h2>Báo cáo hoạt động</h2><p>Tổng hợp từ hóa đơn, thanh toán, hoàn tiền và chi phí đã ghi nhận.</p></div></div>
   <div className="report-presets"><span>Xem nhanh:</span><button type="button" className="subtle-button" onClick={()=>setPreset('today')}>Hôm nay</button><button type="button" className="subtle-button" onClick={()=>setPreset('week')}>Tuần này</button><button type="button" className="subtle-button" onClick={()=>setPreset('month')}>Tháng này</button><button type="button" className="subtle-button" onClick={()=>setPreset('quarter')}>Quý này</button><button type="button" className="subtle-button" onClick={()=>setPreset('year')}>Năm nay</button></div>
