@@ -443,3 +443,15 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 
 - CI run #409 (`45582461715`, commit `9ac51e52c296faa6b7d5f48cc2b02a722643a2dc`): PASS – Typecheck, Lint, Unit tests, Production build/PWA.
 - Owner Termux/Android smoke test and print-to-PDF acceptance: pending. PR #28 remains Draft; no merge/deploy.
+
+
+## Phase 33 – Luxury Emerald Glass & PWA visual foundation – 2026-11-25
+- Tạo branch mới `phase-33-owner-luxury-emerald-glass-pwa-shell` từ chính xác Phase 32 HEAD `2e65f4d68925ef3786c9a5830cbff61352f42d2b`. PR #28 vẫn Draft, không merge/deploy.
+- Thống nhất thiết kế: Luxury Emerald Glass – kính xanh ngọc lục bảo, vàng champagne.
+- Thêm lớp video nền toàn app: `/videos/videosalo.mp4`, muted/autoplay/loop/playsInline; overlay xanh đậm giữ tương phản và gradient vẫn hiển thị nếu video chưa có.
+- Sidebar desktop: cố định theo viewport, tự cuộn, hover trượt nhẹ, active route có vạch champagne và pulse chậm. Mobile: nav cuộn ngang có scroll-snap.
+- Bổ sung glass surfaces cho header, card, form, assistant, auth; hỗ trợ prefers-reduced-motion và forced-colors.
+- Tạo cấu trúc `public/videos/`, `public/brand/`, `public/icons/`; icon kéo cắt tóc vàng trên nền emerald. Owner cần chép file MP4 vào `public/videos/videosalo.mp4`.
+- Cập nhật màu PWA manifest và khai báo SVG icons 192/512/maskable; Apple touch SVG hiện là vector, cần kiểm tra thực tế iOS và có thể cần PNG 180×180.
+- Không thay đổi nghiệp vụ, auth, quyền Owner, tenant isolation, Dexie/Firebase hay routing.
+- Kiểm tra còn chờ CI và runtime đa nền tảng; chưa đánh dấu PASS, chưa đóng dự án Owner, chưa bắt đầu Employee UI.
