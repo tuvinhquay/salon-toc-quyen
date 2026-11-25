@@ -81,11 +81,16 @@ export class SalonDatabase extends Dexie {
       ...v5,
       assistantMemories: 'id,salonId,ownerId,category,status,updatedAt,[salonId+ownerId],[salonId+category],[salonId+status]',
     })
-    this.version(7).stores({
+    const v7 = {
       ...v5,
       assistantMemories: 'id,salonId,ownerId,category,status,updatedAt,[salonId+ownerId],[salonId+category],[salonId+status]',
       customerGroups: 'id,salonId,name,period,active,updatedAt,[salonId+active],[salonId+period]',
-    })
+    }
+    this.version(7).stores(v7)
+    // v7 was shipped with a schema that could differ across already-created local databases.
+    // Re-declare the complete schema at v8 so IndexedDB creates any missing object stores
+    // without deleting existing records or requiring the user to clear browser storage.
+    this.version(8).stores(v7)
   }
 }
 
