@@ -208,7 +208,7 @@ export function AssistantPage() {
           }
           const next = { ...pendingProductAction, phase: 'confirm' as const, quantity, unitCostVnd: cost }
           setPendingProductAction(next)
-          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Xác nhận tạo sản phẩm và nhập tồn đầu kỳ?\n\nTên: ' + next.input.name + '\nMã SKU: ' + next.input.sku + '\nGiá bán: ' + next.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫\nSố lượng nhập: ' + quantity + ' ' + next.input.unit + '\nGiá vốn/đơn vị: ' + cost.toLocaleString('vi-VN') + ' ₫\n\nGõ “XÁC NHẬN” để ghi vào kho hoặc “HỦY” để dừng.', source: 'local' }])
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Xác nhận tạo sản phẩm và nhập tồn đầu kỳ?\n\nTên: ' + next.input.name + '\nMã sản phẩm: ' + next.input.sku + '\nGiá bán: ' + next.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫\nSố lượng nhập: ' + quantity + ' ' + next.input.unit + '\nGiá vốn/đơn vị: ' + cost.toLocaleString('vi-VN') + ' ₫\n\nGõ “XÁC NHẬN” để ghi vào kho hoặc “HỦY” để dừng.', source: 'local' }])
           return
         }
         if (/^(xac nhan|xac nhan them san pham|dong y|luu)$/.test(normalizedPrompt.trim())) {
@@ -359,7 +359,7 @@ export function AssistantPage() {
       </article>)}
       {busy && <div className="assistant-thinking"><Brain size={16}/> Mình đang tìm trong dữ liệu và trí nhớ nội bộ…</div>}
     </div>
-    <div className="assistant-chat-meta">Dữ liệu phân tích: IndexedDB trên thiết bị hiện tại · Chưa đồng bộ sang thiết bị khác.</div>
+    <div className="assistant-chat-meta">Trợ lý đang đọc số liệu trên thiết bị này. Dữ liệu chưa được chuyển sang thiết bị khác.</div>
     {adviserNotice && <div className="assistant-adviser-note" role="status">{adviserNotice}</div>}
     {showLatest && <button type="button" className="assistant-latest-button" onClick={goToLatest}>↓ Tin nhắn mới</button>}
     {error && <p className="form-error" role="alert">{error}</p>}
@@ -378,7 +378,7 @@ export function AssistantPage() {
       <div><strong>Trí nhớ dài hạn · {longTermMemories.length} mục</strong>
         <p>Lưu thông tin cá nhân, sở thích và câu hỏi nghiệp vụ do chủ tiệm tự dạy. Ví dụ: “Hãy ghi nhớ thêm. Tổng hợp danh sách nhân viên xuất sắc tháng này”.</p>
         {longTermMemories.length > 0 ? <ul>{longTermMemories.map(item => <li key={item.id}><strong>{item.title}:</strong> {item.content} <button type="button" className="subtle-button" onClick={() => void forgetLongTermMemory(item.id)} aria-label="Lưu trữ trí nhớ"><Trash2 size={13}/></button></li>)}</ul> : <small>Chưa có mục nào. Hãy bắt đầu bằng “Hãy ghi nhớ…”</small>}
-        <small>Dữ liệu chỉ nằm trong IndexedDB trên thiết bị hiện tại. P2P chưa được triển khai nên chưa thể xuất hiện trên thiết bị khác.</small>
+        <small>Dữ liệu hiện chỉ có trên thiết bị này. Kết nối chuyển dữ liệu trực tiếp giữa các thiết bị chưa được bật.</small>
       </div>
     </div>
     <p className="assistant-privacy-note">Trợ lý chỉ lưu trí nhớ dài hạn khi chủ tiệm chủ động yêu cầu. Mục đã lưu có thể được xem và lưu trữ. Không có dữ liệu trí nhớ nào được gửi lên Firebase hoặc Gemini. Trợ lý chưa có quyền tự sửa dữ liệu nghiệp vụ.</p>
