@@ -32,6 +32,7 @@ describe('five-month business bundle', () => {
     expect(bundle.employees).toHaveLength(10)
     expect(bundle.services).toHaveLength(8)
     expect(bundle.products).toHaveLength(12)
+    expect(bundle.products.every(product => (product.salePriceVnd ?? 0) > 0)).toBe(true)
     expect(bundle.invoices).toHaveLength(288)
     expect(bundle.orders).toHaveLength(5)
     expect(bundle.lots).toHaveLength(60)
