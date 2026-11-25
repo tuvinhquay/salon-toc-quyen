@@ -187,3 +187,8 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Báo lỗi Owner: tạo dataset ném `NotFoundError` từ IndexedDB transaction do object store bị thiếu trên một số database schema v7 đã tồn tại.
 - Sửa trên branch `fix-indexeddb-store-upgrade-p30`: nâng Dexie schema version 8, khai báo lại đầy đủ stores của v7 để migration tự tạo store thiếu, giữ nguyên records hiện có.
 - Không hướng dẫn xóa IndexedDB/local storage. CI và Android acceptance đang chờ. Session: `docs/sessions/FIX-INDEXEDDB-OBJECT-STORE-P30.md`.
+
+## P30 – sửa lỗi transaction seed (follow-up)
+- Root cause mới xác định trong `src/db/demo-data.ts`: truyền danh sách tables dưới dạng một array argument thay vì spread từng Dexie Table vào transaction.
+- Sửa `seedDemoData` và `clearDemoData` dùng `...demoTables`.
+- Branch follow-up: `fix-demo-seed-dexie-transaction-tables`, base `fix-indexeddb-store-upgrade-p30`. Cần CI và Owner acceptance; chưa merge/deploy.
