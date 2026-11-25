@@ -467,6 +467,8 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Bổ sung hệ màu Luxury Emerald Glass + Champagne Gold cho Owner workspace, sidebar, header, cards, forms, report chart, trạng thái và nút thao tác.
 - Việt hóa lại nhãn không gian làm việc; thay nội dung kỹ thuật ở khu vực Owner bằng cách diễn đạt gần gũi hơn.
 - Đổi phần trường tùy chỉnh hồ sơ khách/sản phẩm thành “Thông tin riêng/bổ sung”, có ví dụ và hướng dẫn mục đích nhập liệu.
+- Việt hóa trạng thái thiết bị, mô tả giới hạn kết nối, các bước sao lưu/khôi phục và câu xác nhận của trợ lý; ẩn mã giai đoạn kỹ thuật khỏi tiêu đề màn hình người dùng.
+- Thêm bộ lọc nhanh “Tuần này” bên cạnh hôm nay/tháng/quý/năm; tuần tính từ thứ Hai theo lịch Việt Nam.
 - Bổ sung style responsive cho biểu đồ và custom fields; hỗ trợ prefers-reduced-motion và forced-colors.
 - Không sửa Dexie schema, repository nghiệp vụ, Firebase, Auth, membership hoặc tenant isolation.
 
