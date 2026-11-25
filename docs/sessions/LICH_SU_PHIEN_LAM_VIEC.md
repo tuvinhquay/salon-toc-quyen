@@ -412,3 +412,10 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Rà soát `src/db/demo-data.ts`, phát hiện transaction seed và clear truyền `[...demoTables]` như một argument. Dexie cần các Table arguments được spread; sửa thành `...demoTables` ở cả hai transaction.
 - Tạo branch `fix-demo-seed-dexie-transaction-tables` từ head PR #24; sửa `src/db/demo-data.ts`.
 - Cần CI, cập nhật hướng dẫn và kiểm tra Owner trên local. PR #24 vẫn Draft; chưa merge/deploy.
+
+
+## P30 hotfix correction – 2026-11-25
+- Owner chạy Termux và xác nhận commit transaction spread không typecheck: Dexie 4 không cho spread 19 bảng thành 19 arguments; API hỗ trợ array of tables.
+- Root cause runtime cụ thể: `assertNoRealReferences()` truy vấn `salonDb.workflowEvents` trong transaction, nhưng bảng này chưa nằm trong danh sách scope.
+- Đã sửa cả seed/clear transaction thành array `[..., salonDb.workflowEvents]`, chỉ thêm workflowEvents vào scope; không xóa/ghi bảng này.
+- Typecheck, lint, unit tests, build và Owner runtime test phải chạy lại. Không merge/deploy trước khi xác nhận.
