@@ -2,15 +2,57 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Bot, Brain, Eraser, Send, Sparkles, UserRound, Trash2 } from 'lucide-react'
 import { useOwnerContext } from '../auth/OwnerContext'
 import { useAuth } from '../auth/AuthProvider'
-import type { AssistantMemoryRecord, Customer } from '../db/types'
+import type { AssistantMemoryRecord, Customer, Product } from '../db/types'
+import type { ProductInput } from '../db/schema'
 import { answerOwnerQuestion, redactQuestionForGemini } from './assistant-local'
 import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, readAssistantMemory } from './assistant-memory'
 import { answerAssistantAbout, answerFromMemories, applyLearnedVocabulary, findMatchingAssistantShortcut, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
 import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assistant-brain-store'
-import { archiveCustomers, listCustomers } from '../db/repositories'
+import { archiveCustomers, createProductWithOpeningStock, listCustomers, listProducts, saveProduct } from '../db/repositories'
 import { askGeminiAdviser, isGeminiAssistantReady } from './assistant-gemini'
 
 type Message = { id: string; role: 'assistant' | 'user'; content: string; source?: 'local' | 'gemini' }
+
+type PendingProductAction =
+  | { kind: 'create'; phase: 'details' | 'confirm'; input: ProductInput; quantity: number | null; unitCostVnd: number | null }
+  | { kind: 'update'; phase: 'confirm'; product: Product; salePriceVnd: number }
+const parseMoneyVnd = (raw: string, multiplier = 1) => {
+  const digits = raw.replace(/[.,\s]/g, '')
+  const value = Number(digits) * multiplier
+  return Number.isFinite(value) && value >= 0 ? Math.round(value) : null
+}
+function parseProductCreateCommand(prompt: string) {
+  const match = prompt.match(/(?:thêm|tạo|nhập|bổ sung)\s+(?:sản phẩm\s+|mặt hàng\s+)?(.+?)\s+(?:mã|sku)\s+([a-z0-9-]+)/i)
+  const priceMatch = prompt.match(/(?:giá|đơn giá)\s*[:=]?\s*([\d.,]+)\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k)?/i)
+  if (!match || !priceMatch) return null
+  const multiplier = /^(triệu|trieu)$/i.test(priceMatch[2] ?? '') ? 1_000_000 : /^(nghìn|nghin|ngàn|ngan|k)$/i.test(priceMatch[2] ?? '') ? 1000 : 1
+  const price = parseMoneyVnd(priceMatch[1], multiplier)
+  const name = match[1].trim().replace(/\s+(?:giá|đơn giá)\s*.*$/i, '').trim()
+  if (!name || price === null) return null
+  const sku = match[2].trim().toUpperCase()
+  const category = /(keo|sáp|sap|gel|wax|xịt|xit)/i.test(name) ? 'Tạo kiểu' : 'Chăm sóc tóc'
+  const unit = /(sáp|sap|hũ|hu)/i.test(name) ? 'hũ' : 'chai'
+  const quantityMatch = prompt.match(/(?:số lượng|nhập kho|tồn đầu|ton dau|so luong)\s*[:=]?\s*(\d+(?:[.,]\d+)?)/i)
+  const costMatch = prompt.match(/(?:giá vốn|gia von|cost)\s*[:=]?\s*([\d.,]+)\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k)?/i)
+  const costMultiplier = /^(triệu|trieu)$/i.test(costMatch?.[2] ?? '') ? 1_000_000 : /^(nghìn|nghin|ngàn|ngan|k)$/i.test(costMatch?.[2] ?? '') ? 1000 : 1
+  return {
+    input: { name, sku, category, unit, salePriceVnd: price, trackingMode: 'lot' as const, minimumStock: 0, active: true, customFields: {} },
+    quantity: quantityMatch ? Number(quantityMatch[1].replace(',', '.')) : null,
+    unitCostVnd: costMatch ? parseMoneyVnd(costMatch[1], costMultiplier) : null,
+  }
+}
+function parseProductPriceUpdate(prompt: string) {
+  const normalized = prompt.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
+  if (!/(doi gia|cap nhat gia|sua gia|gia moi)/.test(normalized) || !/(san pham|mat hang)/.test(normalized)) return null
+  const skuMatch = prompt.match(/(?:mã|sku)\s+([a-z0-9-]+)/i)
+  const priceMatch = prompt.match(/(?:thành|sang|giá mới|gia moi|là|la)\s*[:=]?\s*([\d.,]+)\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k)?/i)
+    ?? prompt.match(/(?:giá|gia)\s*[:=]?\s*([\d.,]+)\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k)?/i)
+  if (!skuMatch || !priceMatch) return null
+  const multiplier = /^(triệu|trieu)$/i.test(priceMatch[2] ?? '') ? 1_000_000 : /^(nghìn|nghin|ngàn|ngan|k)$/i.test(priceMatch[2] ?? '') ? 1000 : 1
+  const price = parseMoneyVnd(priceMatch[1], multiplier)
+  return price === null ? null : { sku: skuMatch[1].toUpperCase(), salePriceVnd: price }
+}
+
 const suggestions = [
   'Hôm nay tiệm kiếm được bao nhiêu tiền?',
   'Tình hình doanh thu tháng này thế nào?',
@@ -40,6 +82,7 @@ export function AssistantPage() {
   const [memory, setMemory] = useState(() => readAssistantMemory(actor.salonId, actor.actorId))
   const [longTermMemories, setLongTermMemories] = useState<AssistantMemoryRecord[]>([])
   const [pendingCustomerArchive, setPendingCustomerArchive] = useState<Customer[] | null>(null)
+  const [pendingProductAction, setPendingProductAction] = useState<PendingProductAction | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [adviserNotice, setAdviserNotice] = useState<string | null>(null)
@@ -142,6 +185,84 @@ export function AssistantPage() {
         setPendingCustomerArchive(matched)
         const preview = matched.slice(0, 12).map((customer, index) => (index + 1) + '. ' + customer.fullName + (customer.phone ? ' · ' + customer.phone : '')).join('\\n')
         setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em tìm thấy ' + matched.length + ' hồ sơ sẽ được lưu trữ:\\n' + preview + (matched.length > 12 ? '\\n… và ' + (matched.length - 12) + ' hồ sơ khác.' : '') + '\\n\\nĐây là thao tác lưu trữ, không xóa lịch sử hóa đơn/thanh toán. Để tiếp tục, anh gõ “XÁC NHẬN LƯU TRỮ”. Gõ “HỦY” để dừng.', source: 'local' }])
+        return
+      }
+
+
+      if (pendingProductAction) {
+        if (/^(huy|huy bo|khong|dung lai)$/.test(normalizedPrompt.trim())) {
+          setPendingProductAction(null)
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã hủy thao tác. Dữ liệu kho không thay đổi.', source: 'local' }])
+          return
+        }
+        if (pendingProductAction.kind === 'create' && pendingProductAction.phase === 'details') {
+          const quantityMatch = prompt.match(/(?:số lượng|nhập kho|tồn đầu|ton dau|so luong)\s*[:=]?\s*(\d+(?:[.,]\d+)?)/i) ?? prompt.match(/^\s*(\d+(?:[.,]\d+)?)/)
+          const costMatch = prompt.match(/(?:giá vốn|gia von|cost)\s*[:=]?\s*([\d.,]+)\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k)?/i)
+          const quantity = quantityMatch ? Number(quantityMatch[1].replace(',', '.')) : pendingProductAction.quantity
+          const multiplier = /^(triệu|trieu)$/i.test(costMatch?.[2] ?? '') ? 1_000_000 : /^(nghìn|nghin|ngàn|ngan|k)$/i.test(costMatch?.[2] ?? '') ? 1000 : 1
+          const cost = costMatch ? parseMoneyVnd(costMatch[1], multiplier) : pendingProductAction.unitCostVnd
+          if (!quantity || !Number.isFinite(quantity) || quantity <= 0 || cost === null || cost === undefined) {
+            setPendingProductAction({ ...pendingProductAction, quantity: quantity && quantity > 0 ? quantity : null, unitCostVnd: cost ?? null })
+            setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Để nhập tồn chính xác, bạn vui lòng gửi đủ số lượng ban đầu và giá vốn mỗi đơn vị. Ví dụ: “Số lượng 10, giá vốn 120.000”. Chưa có dữ liệu nào được ghi.', source: 'local' }])
+            return
+          }
+          const next = { ...pendingProductAction, phase: 'confirm' as const, quantity, unitCostVnd: cost }
+          setPendingProductAction(next)
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Xác nhận tạo sản phẩm và nhập tồn đầu kỳ?\n\nTên: ' + next.input.name + '\nMã SKU: ' + next.input.sku + '\nGiá bán: ' + next.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫\nSố lượng nhập: ' + quantity + ' ' + next.input.unit + '\nGiá vốn/đơn vị: ' + cost.toLocaleString('vi-VN') + ' ₫\n\nGõ “XÁC NHẬN” để ghi vào kho hoặc “HỦY” để dừng.', source: 'local' }])
+          return
+        }
+        if (/^(xac nhan|xac nhan them san pham|dong y|luu)$/.test(normalizedPrompt.trim())) {
+          if (pendingProductAction.kind === 'create') {
+            if (pendingProductAction.quantity === null || pendingProductAction.unitCostVnd === null) {
+              setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em còn thiếu số lượng nhập và giá vốn mỗi đơn vị. Vui lòng cung cấp hai thông tin đó trước khi xác nhận.', source: 'local' }])
+              return
+            }
+            const product = await createProductWithOpeningStock(actor, pendingProductAction.input, pendingProductAction.quantity, pendingProductAction.unitCostVnd)
+            setPendingProductAction(null)
+            setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã tạo sản phẩm và ghi nhận tồn đầu kỳ thành công.\n' + product.name + ' · SKU ' + (product.sku ?? '') + ' · Giá bán ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫ · Tồn ' + pendingProductAction.quantity + ' ' + product.unit + '. Giao dịch đã được ghi lịch sử kiểm kê.', source: 'local' }])
+            return
+          }
+          const product = pendingProductAction.product
+          const saved = await saveProduct(actor, { name: product.name, sku: product.sku ?? '', category: product.category, unit: product.unit, salePriceVnd: pendingProductAction.salePriceVnd, trackingMode: product.trackingMode, minimumStock: product.minimumStock, active: product.active, customFields: product.customFields ?? {} }, product.id)
+          setPendingProductAction(null)
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã cập nhật giá bán sản phẩm ' + saved.name + ' · SKU ' + (saved.sku ?? '') + ' thành ' + (saved.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫.', source: 'local' }])
+          return
+        }
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em đang chờ xác nhận thao tác sản phẩm. Gõ “XÁC NHẬN” để thực hiện hoặc “HỦY” để dừng.', source: 'local' }])
+        return
+      }
+
+      const createProductIntent = /(thêm|tạo|nhập|bổ sung)/.test(normalizedPrompt) && /(sản phẩm|mặt hàng)/.test(normalizedPrompt) && /(mã|sku)/.test(normalizedPrompt)
+      if (createProductIntent) {
+        const parsed = parseProductCreateCommand(prompt)
+        if (!parsed) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em nhận ra bạn muốn thêm sản phẩm, nhưng chưa đọc đủ tên, mã SKU hoặc giá bán. Vui lòng viết: “Thêm sản phẩm [tên] mã [SKU] giá [giá]”.', source: 'local' }])
+          return
+        }
+        const existing = await listProducts(actor)
+        if (existing.some(product => (product.sku ?? '').toUpperCase() === parsed.input.sku)) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Mã SKU ' + parsed.input.sku + ' đã tồn tại. Em không tạo bản trùng; hãy yêu cầu sửa sản phẩm theo mã SKU này.', source: 'local' }])
+          return
+        }
+        setPendingProductAction({ kind: 'create', phase: parsed.quantity && parsed.unitCostVnd !== null ? 'confirm' : 'details', input: parsed.input, quantity: parsed.quantity, unitCostVnd: parsed.unitCostVnd })
+        if (!parsed.quantity || parsed.unitCostVnd === null) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em đã nhận thông tin sản phẩm:\n' + parsed.input.name + ' · SKU ' + parsed.input.sku + ' · Giá bán ' + parsed.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫.\n\nĐể ghi tồn kho và tính lợi nhuận chính xác, cần thêm số lượng nhập ban đầu và giá vốn mỗi đơn vị. Ví dụ: “Số lượng 10, giá vốn 120.000”. Chưa ghi dữ liệu.', source: 'local' }])
+          return
+        }
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Bạn xác nhận tạo sản phẩm ' + parsed.input.name + ' (SKU ' + parsed.input.sku + '), giá bán ' + parsed.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫, nhập ' + parsed.quantity + ' ' + parsed.input.unit + ' với giá vốn ' + (parsed.unitCostVnd ?? 0).toLocaleString('vi-VN') + ' ₫/đơn vị? Gõ “XÁC NHẬN” hoặc “HỦY”.', source: 'local' }])
+        return
+      }
+
+      const updateProductIntent = parseProductPriceUpdate(prompt)
+      if (updateProductIntent) {
+        const products = await listProducts(actor)
+        const product = products.find(item => (item.sku ?? '').toUpperCase() === updateProductIntent.sku)
+        if (!product) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Không tìm thấy sản phẩm có SKU ' + updateProductIntent.sku + ' trong salon hiện tại. Không có dữ liệu nào thay đổi.', source: 'local' }])
+          return
+        }
+        setPendingProductAction({ kind: 'update', phase: 'confirm', product, salePriceVnd: updateProductIntent.salePriceVnd })
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Xác nhận cập nhật giá bán?\n' + product.name + ' · SKU ' + updateProductIntent.sku + '\nGiá cũ: ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫\nGiá mới: ' + updateProductIntent.salePriceVnd.toLocaleString('vi-VN') + ' ₫\n\nGõ “XÁC NHẬN” hoặc “HỦY”.', source: 'local' }])
         return
       }
 
