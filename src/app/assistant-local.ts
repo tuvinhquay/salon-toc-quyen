@@ -155,17 +155,19 @@ export function findCustomerLookupMatches(customers: Customer[], question: strin
   })
   if (direct.length) return direct.sort((a, b) => normalizeAssistantText(b.fullName).length - normalizeAssistantText(a.fullName).length)
 
-  const digits = question.replace(/\\D/g, '')
+  const digits = question.replace(/\D/g, '')
   if (digits.length >= 6) {
-    const byPhone = active.filter(customer => (customer.phone ?? '').replace(/\\D/g, '').includes(digits))
+    const byPhone = active.filter(customer => (customer.phone ?? '').replace(/\D/g, '').includes(digits))
     if (byPhone.length) return byPhone
   }
 
-  if (!isCustomerLookupRequest(question)) return []\n\n  const tokens = [...new Set(q.split(' ').filter(token => token.length > 1 && !CUSTOMER_LOOKUP_STOP_WORDS.has(token)))]
+  if (!isCustomerLookupRequest(question)) return []
+
+  const tokens = [...new Set(q.split(' ').filter(token => token.length > 1 && !CUSTOMER_LOOKUP_STOP_WORDS.has(token)))]
   if (!tokens.length) return []
   const matches = active.map(customer => {
     const name = normalizeAssistantText(customer.fullName)
-    const phone = (customer.phone ?? '').replace(/\\D/g, '')
+    const phone = (customer.phone ?? '').replace(/\D/g, '')
     const matched = tokens.filter(token => name.includes(token)).length
     return { customer, score: matched / tokens.length, matched, phoneMatch: digits.length >= 6 && phone.includes(digits) }
   }).filter(item => item.phoneMatch || (item.matched > 0 && item.score >= 0.6))
@@ -179,7 +181,7 @@ function customerProfileLookup(snapshot: Snapshot, question: string): string | n
     if (isCustomerLookupRequest(question)) return 'Mình chưa tìm thấy khách hàng khớp với thông tin bạn nhập. Bạn hãy thử nhập tên đầy đủ hoặc số điện thoại trong hồ sơ khách hàng.'
     return null
   }
-  if (matches.length > 1) return 'Mình tìm thấy nhiều khách hàng phù hợp, bạn chọn đúng hồ sơ nhé:\\n' + matches.map((customer, index) => (index + 1) + '. ' + customer.fullName + (customer.phone ? ' · ' + customer.phone : '')).join('\\n')
+  if (matches.length > 1) return 'Mình tìm thấy nhiều khách hàng phù hợp, bạn chọn đúng hồ sơ nhé:\\n' + matches.map((customer, index) => (index + 1) + '. ' + customer.fullName + (customer.phone ? ' · ' + customer.phone : '')).join('\n')
   const customer = matches[0]
   const invoices = snapshot.invoices.filter(invoice => invoice.status !== 'void' && invoice.customerId === customer.id)
   const totalSpend = sum(invoices, invoice => invoice.totalVnd)
@@ -194,7 +196,7 @@ function customerProfileLookup(snapshot: Snapshot, question: string): string | n
     '• Hóa đơn đã phát hành: ' + invoices.length,
     '• Tổng chi tiêu theo hóa đơn: ' + money(totalSpend),
     '• Lịch gần nhất: ' + (lastAppointment ? new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short', timeZone: TIME_ZONE }).format(new Date(lastAppointment.startAt)) + ' · ' + lastAppointment.status : 'Chưa có lịch hẹn'),
-  ].join('\\n')
+  ].join('\n')
 }
 
 function staffProfileLookup(snapshot: Snapshot, question: string): string | null {
