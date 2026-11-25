@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" role="img" aria-labelledby="title desc">
+<title id="title">SalonQuyen</title><desc id="desc">Biểu tượng kéo cắt tóc vàng champagne trên nền xanh ngọc lục bảo, cùng chữ SalonQuyen.</desc>
+<defs><linearGradient id="emerald" x2="1" y2="1"><stop stop-color="#0b5b47"/><stop offset="1" stop-color="#031f1a"/></linearGradient><linearGradient id="gold" x2="0" y2="1"><stop stop-color="#fff0bd"/><stop offset=".48" stop-color="#e5c27b"/><stop offset="1" stop-color="#a97731"/></linearGradient></defs>
+<rect x="8" y="8" width="884" height="344" rx="42" fill="url(#emerald)" stroke="url(#gold)" stroke-width="5"/>
+<g transform="translate(54 48)" fill="none" stroke="url(#gold)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"><circle cx="70" cy="190" r="39"/><circle cx="190" cy="190" r="39"/><path d="M96 163 242 22M164 163 18 22"/></g>
+<text x="335" y="185" fill="url(#gold)" font-family="Georgia,serif" font-size="92" letter-spacing="1">SalonQuyen</text>
+<path d="M338 222H820" stroke="url(#gold)" stroke-width="2" opacity=".7"/><text x="340" y="267" fill="#e9d9b3" font-family="Arial,sans-serif" font-size="21" letter-spacing="7">SALON MANAGEMENT</text>
+</svg>

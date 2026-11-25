@@ -16,11 +16,15 @@ export default defineConfig({
         short_name: 'TÓC QUYỀN',
         description: 'Ứng dụng quản lý salon dành cho chủ tiệm',
         lang: 'vi',
-        theme_color: '#211b19',
-        background_color: '#f7f4ef',
+        theme_color: '#06352d',
+        background_color: '#041f1b',
         display: 'standalone',
         start_url: '/',
-        icons: [{ src: '/icons/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+        icons: [
+          { src: '/icons/pwa-192.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
+          { src: '/icons/pwa-512.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'any' },
+          { src: '/icons/pwa-maskable.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' },
+        ],
       },
       workbox: {
         // Android ARM64 Termux has a known Rollup/Terser worker early-exit issue.
