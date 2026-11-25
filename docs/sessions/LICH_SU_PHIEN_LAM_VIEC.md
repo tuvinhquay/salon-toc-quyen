@@ -419,3 +419,13 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Root cause runtime cụ thể: `assertNoRealReferences()` truy vấn `salonDb.workflowEvents` trong transaction, nhưng bảng này chưa nằm trong danh sách scope.
 - Đã sửa cả seed/clear transaction thành array `[..., salonDb.workflowEvents]`, chỉ thêm workflowEvents vào scope; không xóa/ghi bảng này.
 - Typecheck, lint, unit tests, build và Owner runtime test phải chạy lại. Không merge/deploy trước khi xác nhận.
+
+
+## Phase 31 – Assistant intent routing/search – 2026-11-25
+- Branch: `phase-31-assistant-intent-routing-search-p30`, base `fix-demo-seed-dexie-transaction-tables` (giữ P30 và hotfix Dexie v8 trong lịch sử branch).
+- Sửa lỗi trong ảnh Owner: câu có tên khách hàng không còn bị trả báo cáo tổng hợp hôm nay; tra cứu tên khách trả hồ sơ đúng khách và chỉ số tổng hóa đơn/lịch hẹn.
+- Hỗ trợ tên đầy đủ, tên một phần, số điện thoại; khách archived bị loại; kết quả mơ hồ được trả danh sách để Owner chọn, không tự đoán.
+- Xếp hạng khách được tách theo lịch hẹn, chi tiêu hóa đơn hoặc số lượng sản phẩm; hỏi lại nếu không có hoặc có nhiều tiêu chí.
+- Sửa fallback tra cứu nhân viên: truy vấn hồ sơ không tìm thấy không bị chuyển sang thống kê ca/năng suất.
+- Thêm tests cho customer lookup intent và dữ liệu local; cần CI + runtime Termux/Android trước nghiệm thu.
+- Không sửa Gemini, không thêm khả năng ghi dữ liệu từ chat, không merge/deploy.

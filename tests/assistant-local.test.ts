@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { detectAssistantIntent, detectAssistantPeriod, getAssistantRange } from '../src/app/assistant-local'
+import { detectAssistantIntent, detectAssistantPeriod, findCustomerLookupMatches, getAssistantRange, isCustomerLookupRequest } from '../src/app/assistant-local'
+import type { Customer } from '../src/db/types'
 
 describe('assistant question understanding', () => {
   it('recognizes finance, staff, customer and stock questions', () => {
@@ -32,5 +33,43 @@ describe('assistant question understanding', () => {
     const year = getAssistantRange('year', now)
     expect(year.start.toISOString()).toBe('2025-12-31T17:00:00.000Z')
     expect(year.end.toISOString()).toBe('2026-12-31T17:00:00.000Z')
+  })
+})
+
+
+const customer = (id: string, fullName: string, phone: string | null = null): Customer => ({
+  id, salonId: 'salon_test', fullName,
+  normalizedName: fullName.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'),
+  phone, normalizedPhone: phone?.replace(/\D/g, '') ?? null, email: null, notes: '', archivedAt: null,
+  createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z', revision: 1,
+  createdBy: 'owner', updatedBy: 'owner', deviceId: 'device',
+})
+
+describe('assistant entity lookup routing', () => {
+  const customers = [
+    customer('c1', 'Bùi Hoàng Mai Phương', '0901234567'),
+    customer('c2', 'Lê Gia Mai Phương', '0902222222'),
+    customer('c3', 'Nguyễn Gia Hân', '0903333333'),
+  ]
+
+  it('routes a named customer question to the matching profile, not customer rankings', () => {
+    expect(isCustomerLookupRequest('Khách hàng Bùi Hoàng Mai Phương')).toBe(true)
+    expect(findCustomerLookupMatches(customers, 'Khách hàng Bùi Hoàng Mai Phương').map(row => row.id)).toEqual(['c1'])
+  })
+
+  it('supports partial name and phone lookup with ambiguity preserved', () => {
+    expect(findCustomerLookupMatches(customers, 'Tìm khách Mai').map(row => row.id)).toEqual(['c1', 'c2'])
+    expect(findCustomerLookupMatches(customers, 'Tra cứu khách 0901234567').map(row => row.id)).toEqual(['c1'])
+  })
+
+  it('does not treat a ranking request as a named-customer search', () => {
+    const question = 'Khách hàng nào chi tiêu nhiều nhất trong tháng này?'
+    expect(isCustomerLookupRequest(question)).toBe(false)
+    expect(findCustomerLookupMatches(customers, question)).toEqual([])
+  })
+
+  it('excludes archived customers from lookup', () => {
+    const archived = { ...customers[0], archivedAt: '2026-01-02T00:00:00.000Z' }
+    expect(findCustomerLookupMatches([archived], 'Khách hàng Bùi Hoàng Mai Phương')).toEqual([])
   })
 })

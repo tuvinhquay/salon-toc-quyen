@@ -138,6 +138,67 @@ function productLookup(snapshot: Snapshot, question: string): string | null {
     return '• ' + product.name + (product.sku ? ' · SKU ' + product.sku : '') + ' · ' + quantity + ' ' + product.unit + ' còn khả dụng · Ngưỡng tối thiểu ' + product.minimumStock
   }).join('\n')
 }
+const CUSTOMER_LOOKUP_STOP_WORDS = new Set(['tim','tra','cuu','thong','tin','ho','so','chi','tiet','khach','hang','khachhang','ten','sdt','so','dien','thoai','giup','minh','toi','ban','cho','em','anh','chi','co','la','nao','nhe','nha'])
+
+export function isCustomerLookupRequest(question: string): boolean {
+  const q = normalizeAssistantText(question)
+  if (/(chi tieu nhieu nhat|mua nhieu nhat|dat lich nhieu nhat|top khach|khach hang nao|khach nao|xep hang khach)/.test(q)) return false
+  return /(tim khach|tra cuu khach|thong tin khach|ho so khach|chi tiet khach|khach hang [a-z])/.test(q)
+}
+
+export function findCustomerLookupMatches(customers: Customer[], question: string): Customer[] {
+  const q = normalizeAssistantText(question)
+  const active = customers.filter(customer => !customer.archivedAt)
+  const direct = active.filter(customer => {
+    const name = normalizeAssistantText(customer.fullName)
+    return name.length > 2 && q.includes(name)
+  })
+  if (direct.length) return direct.sort((a, b) => normalizeAssistantText(b.fullName).length - normalizeAssistantText(a.fullName).length)
+
+  const digits = question.replace(/\D/g, '')
+  if (digits.length >= 6) {
+    const byPhone = active.filter(customer => (customer.phone ?? '').replace(/\D/g, '').includes(digits))
+    if (byPhone.length) return byPhone
+  }
+
+  if (!isCustomerLookupRequest(question)) return []
+
+  const tokens = [...new Set(q.split(' ').filter(token => token.length > 1 && !CUSTOMER_LOOKUP_STOP_WORDS.has(token)))]
+  if (!tokens.length) return []
+  const matches = active.map(customer => {
+    const name = normalizeAssistantText(customer.fullName)
+    const phone = (customer.phone ?? '').replace(/\D/g, '')
+    const matched = tokens.filter(token => name.includes(token)).length
+    return { customer, score: matched / tokens.length, matched, phoneMatch: digits.length >= 6 && phone.includes(digits) }
+  }).filter(item => item.phoneMatch || (item.matched > 0 && item.score >= 0.6))
+    .sort((a, b) => Number(b.phoneMatch) - Number(a.phoneMatch) || b.score - a.score || a.customer.fullName.localeCompare(b.customer.fullName, 'vi'))
+  return matches.slice(0, 8).map(item => item.customer)
+}
+
+function customerProfileLookup(snapshot: Snapshot, question: string): string | null {
+  const matches = findCustomerLookupMatches(snapshot.customers, question)
+  if (!matches.length) {
+    if (isCustomerLookupRequest(question)) return 'Mình chưa tìm thấy khách hàng khớp với thông tin bạn nhập. Bạn hãy thử nhập tên đầy đủ hoặc số điện thoại trong hồ sơ khách hàng.'
+    return null
+  }
+  if (matches.length > 1) return 'Mình tìm thấy nhiều khách hàng phù hợp, bạn chọn đúng hồ sơ nhé:\\n' + matches.map((customer, index) => (index + 1) + '. ' + customer.fullName + (customer.phone ? ' · ' + customer.phone : '')).join('\n')
+  const customer = matches[0]
+  const invoices = snapshot.invoices.filter(invoice => invoice.status !== 'void' && invoice.customerId === customer.id)
+  const totalSpend = sum(invoices, invoice => invoice.totalVnd)
+  const appointments = snapshot.appointments.filter(item => item.customerId === customer.id)
+  const validAppointments = appointments.filter(item => item.status !== 'cancelled' && item.status !== 'no_show')
+  const lastAppointment = validAppointments.sort((a, b) => Date.parse(b.startAt) - Date.parse(a.startAt))[0]
+  return [
+    '**Khách hàng: ' + customer.fullName + '**',
+    '• Số điện thoại: ' + (customer.phone || 'Chưa cập nhật'),
+    '• Email: ' + (customer.email || 'Chưa cập nhật'),
+    '• Lịch hẹn hợp lệ: ' + validAppointments.length + ' (' + appointments.filter(item => item.status === 'completed').length + ' đã hoàn thành)',
+    '• Hóa đơn đã phát hành: ' + invoices.length,
+    '• Tổng chi tiêu theo hóa đơn: ' + money(totalSpend),
+    '• Lịch gần nhất: ' + (lastAppointment ? new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short', timeZone: TIME_ZONE }).format(new Date(lastAppointment.startAt)) + ' · ' + lastAppointment.status : 'Chưa có lịch hẹn'),
+  ].join('\n')
+}
+
 function staffProfileLookup(snapshot: Snapshot, question: string): string | null {
   const q = normalizeAssistantText(question)
   const digits = question.replace(/\D/g, '')
@@ -189,7 +250,9 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
   if (intent === 'staff') {
     const profile = staffProfileLookup(snapshot, question)
     if (profile) return { answer: profile, safeContext: 'Hồ sơ, ca làm và các dòng hóa đơn được gán nhân viên trong salon hiện tại.', intent, period }
-    const detailRequest = /(thong tin nhan vien|ho so nhan vien|chi tiet nhan vien|nhan vien co so dien thoai)/.test(normalizeAssistantText(question)) || question.replace(/\D/g, '').length >= 8
+    const normalizedQuestion = normalizeAssistantText(question)
+    const rankingRequest = /(nhan vien nao|top nhan vien|nhan vien .* nhat|nang suat|hieu suat|nhieu ca)/.test(normalizedQuestion)
+    const detailRequest = (!rankingRequest && /(tim nhan vien|tra cuu nhan vien|thong tin nhan vien|ho so nhan vien|chi tiet nhan vien|nhan vien [a-z])/.test(normalizedQuestion)) || question.replace(/\D/g, '').length >= 8
     if (detailRequest) return { answer: 'Em chưa tìm thấy một hồ sơ nhân viên khớp duy nhất với tên hoặc số điện thoại anh cung cấp. Anh kiểm tra lại chính tả hoặc số điện thoại trong mục Nhân viên giúp em nhé. Em không tự chọn hồ sơ gần giống để tránh nhầm người.', safeContext: 'Không tìm thấy kết quả hồ sơ nhân viên duy nhất trong salon hiện tại.', intent, period }
   }
   const lines = ['**Tổng hợp ' + range.label + '**']
@@ -205,7 +268,11 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
   if (intent === 'appointments' || intent === 'overview') {
     lines.push('• Lịch hẹn: **' + data.appointmentCount + '**; hoàn thành ' + data.completedCount + ', đã hủy ' + data.cancelledCount + ', khách không đến ' + data.noShowCount + '.')
   }
-  if (intent === 'customers' || intent === 'overview') {
+  const customerLookup = customerProfileLookup(snapshot, question)
+  if (customerLookup) return { answer: customerLookup, safeContext: 'Tra cứu hồ sơ khách hàng và số liệu hóa đơn/lịch hẹn từ salon hiện tại; chỉ đọc.', intent, period }
+
+  if (intent === 'customers') {
+    const q = normalizeAssistantText(question)
     const customerInvoices = snapshot.invoices.filter(row => row.status !== 'void' && row.customerId && within(row.issuedAt, range))
     const spendByCustomer = new Map<string, { name: string; amount: number; invoices: number; products: number }>()
     for (const invoice of customerInvoices) {
@@ -215,14 +282,31 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
       current.products += invoice.lines.filter(line => line.lineType === 'product').reduce((total, line) => total + line.quantity, 0)
       spendByCustomer.set(invoice.customerId!, current)
     }
-    const rankByProductCount = /(mua nhieu san pham|so luong san pham|mua nhieu mon)/.test(normalizeAssistantText(question))
-    const topSpenders = [...spendByCustomer.values()].sort((a, b) => rankByProductCount ? b.products - a.products || b.amount - a.amount : b.amount - a.amount).slice(0, 5)
-    lines.push('• Khách đặt lịch nhiều nhất (không tính lịch hủy/không đến):')
-    if (!data.topCustomers.length) lines.push('  Chưa có lịch đặt gắn với hồ sơ khách hàng trong khoảng thời gian này.')
-    else data.topCustomers.forEach((row, index) => lines.push('  ' + (index + 1) + '. ' + row.label + ' – ' + row.count + ' lịch'))
-    lines.push(rankByProductCount ? '• Khách mua nhiều sản phẩm nhất theo số lượng trên hóa đơn:' : '• Khách chi tiêu nhiều nhất theo hóa đơn đã phát hành:')
-    if (!topSpenders.length) lines.push('  Chưa có hóa đơn gắn với khách hàng trong kỳ.')
-    else topSpenders.forEach((row, index) => lines.push('  ' + (index + 1) + '. ' + row.name + ' – ' + money(row.amount) + ' · ' + row.invoices + ' hóa đơn · ' + row.products + ' sản phẩm') )
+    const rankByProductCount = /(mua nhieu san pham|so luong san pham|mua nhieu mon|so san pham nhieu nhat)/.test(q)
+    const rankByAppointments = /(dat lich|lich hen|hen nhieu|quay lai nhieu|so lan den|tan suat den)/.test(q)
+    const rankBySpend = /(chi tieu|tieu nhieu|tong tien|gia tri hoa don|mua hang nhieu tien|doanh so khach)/.test(q)
+    const metricCount = Number(rankByProductCount) + Number(rankByAppointments) + Number(rankBySpend)
+    if (metricCount > 1) {
+      lines.push('Bạn muốn xếp hạng theo một tiêu chí nào: số lịch hẹn, tổng chi tiêu hóa đơn hay số lượng sản phẩm mua?')
+    } else if (metricCount === 0) {
+      lines.push('Bạn muốn tìm khách theo tên/số điện thoại, hay xếp hạng theo chi tiêu, số lịch hẹn hoặc số lượng sản phẩm mua?')
+    } else if (rankByAppointments) {
+      const counts = new Map<string, { name: string; count: number }>()
+      for (const appointment of snapshot.appointments.filter(row => within(row.startAt, range) && row.status !== 'cancelled' && row.status !== 'no_show' && row.customerId)) {
+        const current = counts.get(appointment.customerId!) ?? { name: appointment.customerNameSnapshot, count: 0 }
+        current.count += 1
+        counts.set(appointment.customerId!, current)
+      }
+      const ranked = [...counts.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'vi')).slice(0, 5)
+      lines.push('**Khách đặt lịch nhiều nhất trong ' + range.label + '**')
+      if (!ranked.length) lines.push('Chưa có lịch hẹn hợp lệ gắn với khách hàng trong kỳ.')
+      else ranked.forEach((row, index) => lines.push((index + 1) + '. ' + row.name + ' — ' + row.count + ' lịch'))
+    } else {
+      const ranked = [...spendByCustomer.values()].sort((a, b) => rankByProductCount ? b.products - a.products || b.amount - a.amount : b.amount - a.amount).slice(0, 5)
+      lines.push(rankByProductCount ? '**Khách mua nhiều sản phẩm nhất theo số lượng trong ' + range.label + '**' : '**Khách chi tiêu nhiều nhất trong ' + range.label + '**')
+      if (!ranked.length) lines.push('Chưa có hóa đơn hợp lệ gắn với khách hàng trong kỳ.')
+      else ranked.forEach((row, index) => lines.push((index + 1) + '. ' + row.name + ' — ' + (rankByProductCount ? row.products + ' sản phẩm' : money(row.amount)) + ' · ' + row.invoices + ' hóa đơn'))
+    }
   }
   if (intent === 'services' || intent === 'overview') {
     lines.push('• Dịch vụ hoàn thành nhiều nhất:')
