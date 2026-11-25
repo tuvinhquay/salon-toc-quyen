@@ -205,3 +205,66 @@ body{background:radial-gradient(ellipse at 18% 8%,rgba(18,100,81,.52),transparen
 @media(max-width:420px){.brand b{font-size:12px}.brand small{font-size:8px}.header-actions{gap:6px}.account-logout-button{font-size:0;width:34px;padding:0}.account-logout-button svg{width:16px;height:16px}}
 @media(prefers-reduced-motion:reduce){.sidebar nav a,.sidebar nav a:before{transition:none!important}.sidebar nav a.selected i{animation:none!important}}
 @media(forced-colors:active){.sidebar nav a.selected{outline:2px solid Highlight}.sidebar nav a:focus-visible{outline:2px solid Highlight}}
+
+
+/* Phase 34 – Luxury Emerald Glass + Champagne Gold */
+:root{color:#eef7f2;background:#062e28;color-scheme:dark}
+body{background:#062e28;color:#edf5f0}
+.shell{position:relative;isolation:isolate;background:linear-gradient(135deg,#062e28,#0b4036 58%,#092d29)}
+.app-background-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;opacity:.18;pointer-events:none}
+.app-background-overlay{position:fixed;inset:0;z-index:-1;background:linear-gradient(120deg,#032a25e8,#064238d9 55%,#062e28ed);pointer-events:none}
+.sidebar{background:linear-gradient(180deg,#042c27f2,#031f1cf5);border-right:1px solid #d7b66a35;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.brand b{color:#f5e5bd}.brand small,.muted-label{color:#a9c5b9}.mark{border-color:#c6a55e;color:#e2c77f;box-shadow:0 0 24px #d6b65a20}
+.workspace{border-color:#b9a06455;background:#ffffff08;color:#e7eee9}.workspace small{color:#e0c47d}
+.sidebar nav a{color:#c4d8ce;transition:background .22s ease,color .22s ease,transform .22s ease;position:relative;overflow:hidden}
+.sidebar nav a:hover{background:#ffffff12;color:#fff;transform:translateX(3px)}
+.sidebar nav a.selected{background:linear-gradient(100deg,#c6a75b2c,#0f786344);color:#f7e6b5;box-shadow:inset 2px 0 #e1c36e,0 6px 22px #001b1740}
+.sidebar nav a.selected i{background:#e4c76e;box-shadow:0 0 12px #e4c76e}
+.profile{border-color:#d7c27a35;color:#eff7f2}.profile small{color:#a9c5b9}.avatar{background:linear-gradient(145deg,#e8d18b,#b18a43);color:#173b31}
+.main header{background:#062f29b8;border-bottom:1px solid #d9c17a36;color:#f2f7f3;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.main header h1{color:#f4e8c9}.main header small{color:#b9c9be}.account-email{color:#cbd9d1}.offline{color:#dfc77d}
+.content{color:#eff7f2}
+.work-intro h2,.heading h2,.work-form h3,.list-heading h3,.module-page h2{color:#f3e8c9}
+.work-intro small,.heading small{color:#d4bd78}.work-intro p,.record-note{color:#bfd0c6}
+.work-form,.card,.record,.module-page,.assistant-status-row,.assistant-message-body{background:linear-gradient(145deg,#0d4a3eeb,#08372feF);border:1px solid #cbb36b42;box-shadow:0 14px 36px #001c1838,inset 0 1px #ffffff0c;color:#edf6f0;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.card{border-radius:16px;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.card:hover{transform:translateY(-3px);border-color:#e0c47785;box-shadow:0 18px 40px #001b174a,0 0 24px #d9b66f12}
+.card>svg{color:#e0c477}.card>small{color:#c3d3c9}.card h3{color:#f6e9c5}.card p,.record p,.record small{color:#bdd0c5}.card footer{border-color:#d7c17b35;color:#e1c77e}
+.record{border-radius:12px}.record b{color:#f5e9ca}
+.field{color:#d9e6de}.field input,.field select,.field textarea,.list-heading input{background:#052f29;color:#f3f7f4;border-color:#b9c9bd55;border-radius:9px}
+.field input::placeholder,.field textarea::placeholder,.list-heading input::placeholder{color:#94afa2}
+.field input:focus,.field select:focus,.field textarea:focus,.list-heading input:focus{border-color:#dfc477;box-shadow:0 0 0 3px #dfc47720}
+.primary-button{background:linear-gradient(135deg,#d9bd70,#ad8840);border-color:#e4ca7f;color:#183b30;font-weight:800;box-shadow:0 5px 18px #001b1735}
+.primary-button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.subtle-button,.icon-button{background:#ffffff0b;color:#e8e1c9;border-color:#c8b16b65}
+.subtle-button:hover,.icon-button:hover{background:#d9bd701c;border-color:#e2c779}
+.empty-state{background:#052f29aa;border-color:#a9c4b355;color:#c0d3c8}
+.notice{background:#d8c17a12;border:1px solid #d8c17a40;color:#dfca89}.notice b{color:#f0e4be}.notice p{color:#c5d5cb}
+.success-message{background:#164f3c;color:#d8f3df;border:1px solid #77b68b66}.form-error{color:#ffb4a9}
+.module-symbol{background:#d9bd701c;color:#e4c979}
+.module-status{background:#d9bd701b;color:#e7d18e}
+.quick-demo-link{background:#d9bd7018;border-color:#d9bd7066;color:#f0dfad}
+.assistant-fab{background:linear-gradient(135deg,#f0dfa9,#bd9850);border-color:#f1d98d;color:#123b30}
+.analytics-panel{padding:24px;overflow:hidden}
+.analytics-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.analytics-heading small{font-size:9px;letter-spacing:1.6px;color:#d9bd70;font-weight:800}
+.analytics-heading h3{margin:7px 0 5px}
+.analytics-period{padding:7px 10px;border:1px solid #d9bd704d;border-radius:99px;color:#e4d29b;font-size:10px;white-space:nowrap}
+.analytics-visual{display:grid;gap:16px}
+.analytics-legend{display:flex;gap:18px;flex-wrap:wrap}
+.analytics-legend span{display:flex;align-items:center;gap:7px;color:#d1e0d7;font-size:10px}
+.analytics-legend i{width:9px;height:9px;border-radius:50%;box-shadow:0 0 10px currentColor}
+.analytics-chart-scroll{width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+.analytics-chart-svg{width:100%;min-width:560px;height:auto;overflow:visible}
+.analytics-gridline{stroke:#c8ddcf20;stroke-dasharray:4 7}
+.analytics-axis-label{fill:#a9c3b5;font-size:11px}
+.analytics-line{filter:drop-shadow(0 2px 5px #0005);animation:analytics-draw .8s ease both}
+.analytics-chart-svg circle{transition:r .2s ease;cursor:crosshair}
+.analytics-chart-svg circle:hover{r:7}
+.analytics-detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.analytics-detail-grid>div{display:grid;gap:6px;padding:12px;border-radius:11px;background:#ffffff08;border:1px solid #d4bd7030}
+.analytics-detail-grid small{color:#b9cec2;font-size:10px}.analytics-detail-grid b{color:#f2dfaa;font-size:clamp(11px,1.5vw,15px)}
+@keyframes analytics-draw{from{opacity:.25;stroke-dasharray:1000;stroke-dashoffset:1000}to{opacity:1;stroke-dashoffset:0}}
+@media(max-width:700px){.analytics-panel{padding:16px}.analytics-heading{flex-direction:column}.analytics-chart-svg{min-width:520px}.analytics-detail-grid{grid-template-columns:1fr}.main header{background:#062f29ed}.sidebar{background:#042c27f5}}
+@media(prefers-reduced-motion:reduce){.sidebar nav a,.card,.primary-button,.analytics-line{animation:none!important;transition:none!important}}
+@media(forced-colors:active){.work-form,.card,.record,.sidebar,.main header{border:1px solid CanvasText}}
