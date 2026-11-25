@@ -262,7 +262,7 @@ export function AssistantPage() {
           return
         }
         setPendingProductAction({ kind: 'update', phase: 'confirm', product, salePriceVnd: updateProductIntent.salePriceVnd })
-        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Xác nhận cập nhật giá bán?\n' + product.name + ' · SKU ' + updateProductPriceUpdate.sku + '\nGiá cũ: ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫\nGiá mới: ' + updateProductIntent.salePriceVnd.toLocaleString('vi-VN') + ' ₫\n\nGõ “XÁC NHẬN” hoặc “HỦY”.', source: 'local' }])
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Xác nhận cập nhật giá bán?\n' + product.name + ' · SKU ' + updateProductIntent.sku + '\nGiá cũ: ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫\nGiá mới: ' + updateProductIntent.salePriceVnd.toLocaleString('vi-VN') + ' ₫\n\nGõ “XÁC NHẬN” hoặc “HỦY”.', source: 'local' }])
         return
       }
 
