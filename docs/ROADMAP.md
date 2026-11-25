@@ -217,3 +217,17 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 
 - CI run #409 (`45582461715`, commit `9ac51e52c296faa6b7d5f48cc2b02a722643a2dc`): PASS – Typecheck, Lint, Unit tests, Production build/PWA.
 - Owner Termux/Android smoke test and print-to-PDF acceptance: pending. PR #28 remains Draft; no merge/deploy.
+
+
+## Phase 33 – Owner Luxury Emerald Glass & PWA shell – 2026-11-25
+- Branch: `phase-33-owner-luxury-emerald-glass-pwa-shell`; base: Phase 32 head `2e65f4d68925ef3786c9a5830cbff61352f42d2b` (PR #28 remains Draft; no merge/deploy).
+- Design direction approved: Luxury Emerald Glass – deep emerald translucent glass, champagne-gold accents.
+- Added global decorative video layer reading `/videos/videosalo.mp4`; muted, autoplay, loop, playsInline; gradient overlay remains the fallback when the MP4 is absent.
+- Added animated sidebar interactions: subtle horizontal hover motion, emerald/champagne active state, soft active pulse, independent desktop scroll; horizontal scroll-snap navigation on mobile.
+- Added responsive glass surfaces for main header, cards, forms, assistant panels and authentication; reduced-motion and forced-colors handling.
+- Added SVG icon set and directories: `public/icons/`, `public/videos/`, `public/brand/`; video file itself must be supplied by Owner at `public/videos/videosalo.mp4`.
+- PWA manifest theme updated to emerald; icon entries include scalable SVG 192/512/maskable. Apple touch SVG is a vector placeholder; PNG export may be needed for strict iOS compatibility.
+- Documentation: `docs/design/LUXURY-EMERALD-GLASS.md`.
+- No business logic, routes, auth, tenant scope, Dexie or Firebase behavior intentionally changed.
+- Validation: pending CI typecheck/lint/tests/build and Owner Android/Termux + desktop/iOS visual acceptance. Do not mark Owner project complete until those checks pass.
+- Employee App remains Phase 2 and must be started only after Owner acceptance; no employee UI is included in this phase.
