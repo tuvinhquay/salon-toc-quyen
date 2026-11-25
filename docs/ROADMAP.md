@@ -181,3 +181,9 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Có test cho khoảng 5 tháng và qua năm. Session note: `docs/sessions/P30-FIVE-MONTH-DEMO-DATA.md`.
 - CI run 45512975364: Typecheck PASS, ESLint PASS, 53/53 tests PASS, Production build/PWA PASS.
 - Trạng thái: CI PASS; chờ Owner Android/Termux acceptance. Chưa PASS tổng thể, chưa merge, chưa deploy.
+
+
+## Hotfix P30 – IndexedDB missing object store
+- Báo lỗi Owner: tạo dataset ném `NotFoundError` từ IndexedDB transaction do object store bị thiếu trên một số database schema v7 đã tồn tại.
+- Sửa trên branch `fix-indexeddb-store-upgrade-p30`: nâng Dexie schema version 8, khai báo lại đầy đủ stores của v7 để migration tự tạo store thiếu, giữ nguyên records hiện có.
+- Không hướng dẫn xóa IndexedDB/local storage. CI và Android acceptance đang chờ. Session: `docs/sessions/FIX-INDEXEDDB-OBJECT-STORE-P30.md`.
