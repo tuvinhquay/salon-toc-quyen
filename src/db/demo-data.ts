@@ -136,7 +136,7 @@ export function createFiveMonthBundle(actor: ActorContext, now = new Date()): De
   ] as const
   const products: Product[] = productDefs.map(([name, sku, category, unit, cost, price, minimumStock], index) => ({
     ...base(prefix + 'product_' + (index + 1), iso(startAt)), name, sku, category, unit,
-    minimumStock, trackingMode: 'lot', active: true,
+    minimumStock, salePriceVnd: price, trackingMode: 'lot', active: true,
     customFields: { 'Giá bán mẫu': String(price), 'Giá vốn mẫu': String(cost), 'Đánh dấu': 'DỮ LIỆU MÔ PHỎNG' },
   }))
   const suppliers: Supplier[] = [
