@@ -1,4 +1,4 @@
-import type { Invoice, Payment } from '../db/types'
+import type { Invoice, Payment, Refund } from '../db/types'
 
 export type SalonInvoiceProfile = {
   name: string
@@ -17,10 +17,10 @@ const vnd = (value: number) => Math.round(value).toLocaleString('vi-VN') + ' ₫
 const dateTime = (value: string) => new Date(value).toLocaleString('vi-VN',{dateStyle:'medium',timeStyle:'short'})
 const paymentLabel: Record<Payment['method'],string> = { cash:'Tiền mặt',bank_transfer:'Chuyển khoản',card:'Thẻ',other:'Khác' }
 
-export function buildInvoicePrintHtml(invoice: Invoice, payments: Payment[], salon: SalonInvoiceProfile) {
-  const paid = payments.filter(p=>p.invoiceId===invoice.id&&p.status!=='void').reduce((sum,p)=>sum+p.amountVnd,0)
+export function buildInvoicePrintHtml(invoice: Invoice, payments: Payment[], salon: SalonInvoiceProfile, refunds: Refund[] = []) {
+  const paid = invoice.amountPaidVnd
   const due = Math.max(0,invoice.totalVnd-paid)
-  const paymentRows = payments.filter(p=>p.invoiceId===invoice.id&&p.status!=='void').map(p=>'<div class="payment-row"><span>'+escapeHtml(paymentLabel[p.method])+' · '+escapeHtml(dateTime(p.paidAt))+'</span><strong>'+escapeHtml(vnd(p.amountVnd))+'</strong></div>').join('')
+  const paymentRows = payments.filter(p=>p.invoiceId===invoice.id&&p.status!=='void').map(p=>'<div class="payment-row"><span>'+escapeHtml(paymentLabel[p.method])+' · '+escapeHtml(dateTime(p.paidAt))+'</span><strong>'+escapeHtml(vnd(p.amountVnd))+'</strong></div>').join('')+refunds.filter(r=>r.invoiceId===invoice.id).map(r=>'<div class="payment-row"><span>Hoàn tiền · '+escapeHtml(dateTime(r.refundedAt))+'</span><strong>- '+escapeHtml(vnd(r.amountVnd))+'</strong></div>').join('')
   const lines = invoice.lines.map((line,index)=>'<tr><td class="no">'+(index+1)+'</td><td><strong>'+escapeHtml(line.description)+'</strong><small>'+escapeHtml(line.lineType==='service'?'Dịch vụ':line.lineType==='product'?'Sản phẩm':'Khoản khác')+(line.employeeNameSnapshot?' · Thực hiện: '+escapeHtml(line.employeeNameSnapshot):'')+'</small></td><td class="num">'+escapeHtml(line.quantity.toLocaleString('vi-VN'))+'</td><td class="num">'+escapeHtml(vnd(line.unitPriceVnd))+'</td><td class="num">'+escapeHtml(vnd(line.discountVnd))+'</td><td class="num">'+escapeHtml(vnd(line.taxVnd))+'</td><td class="num total">'+escapeHtml(vnd(line.totalVnd))+'</td></tr>').join('')
   const logo = '<svg viewBox="0 0 140 80" aria-hidden="true"><g fill="none" stroke="#b58b60" stroke-width="1.5"><path d="M70 4 C48 16 48 32 70 40 C92 32 92 16 70 4Z"/><path d="M70 40 C48 48 48 64 70 76 C92 64 92 48 70 40Z"/><path d="M6 40 C18 18 34 18 46 40 C34 62 18 62 6 40Z"/><path d="M134 40 C122 18 106 18 94 40 C106 62 122 62 134 40Z"/><circle cx="70" cy="40" r="8"/><path d="M22 8 Q42 18 50 30 M118 8 Q98 18 90 30 M22 72 Q42 62 50 50 M118 72 Q98 62 90 50"/></g></svg>'
   return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hóa đơn ${escapeHtml(invoice.invoiceNumber)}</title><style>
