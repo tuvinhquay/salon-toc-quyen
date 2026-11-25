@@ -3,7 +3,6 @@ import { Database, LogOut, Scissors, ShieldCheck, WifiOff } from 'lucide-react'
 import { navigation } from './navigation'
 import type { NavigationItem } from './navigation'
 import { useAuth } from '../auth/AuthProvider'
-import { useOwnerContext } from '../auth/OwnerContext'
 import { CustomersPage, ServicesPage } from './OwnerModules'
 import { EmployeesPage, InventoryPage } from './EmployeeInventoryPages'
 import { PosPage, ReportsPage } from './PosReportsPages'
@@ -20,7 +19,6 @@ function RootLayout(){
  const pathname=useRouterState({select:s=>s.location.pathname})
  const current=navigation.find(x=>x.to===pathname)??navigation[0]
  const {user,logOut,error:authError}=useAuth()
- const owner=useOwnerContext()
  const accountEmail=user?.email??'Tài khoản Owner'
  return <main className="shell">
   <video className="app-background-video" autoPlay muted loop playsInline preload="metadata" aria-hidden="true" tabIndex={-1}>
