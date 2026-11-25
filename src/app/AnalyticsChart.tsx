@@ -11,11 +11,22 @@ const series: Series[] = [
 
 function pointPath(values: number[], max: number, width: number, height: number) {
   const left = 34, right = width - 16, top = 18, bottom = height - 30
-  return values.map((value, index) => {
-    const x = values.length <= 1 ? (left + right) / 2 : left + (right - left) * index / (values.length - 1)
-    const y = bottom - (value / max) * (bottom - top)
-    return (index ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1)
-  }).join(' ')
+  const points = values.map((value, index) => ({
+    x: values.length <= 1 ? (left + right) / 2 : left + (right - left) * index / (values.length - 1),
+    y: bottom - (value / max) * (bottom - top),
+  }))
+  if (points.length < 3) return points.map((point, index) => (index ? 'L' : 'M') + point.x.toFixed(1) + ' ' + point.y.toFixed(1)).join(' ')
+  return points.reduce((path, point, index) => {
+    if (index === 0) return 'M' + point.x.toFixed(1) + ' ' + point.y.toFixed(1)
+    const previous = points[index - 1]
+    const before = points[Math.max(0, index - 2)]
+    const after = points[Math.min(points.length - 1, index + 1)]
+    const controlOneX = previous.x + (point.x - before.x) / 6
+    const controlOneY = previous.y + (point.y - before.y) / 6
+    const controlTwoX = point.x - (after.x - previous.x) / 6
+    const controlTwoY = point.y - (after.y - previous.y) / 6
+    return path + ' C' + controlOneX.toFixed(1) + ' ' + controlOneY.toFixed(1) + ' ' + controlTwoX.toFixed(1) + ' ' + controlTwoY.toFixed(1) + ' ' + point.x.toFixed(1) + ' ' + point.y.toFixed(1)
+  }, '')
 }
 
 export function AnalyticsChart({ data }: { data: Point[] }) {
