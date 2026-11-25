@@ -32,7 +32,7 @@ export function AnalyticsChart({ data }: { data: Point[] }) {
         </defs>
         {ticks.map(tick => {
           const y = bottom - tick * (bottom - top)
-          return <g key={tick}><line x1={left} x2={right} y1={y} y2={y} className="analytics-gridline"/><text x="27" y={y + 4} textAnchor="end" className="analytics-axis-label">{tick === 0 ? '0' : Math.round(max * tick / 1000).toLocaleString('vi-VN') + 'k'}</text></g>
+          return <g key={tick}><line x1={left} x2={right} y1={y} y2={y} className="analytics-gridline"/><text x="27" y={y + 4} textAnchor="end" className="analytics-axis-label">{tick === 0 ? '0' : new Intl.NumberFormat('vi-VN', { notation: 'compact', maximumFractionDigits: 1 }).format(max * tick)}</text></g>
         })}
         {data.length > 1 && <path d={pointPath(data.map(row => row.collected), max, width, height) + ` L ${right} ${bottom} L ${left} ${bottom} Z`} fill="url(#analytics-gold-area)"/>}
         {series.map(item => {
