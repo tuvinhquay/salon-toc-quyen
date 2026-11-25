@@ -284,7 +284,11 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
     }
     const rankByProductCount = /(mua nhieu san pham|so luong san pham|mua nhieu mon|so san pham nhieu nhat)/.test(q)
     const rankByAppointments = /(dat lich|lich hen|hen nhieu|quay lai nhieu|so lan den|tan suat den)/.test(q)
-    if (!rankByProductCount && !rankByAppointments && !rankBySpend) {
+    const rankBySpend = /(chi tieu|tieu nhieu|tong tien|gia tri hoa don|mua hang nhieu tien|doanh so khach)/.test(q)
+    const metricCount = Number(rankByProductCount) + Number(rankByAppointments) + Number(rankBySpend)
+    if (metricCount > 1) {
+      lines.push('Bạn muốn xếp hạng theo một tiêu chí nào: số lịch hẹn, tổng chi tiêu hóa đơn hay số lượng sản phẩm mua?')
+    } else if (metricCount === 0) {
       lines.push('Bạn muốn tìm khách theo tên/số điện thoại, hay xếp hạng theo chi tiêu, số lịch hẹn hoặc số lượng sản phẩm mua?')
     } else if (rankByAppointments) {
       const counts = new Map<string, { name: string; count: number }>()
