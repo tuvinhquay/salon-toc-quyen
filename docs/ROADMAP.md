@@ -214,3 +214,6 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Demo: existing P30 demo invoices have customer, staff snapshot, lines and payment records for print testing; demo product records now have sale price.
 - Legal boundary: print is an internal sales receipt; not a certified tax e-invoice. Provider/API integration remains a separate approved phase.
 - Tests added for print HTML escaping and content, schema sale-price validation and demo sale-price data. CI + owner Termux/Android acceptance pending. No merge/deploy.
+
+- CI run #409 (`45582461715`, commit `9ac51e52c296faa6b7d5f48cc2b02a722643a2dc`): PASS – Typecheck, Lint, Unit tests, Production build/PWA.
+- Owner Termux/Android smoke test and print-to-PDF acceptance: pending. PR #28 remains Draft; no merge/deploy.
