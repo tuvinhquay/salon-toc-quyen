@@ -429,3 +429,14 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Sửa fallback tra cứu nhân viên: truy vấn hồ sơ không tìm thấy không bị chuyển sang thống kê ca/năng suất.
 - Thêm tests cho customer lookup intent và dữ liệu local; cần CI + runtime Termux/Android trước nghiệm thu.
 - Không sửa Gemini, không thêm khả năng ghi dữ liệu từ chat, không merge/deploy.
+
+## Phase 32 – Assistant product writes & salon invoice print – 2026-11-25
+- Branch: `phase-32-assistant-write-actions-and-salon-invoice`; base `phase-31-assistant-intent-routing-search-p30`.
+- Added product sale price field to Product model/input schema/repository and P30 demo product seed. Existing records may omit it and UI uses previous demo custom-field price as compatibility fallback.
+- Inventory UI exposes sale price; POS product selection loads catalog sale price instead of defaulting to 0.
+- Added `createProductWithOpeningStock`: tenant-checked, duplicate SKU protected, atomic product + initial lot + receipt movement + audit event creation.
+- Assistant product creation by name/SKU/price asks for initial quantity and unit cost, previews details and waits for explicit “XÁC NHẬN”; cancel is supported. Assistant price update by exact SKU also requires confirmation.
+- Added printable salon invoice HTML: A4 print/PDF, salon ornament, editable local salon contact/bank profile, customer phone, employee snapshots, invoice lines, taxes, discount, payments/refunds/net balance, care note and signatures. Each recent invoice has “Xem / In hóa đơn”.
+- Demo invoice data from P30 is used directly; demo products carry sale price. Print clearly states internal receipt is not an official tax e-invoice.
+- Added print tests, schema tests, demo price assertions. CI + owner Termux/Android test pending.
+- No merge/deploy.
