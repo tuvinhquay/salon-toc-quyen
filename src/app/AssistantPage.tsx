@@ -219,13 +219,13 @@ export function AssistantPage() {
             }
             const product = await createProductWithOpeningStock(actor, pendingProductAction.input, pendingProductAction.quantity, pendingProductAction.unitCostVnd)
             setPendingProductAction(null)
-            setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã tạo sản phẩm và ghi nhận tồn đầu kỳ thành công.\n' + product.name + ' · SKU ' + (product.sku ?? '') + ' · Giá bán ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫ · Tồn ' + pendingProductAction.quantity + ' ' + product.unit + '. Giao dịch đã được ghi lịch sử kiểm kê.', source: 'local' }])
+            setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã tạo sản phẩm và ghi nhận tồn đầu kỳ thành công.\n' + product.name + ' · Mã sản phẩm ' + (product.sku ?? '') + ' · Giá bán ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫ · Tồn ' + pendingProductAction.quantity + ' ' + product.unit + '. Giao dịch đã được ghi lịch sử kiểm kê.', source: 'local' }])
             return
           }
           const product = pendingProductAction.product
           const saved = await saveProduct(actor, { name: product.name, sku: product.sku ?? '', category: product.category, unit: product.unit, salePriceVnd: pendingProductAction.salePriceVnd, trackingMode: product.trackingMode, minimumStock: product.minimumStock, active: product.active, customFields: product.customFields ?? {} }, product.id)
           setPendingProductAction(null)
-          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã cập nhật giá bán sản phẩm ' + saved.name + ' · SKU ' + (saved.sku ?? '') + ' thành ' + (saved.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫.', source: 'local' }])
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã cập nhật giá bán sản phẩm ' + saved.name + ' · Mã sản phẩm ' + (saved.sku ?? '') + ' thành ' + (saved.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫.', source: 'local' }])
           return
         }
         setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em đang chờ xác nhận thao tác sản phẩm. Gõ “XÁC NHẬN” để thực hiện hoặc “HỦY” để dừng.', source: 'local' }])
@@ -246,10 +246,10 @@ export function AssistantPage() {
         }
         setPendingProductAction({ kind: 'create', phase: parsed.quantity && parsed.unitCostVnd !== null ? 'confirm' : 'details', input: parsed.input, quantity: parsed.quantity, unitCostVnd: parsed.unitCostVnd })
         if (!parsed.quantity || parsed.unitCostVnd === null) {
-          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em đã nhận thông tin sản phẩm:\n' + parsed.input.name + ' · SKU ' + parsed.input.sku + ' · Giá bán ' + parsed.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫.\n\nĐể ghi tồn kho và tính lợi nhuận chính xác, cần thêm số lượng nhập ban đầu và giá vốn mỗi đơn vị. Ví dụ: “Số lượng 10, giá vốn 120.000”. Chưa ghi dữ liệu.', source: 'local' }])
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em đã nhận thông tin sản phẩm:\n' + parsed.input.name + ' · Mã sản phẩm ' + parsed.input.sku + ' · Giá bán ' + parsed.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫.\n\nĐể ghi tồn kho và tính lợi nhuận chính xác, cần thêm số lượng nhập ban đầu và giá vốn mỗi đơn vị. Ví dụ: “Số lượng 10, giá vốn 120.000”. Chưa ghi dữ liệu.', source: 'local' }])
           return
         }
-        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Bạn xác nhận tạo sản phẩm ' + parsed.input.name + ' (SKU ' + parsed.input.sku + '), giá bán ' + parsed.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫, nhập ' + parsed.quantity + ' ' + parsed.input.unit + ' với giá vốn ' + (parsed.unitCostVnd ?? 0).toLocaleString('vi-VN') + ' ₫/đơn vị? Gõ “XÁC NHẬN” hoặc “HỦY”.', source: 'local' }])
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Bạn xác nhận tạo sản phẩm ' + parsed.input.name + ' (mã sản phẩm ' + parsed.input.sku + '), giá bán ' + parsed.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫, nhập ' + parsed.quantity + ' ' + parsed.input.unit + ' với giá vốn ' + (parsed.unitCostVnd ?? 0).toLocaleString('vi-VN') + ' ₫/đơn vị? Gõ “XÁC NHẬN” hoặc “HỦY”.', source: 'local' }])
         return
       }
 
@@ -258,11 +258,11 @@ export function AssistantPage() {
         const products = await listProducts(actor)
         const product = products.find(item => (item.sku ?? '').toUpperCase() === updateProductIntent.sku)
         if (!product) {
-          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Không tìm thấy sản phẩm có SKU ' + updateProductIntent.sku + ' trong salon hiện tại. Không có dữ liệu nào thay đổi.', source: 'local' }])
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Không tìm thấy sản phẩm có mã sản phẩm ' + updateProductIntent.sku + ' trong salon hiện tại. Không có dữ liệu nào thay đổi.', source: 'local' }])
           return
         }
         setPendingProductAction({ kind: 'update', phase: 'confirm', product, salePriceVnd: updateProductIntent.salePriceVnd })
-        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Xác nhận cập nhật giá bán?\n' + product.name + ' · SKU ' + updateProductIntent.sku + '\nGiá cũ: ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫\nGiá mới: ' + updateProductIntent.salePriceVnd.toLocaleString('vi-VN') + ' ₫\n\nGõ “XÁC NHẬN” hoặc “HỦY”.', source: 'local' }])
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Xác nhận cập nhật giá bán?\n' + product.name + ' · Mã sản phẩm ' + updateProductIntent.sku + '\nGiá cũ: ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫\nGiá mới: ' + updateProductIntent.salePriceVnd.toLocaleString('vi-VN') + ' ₫\n\nGõ “XÁC NHẬN” hoặc “HỦY”.', source: 'local' }])
         return
       }
 
@@ -343,7 +343,7 @@ export function AssistantPage() {
   return <section className="work-page assistant-page">
     <div className="work-intro">
       <div><small>TRỢ LÝ ĐỒNG HÀNH TÓC QUYỀN</small><h2>Bộ não trợ lý của chủ tiệm</h2><p>Trí nhớ dài hạn được lưu cục bộ. Gemini chỉ là cố vấn tùy chọn, không điều khiển quyền của trợ lý.</p></div>
-      <span className="assistant-role-badge">OWNER</span>
+      <span className="assistant-role-badge">CHỦ SALON</span>
     </div>
     <div className="assistant-status-row">
       <div><span className="assistant-status-dot"/> Trợ lý nội bộ sẵn sàng</div>
