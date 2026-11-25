@@ -455,3 +455,25 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Cập nhật màu PWA manifest và khai báo SVG icons 192/512/maskable; Apple touch SVG hiện là vector, cần kiểm tra thực tế iOS và có thể cần PNG 180×180.
 - Không thay đổi nghiệp vụ, auth, quyền Owner, tenant isolation, Dexie/Firebase hay routing.
 - Kiểm tra còn chờ CI và runtime đa nền tảng; chưa đánh dấu PASS, chưa đóng dự án Owner, chưa bắt đầu Employee UI.
+
+
+## Phase 34 – Professional Analytics & thân thiện hóa Owner UX – 2026-11-25
+### Nhánh làm việc
+- Tạo nhánh `phase-34-owner-analytics-and-friendly-vietnamese-ux` từ Phase 33; giữ nguyên các nhánh nền, chưa merge/deploy.
+
+### Đã triển khai
+- Tạo `src/app/AnalyticsChart.tsx`: biểu đồ SVG nhiều chuỗi dữ liệu, đường xu hướng bo mượt, vùng tô vàng champagne, trục lưới, chú giải, tooltip giá trị chính xác và tổng từng nhóm.
+- Thay biểu đồ cột đơn giản tại trang Báo cáo bằng biểu đồ trực quan mới; nguồn vẫn là payment/refund/expense thực tế qua repository hiện hữu.
+- Bổ sung hệ màu Luxury Emerald Glass + Champagne Gold cho Owner workspace, sidebar, header, cards, forms, report chart, trạng thái và nút thao tác.
+- Việt hóa lại nhãn không gian làm việc; thay nội dung kỹ thuật ở khu vực Owner bằng cách diễn đạt gần gũi hơn.
+- Đổi phần trường tùy chỉnh hồ sơ khách/sản phẩm thành “Thông tin riêng/bổ sung”, có ví dụ và hướng dẫn mục đích nhập liệu.
+- Việt hóa trạng thái thiết bị, mô tả giới hạn kết nối, các bước sao lưu/khôi phục và câu xác nhận của trợ lý; ẩn mã giai đoạn kỹ thuật khỏi tiêu đề màn hình người dùng.
+- Thêm bộ lọc nhanh “Tuần này” bên cạnh hôm nay/tháng/quý/năm; tuần tính từ thứ Hai theo lịch Việt Nam.
+- Bổ sung style responsive cho biểu đồ và custom fields; hỗ trợ prefers-reduced-motion và forced-colors.
+- Không sửa Dexie schema, repository nghiệp vụ, Firebase, Auth, membership hoặc tenant isolation.
+
+### Kiểm chứng còn chờ
+- Chưa chạy typecheck, ESLint, unit tests hoặc production build trong môi trường thực thi hiện tại; cần GitHub Actions xác nhận.
+- Chưa có smoke test trực tiếp trên Termux/Android và desktop; biểu đồ phải được đối chiếu với dữ liệu salon thật.
+- Cần kiểm tra toàn bộ biểu mẫu, thuật ngữ và màn hình còn lại trong nghiệm thu Owner; phần Phase 34 hiện chưa thể tuyên bố hoàn tất.
+- Không merge, không deploy Firebase/Hosting cho tới khi CI và Owner acceptance đạt.

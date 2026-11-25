@@ -208,7 +208,7 @@ export function AssistantPage() {
           }
           const next = { ...pendingProductAction, phase: 'confirm' as const, quantity, unitCostVnd: cost }
           setPendingProductAction(next)
-          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Xác nhận tạo sản phẩm và nhập tồn đầu kỳ?\n\nTên: ' + next.input.name + '\nMã SKU: ' + next.input.sku + '\nGiá bán: ' + next.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫\nSố lượng nhập: ' + quantity + ' ' + next.input.unit + '\nGiá vốn/đơn vị: ' + cost.toLocaleString('vi-VN') + ' ₫\n\nGõ “XÁC NHẬN” để ghi vào kho hoặc “HỦY” để dừng.', source: 'local' }])
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Xác nhận tạo sản phẩm và nhập tồn đầu kỳ?\n\nTên: ' + next.input.name + '\nMã sản phẩm: ' + next.input.sku + '\nGiá bán: ' + next.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫\nSố lượng nhập: ' + quantity + ' ' + next.input.unit + '\nGiá vốn/đơn vị: ' + cost.toLocaleString('vi-VN') + ' ₫\n\nGõ “XÁC NHẬN” để ghi vào kho hoặc “HỦY” để dừng.', source: 'local' }])
           return
         }
         if (/^(xac nhan|xac nhan them san pham|dong y|luu)$/.test(normalizedPrompt.trim())) {
@@ -219,13 +219,13 @@ export function AssistantPage() {
             }
             const product = await createProductWithOpeningStock(actor, pendingProductAction.input, pendingProductAction.quantity, pendingProductAction.unitCostVnd)
             setPendingProductAction(null)
-            setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã tạo sản phẩm và ghi nhận tồn đầu kỳ thành công.\n' + product.name + ' · SKU ' + (product.sku ?? '') + ' · Giá bán ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫ · Tồn ' + pendingProductAction.quantity + ' ' + product.unit + '. Giao dịch đã được ghi lịch sử kiểm kê.', source: 'local' }])
+            setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã tạo sản phẩm và ghi nhận tồn đầu kỳ thành công.\n' + product.name + ' · Mã sản phẩm ' + (product.sku ?? '') + ' · Giá bán ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫ · Tồn ' + pendingProductAction.quantity + ' ' + product.unit + '. Giao dịch đã được ghi lịch sử kiểm kê.', source: 'local' }])
             return
           }
           const product = pendingProductAction.product
           const saved = await saveProduct(actor, { name: product.name, sku: product.sku ?? '', category: product.category, unit: product.unit, salePriceVnd: pendingProductAction.salePriceVnd, trackingMode: product.trackingMode, minimumStock: product.minimumStock, active: product.active, customFields: product.customFields ?? {} }, product.id)
           setPendingProductAction(null)
-          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã cập nhật giá bán sản phẩm ' + saved.name + ' · SKU ' + (saved.sku ?? '') + ' thành ' + (saved.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫.', source: 'local' }])
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã cập nhật giá bán sản phẩm ' + saved.name + ' · Mã sản phẩm ' + (saved.sku ?? '') + ' thành ' + (saved.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫.', source: 'local' }])
           return
         }
         setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em đang chờ xác nhận thao tác sản phẩm. Gõ “XÁC NHẬN” để thực hiện hoặc “HỦY” để dừng.', source: 'local' }])
@@ -236,20 +236,20 @@ export function AssistantPage() {
       if (createProductIntent) {
         const parsed = parseProductCreateCommand(prompt)
         if (!parsed) {
-          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em nhận ra bạn muốn thêm sản phẩm, nhưng chưa đọc đủ tên, mã SKU hoặc giá bán. Vui lòng viết: “Thêm sản phẩm [tên] mã [SKU] giá [giá]”.', source: 'local' }])
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em nhận ra bạn muốn thêm sản phẩm, nhưng chưa đọc đủ tên, mã sản phẩm hoặc giá bán. Vui lòng viết: “Thêm sản phẩm [tên] mã [SKU] giá [giá]”.', source: 'local' }])
           return
         }
         const existing = await listProducts(actor)
         if (existing.some(product => (product.sku ?? '').toUpperCase() === parsed.input.sku)) {
-          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Mã SKU ' + parsed.input.sku + ' đã tồn tại. Em không tạo bản trùng; hãy yêu cầu sửa sản phẩm theo mã SKU này.', source: 'local' }])
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Mã sản phẩm ' + parsed.input.sku + ' đã tồn tại. Em không tạo bản trùng; hãy yêu cầu sửa sản phẩm theo mã sản phẩm này.', source: 'local' }])
           return
         }
         setPendingProductAction({ kind: 'create', phase: parsed.quantity && parsed.unitCostVnd !== null ? 'confirm' : 'details', input: parsed.input, quantity: parsed.quantity, unitCostVnd: parsed.unitCostVnd })
         if (!parsed.quantity || parsed.unitCostVnd === null) {
-          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em đã nhận thông tin sản phẩm:\n' + parsed.input.name + ' · SKU ' + parsed.input.sku + ' · Giá bán ' + parsed.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫.\n\nĐể ghi tồn kho và tính lợi nhuận chính xác, cần thêm số lượng nhập ban đầu và giá vốn mỗi đơn vị. Ví dụ: “Số lượng 10, giá vốn 120.000”. Chưa ghi dữ liệu.', source: 'local' }])
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em đã nhận thông tin sản phẩm:\n' + parsed.input.name + ' · Mã sản phẩm ' + parsed.input.sku + ' · Giá bán ' + parsed.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫.\n\nĐể ghi tồn kho và tính lợi nhuận chính xác, cần thêm số lượng nhập ban đầu và giá vốn mỗi đơn vị. Ví dụ: “Số lượng 10, giá vốn 120.000”. Chưa ghi dữ liệu.', source: 'local' }])
           return
         }
-        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Bạn xác nhận tạo sản phẩm ' + parsed.input.name + ' (SKU ' + parsed.input.sku + '), giá bán ' + parsed.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫, nhập ' + parsed.quantity + ' ' + parsed.input.unit + ' với giá vốn ' + (parsed.unitCostVnd ?? 0).toLocaleString('vi-VN') + ' ₫/đơn vị? Gõ “XÁC NHẬN” hoặc “HỦY”.', source: 'local' }])
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Bạn xác nhận tạo sản phẩm ' + parsed.input.name + ' (mã sản phẩm ' + parsed.input.sku + '), giá bán ' + parsed.input.salePriceVnd.toLocaleString('vi-VN') + ' ₫, nhập ' + parsed.quantity + ' ' + parsed.input.unit + ' với giá vốn ' + (parsed.unitCostVnd ?? 0).toLocaleString('vi-VN') + ' ₫/đơn vị? Gõ “XÁC NHẬN” hoặc “HỦY”.', source: 'local' }])
         return
       }
 
@@ -258,11 +258,11 @@ export function AssistantPage() {
         const products = await listProducts(actor)
         const product = products.find(item => (item.sku ?? '').toUpperCase() === updateProductIntent.sku)
         if (!product) {
-          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Không tìm thấy sản phẩm có SKU ' + updateProductIntent.sku + ' trong salon hiện tại. Không có dữ liệu nào thay đổi.', source: 'local' }])
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Không tìm thấy sản phẩm có mã sản phẩm ' + updateProductIntent.sku + ' trong salon hiện tại. Không có dữ liệu nào thay đổi.', source: 'local' }])
           return
         }
         setPendingProductAction({ kind: 'update', phase: 'confirm', product, salePriceVnd: updateProductIntent.salePriceVnd })
-        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Xác nhận cập nhật giá bán?\n' + product.name + ' · SKU ' + updateProductIntent.sku + '\nGiá cũ: ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫\nGiá mới: ' + updateProductIntent.salePriceVnd.toLocaleString('vi-VN') + ' ₫\n\nGõ “XÁC NHẬN” hoặc “HỦY”.', source: 'local' }])
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Xác nhận cập nhật giá bán?\n' + product.name + ' · Mã sản phẩm ' + updateProductIntent.sku + '\nGiá cũ: ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫\nGiá mới: ' + updateProductIntent.salePriceVnd.toLocaleString('vi-VN') + ' ₫\n\nGõ “XÁC NHẬN” hoặc “HỦY”.', source: 'local' }])
         return
       }
 
@@ -270,7 +270,7 @@ export function AssistantPage() {
       if (instruction) {
         const saved = await saveOwnerMemory(actor, instruction.category, instruction.title, instruction.content)
         await refreshLongTermMemories()
-        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Mình đã lưu vào trí nhớ dài hạn trên thiết bị này.\n\n**' + saved.title + '**\n' + saved.content + '\n\nMục này hiện chỉ nằm trên thiết bị đang dùng; chưa được đồng bộ P2P sang thiết bị khác. Khi hệ thống ghép đôi P2P hoàn thành, bộ nhớ sẽ được đưa vào hàng đợi đồng bộ mã hóa.', source: 'local' }])
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Mình đã lưu vào trí nhớ dài hạn trên thiết bị này.\n\n**' + saved.title + '**\n' + saved.content + '\n\nMục này hiện chỉ nằm trên thiết bị đang dùng; chưa được chuyển sang thiết bị khác. Khi tính năng kết nối thiết bị được bật, bộ nhớ mới có thể được chuyển đi an toàn.', source: 'local' }])
         return
       }
 
@@ -343,7 +343,7 @@ export function AssistantPage() {
   return <section className="work-page assistant-page">
     <div className="work-intro">
       <div><small>TRỢ LÝ ĐỒNG HÀNH TÓC QUYỀN</small><h2>Bộ não trợ lý của chủ tiệm</h2><p>Trí nhớ dài hạn được lưu cục bộ. Gemini chỉ là cố vấn tùy chọn, không điều khiển quyền của trợ lý.</p></div>
-      <span className="assistant-role-badge">OWNER</span>
+      <span className="assistant-role-badge">CHỦ SALON</span>
     </div>
     <div className="assistant-status-row">
       <div><span className="assistant-status-dot"/> Trợ lý nội bộ sẵn sàng</div>
@@ -359,7 +359,7 @@ export function AssistantPage() {
       </article>)}
       {busy && <div className="assistant-thinking"><Brain size={16}/> Mình đang tìm trong dữ liệu và trí nhớ nội bộ…</div>}
     </div>
-    <div className="assistant-chat-meta">Dữ liệu phân tích: IndexedDB trên thiết bị hiện tại · Chưa đồng bộ sang thiết bị khác.</div>
+    <div className="assistant-chat-meta">Trợ lý đang đọc số liệu trên thiết bị này. Dữ liệu chưa được chuyển sang thiết bị khác.</div>
     {adviserNotice && <div className="assistant-adviser-note" role="status">{adviserNotice}</div>}
     {showLatest && <button type="button" className="assistant-latest-button" onClick={goToLatest}>↓ Tin nhắn mới</button>}
     {error && <p className="form-error" role="alert">{error}</p>}
@@ -378,7 +378,7 @@ export function AssistantPage() {
       <div><strong>Trí nhớ dài hạn · {longTermMemories.length} mục</strong>
         <p>Lưu thông tin cá nhân, sở thích và câu hỏi nghiệp vụ do chủ tiệm tự dạy. Ví dụ: “Hãy ghi nhớ thêm. Tổng hợp danh sách nhân viên xuất sắc tháng này”.</p>
         {longTermMemories.length > 0 ? <ul>{longTermMemories.map(item => <li key={item.id}><strong>{item.title}:</strong> {item.content} <button type="button" className="subtle-button" onClick={() => void forgetLongTermMemory(item.id)} aria-label="Lưu trữ trí nhớ"><Trash2 size={13}/></button></li>)}</ul> : <small>Chưa có mục nào. Hãy bắt đầu bằng “Hãy ghi nhớ…”</small>}
-        <small>Dữ liệu chỉ nằm trong IndexedDB trên thiết bị hiện tại. P2P chưa được triển khai nên chưa thể xuất hiện trên thiết bị khác.</small>
+        <small>Dữ liệu hiện chỉ có trên thiết bị này. Kết nối chuyển dữ liệu trực tiếp giữa các thiết bị chưa được bật.</small>
       </div>
     </div>
     <p className="assistant-privacy-note">Trợ lý chỉ lưu trí nhớ dài hạn khi chủ tiệm chủ động yêu cầu. Mục đã lưu có thể được xem và lưu trữ. Không có dữ liệu trí nhớ nào được gửi lên Firebase hoặc Gemini. Trợ lý chưa có quyền tự sửa dữ liệu nghiệp vụ.</p>

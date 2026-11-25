@@ -231,3 +231,13 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - No business logic, routes, auth, tenant scope, Dexie or Firebase behavior intentionally changed.
 - Validation: pending CI typecheck/lint/tests/build and Owner Android/Termux + desktop/iOS visual acceptance. Do not mark Owner project complete until those checks pass.
 - Employee App remains Phase 2 and must be started only after Owner acceptance; no employee UI is included in this phase.
+
+
+## Phase 34 – Professional Analytics & thân thiện hóa Owner UX – 2026-11-25
+- Branch: `phase-34-owner-analytics-and-friendly-vietnamese-ux`, base Phase 33 `phase-33-owner-luxury-emerald-glass-pwa-shell`.
+- Added reusable SVG analytics visualization for the Reports page: smooth multi-series lines, gold area fill, grid/axis labels, per-point exact-value tooltips, legend and period totals; series use actual collected payments, refunds and expenses returned from tenant-scoped repositories.
+- Applied a unified emerald glass + champagne visual layer to Owner workspace surfaces, sidebar, forms, cards, reports and controls; retained responsive layouts, reduced-motion and forced-colors handling.
+- Reworded Owner-facing workspace labels, customer/product custom fields, device status, backup/restore guidance, demo-data notices and assistant confirmations in natural Vietnamese; added practical examples and helper explanations so non-technical salon owners understand what to enter and why.
+- No database schema, tenant boundary, authentication, business calculations, Firebase rules or stored records intentionally changed.
+- CI run #461 (`45648266830`, commit `1d63f0bc3237269e00dc8d429c315e78ef948d95`): PASS – Typecheck, ESLint, 59/59 unit tests, Production Build/PWA. Workbox precache limit set to 3 MiB so the Owner-provided 2.1 MB icon is included.
+- Runtime status: pending Owner smoke test on Termux/Android and desktop. Do not mark overall Owner acceptance PASS or merge/deploy before runtime evidence. 
