@@ -161,7 +161,7 @@ export function findCustomerLookupMatches(customers: Customer[], question: strin
     if (byPhone.length) return byPhone
   }
 
-  const tokens = [...new Set(q.split(' ').filter(token => token.length > 1 && !CUSTOMER_LOOKUP_STOP_WORDS.has(token)))]
+  if (!isCustomerLookupRequest(question)) return []\n\n  const tokens = [...new Set(q.split(' ').filter(token => token.length > 1 && !CUSTOMER_LOOKUP_STOP_WORDS.has(token)))]
   if (!tokens.length) return []
   const matches = active.map(customer => {
     const name = normalizeAssistantText(customer.fullName)
