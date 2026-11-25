@@ -237,6 +237,6 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Branch: `phase-34-owner-analytics-and-friendly-vietnamese-ux`, base Phase 33 `phase-33-owner-luxury-emerald-glass-pwa-shell`.
 - Added reusable SVG analytics visualization for the Reports page: smooth multi-series lines, gold area fill, grid/axis labels, per-point exact-value tooltips, legend and period totals; series use actual collected payments, refunds and expenses returned from tenant-scoped repositories.
 - Applied a unified emerald glass + champagne visual layer to Owner workspace surfaces, sidebar, forms, cards, reports and controls; retained responsive layouts, reduced-motion and forced-colors handling.
-- Reworded Owner-facing workspace labels and custom customer/product fields in natural Vietnamese; added practical examples and helper explanations so non-technical salon owners understand what to enter and why.
+- Reworded Owner-facing workspace labels, customer/product custom fields, device status, backup/restore guidance, demo-data notices and assistant confirmations in natural Vietnamese; added practical examples and helper explanations so non-technical salon owners understand what to enter and why.
 - No database schema, tenant boundary, authentication, business calculations, Firebase rules or stored records intentionally changed.
 - Validation status: NOT YET VERIFIED. GitHub Actions must pass typecheck/lint/unit tests/build; owner must smoke-test Android/Termux and desktop. Do not mark PASS or merge/deploy before evidence. 
