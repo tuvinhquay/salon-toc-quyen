@@ -23,5 +23,6 @@ Lỗi `Failed to execute 'objectStore' on 'IDBTransaction': The specified object
 
 ## Điều tra tiếp theo – root cause transaction seed
 - Owner xác nhận chạy local bằng Termux trên branch `fix-indexeddb-store-upgrade-p30` và lỗi vẫn xảy ra, nên migration v8 không đủ.
-- Kiểm tra `src/db/demo-data.ts`: cả `seedDemoData` và `clearDemoData` truyền `[...]demoTables` thành một tham số đơn cho `salonDb.transaction`. Dexie API yêu cầu các bảng được truyền dạng variadic: `transaction('rw', tableA, tableB, ..., callback)`. Truyền nguyên mảng khiến Dexie xử lý sai danh sách bảng và có thể ném lỗi `objectStore` không tồn tại.
-- Sửa cả hai transaction thành `salonDb.transaction('rw', ...demoTables, async () => ...)`. Không đụng tới dữ liệu đã lưu; đây là lỗi khai báo transaction, không phải tài khoản hay khách hàng.
+- Lần sửa trước đã sai: Dexie 4 hỗ trợ truyền danh sách bảng bằng array; spread toàn bộ 19 bảng thành arguments vượt overload TypeScript (chỉ nhận 3–7 arguments trong typings), khiến typecheck/build thất bại. Không sử dụng cách spread variadic.
+- Kiểm tra lại scope transaction: `assertNoRealReferences()` đọc `salonDb.workflowEvents`, nhưng `workflowEvents` không nằm trong `demoTables`. Khi truy vấn này chạy bên trong transaction, Dexie báo object store không được bao gồm/không tồn tại trong transaction. Đây là nguyên nhân cụ thể phù hợp với lỗi runtime.
+- Sửa cả `seedDemoData` và `clearDemoData` thành `salonDb.transaction('rw', [...demoTables, salonDb.workflowEvents], async () => ...)`: truyền array theo API Dexie và bổ sung workflowEvents vào scope đọc. Không xóa hoặc ghi workflowEvents, không đụng dữ liệu salon đã lưu.
