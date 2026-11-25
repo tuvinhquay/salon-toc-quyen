@@ -268,3 +268,5 @@ body{background:#062e28;color:#edf5f0}
 @media(max-width:700px){.analytics-panel{padding:16px}.analytics-heading{flex-direction:column}.analytics-chart-svg{min-width:520px}.analytics-detail-grid{grid-template-columns:1fr}.main header{background:#062f29ed}.sidebar{background:#042c27f5}}
 @media(prefers-reduced-motion:reduce){.sidebar nav a,.card,.primary-button,.analytics-line{animation:none!important;transition:none!important}}
 @media(forced-colors:active){.work-form,.card,.record,.sidebar,.main header{border:1px solid CanvasText}}
+
+.field-help{display:block;margin:9px 0 2px;color:#b9cec2;font-size:10px;line-height:1.65}.custom-fields-editor{padding:13px;border:1px dashed #cdb66b66;border-radius:11px;background:#ffffff05}.custom-field-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:9px}.custom-field-row input{min-width:0;min-height:38px;padding:9px 10px;border:1px solid #b9c9bd55;border-radius:8px;background:#052f29;color:#f3f7f4;font:inherit;font-size:11px}@media(max-width:520px){.custom-field-row{grid-template-columns:1fr}.custom-field-row button{justify-self:start}}
