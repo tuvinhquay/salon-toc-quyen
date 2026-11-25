@@ -31,6 +31,8 @@ export default defineConfig({
         // Termux uses an unminified SW; CI and production environments stay optimized.
         mode: isTermux ? 'development' : 'production',
         navigateFallback: '/index.html',
+        // Owner-provided high-resolution PNG app icon is slightly larger than Workbox's 2 MiB default.
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
       },
     }),
