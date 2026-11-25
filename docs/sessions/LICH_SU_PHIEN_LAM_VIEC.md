@@ -406,3 +406,9 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Nâng schema Dexie lên version 8, tái khai báo đầy đủ stores/indexes từ v7 để browser tự bổ sung store thiếu, không xóa records.
 - Thêm `docs/sessions/FIX-INDEXEDDB-OBJECT-STORE-P30.md` và cập nhật ROADMAP.
 - Chưa CI, chưa Android acceptance, chưa PR/merge/deploy. Tiếp tục kiểm tra CI rồi hướng dẫn Owner cập nhật branch hotfix.
+
+## Phiên tiếp theo – 2026-11-25 – Fix Dexie transaction demo seed
+- Owner xác nhận vẫn lỗi trên app local Termux, branch `fix-indexeddb-store-upgrade-p30`, sau hotfix schema v8.
+- Rà soát `src/db/demo-data.ts`, phát hiện transaction seed và clear truyền `[...demoTables]` như một argument. Dexie cần các Table arguments được spread; sửa thành `...demoTables` ở cả hai transaction.
+- Tạo branch `fix-demo-seed-dexie-transaction-tables` từ head PR #24; sửa `src/db/demo-data.ts`.
+- Cần CI, cập nhật hướng dẫn và kiểm tra Owner trên local. PR #24 vẫn Draft; chưa merge/deploy.
