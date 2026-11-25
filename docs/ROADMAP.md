@@ -172,3 +172,13 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Tests added for natural query phrasing and chart bucket aggregation.
 - Remaining: employee attribution on invoice/service lines, safe confirmed write/archive actions from chat, customer groups/custom fields CRUD, product category management, and Android runtime acceptance.
 - Status: IN PROGRESS; do not mark PASS or merge until CI + Termux + Android smoke tests pass.
+
+
+## Phase 31 – Định tuyến ý định và tra cứu đúng đối tượng – 2026-11-25
+- Owner yêu cầu trợ lý ưu tiên hiểu ý định tìm kiếm/thống kê, không cần văn phong dài hoặc thuyết trình.
+- Thêm tra cứu hồ sơ khách hàng theo tên đầy đủ, tên một phần hoặc số điện thoại; loại khách đã lưu trữ; nếu có nhiều kết quả thì liệt kê để Owner chọn, không tự chọn.
+- Khi câu hỏi có tên khách cụ thể, trả hồ sơ và số liệu hóa đơn/lịch hẹn của đúng khách thay vì rơi vào báo cáo tổng hợp hôm nay.
+- Tách xếp hạng khách theo số lịch hẹn, tổng chi tiêu hóa đơn hoặc số lượng sản phẩm mua; chỉ trả chỉ số người dùng yêu cầu. Nếu chưa nêu tiêu chí, hỏi lại.
+- Tra cứu nhân viên không tìm thấy kết quả phải báo không tìm thấy, không chuyển thành báo cáo năng suất tổng quát; yêu cầu xếp hạng vẫn giữ luồng báo cáo.
+- Thêm unit tests cho tên khách, tên một phần, điện thoại, kết quả mơ hồ, khách đã lưu trữ và phân biệt tra cứu với xếp hạng.
+- Trạng thái: code + regression tests trên branch; chờ CI và Owner Termux/Android acceptance. Chưa merge/deploy.
