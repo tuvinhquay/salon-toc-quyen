@@ -250,7 +250,9 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
   if (intent === 'staff') {
     const profile = staffProfileLookup(snapshot, question)
     if (profile) return { answer: profile, safeContext: 'Hồ sơ, ca làm và các dòng hóa đơn được gán nhân viên trong salon hiện tại.', intent, period }
-    const detailRequest = /(thong tin nhan vien|ho so nhan vien|chi tiet nhan vien|nhan vien co so dien thoai)/.test(normalizeAssistantText(question)) || question.replace(/\D/g, '').length >= 8
+    const normalizedQuestion = normalizeAssistantText(question)
+    const rankingRequest = /(nhan vien nao|top nhan vien|nhan vien .* nhat|nang suat|hieu suat|nhieu ca)/.test(normalizedQuestion)
+    const detailRequest = (!rankingRequest && /(tim nhan vien|tra cuu nhan vien|thong tin nhan vien|ho so nhan vien|chi tiet nhan vien|nhan vien [a-z])/.test(normalizedQuestion)) || question.replace(/\D/g, '').length >= 8
     if (detailRequest) return { answer: 'Em chưa tìm thấy một hồ sơ nhân viên khớp duy nhất với tên hoặc số điện thoại anh cung cấp. Anh kiểm tra lại chính tả hoặc số điện thoại trong mục Nhân viên giúp em nhé. Em không tự chọn hồ sơ gần giống để tránh nhầm người.', safeContext: 'Không tìm thấy kết quả hồ sơ nhân viên duy nhất trong salon hiện tại.', intent, period }
   }
   const lines = ['**Tổng hợp ' + range.label + '**']
@@ -282,7 +284,6 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
     }
     const rankByProductCount = /(mua nhieu san pham|so luong san pham|mua nhieu mon|so san pham nhieu nhat)/.test(q)
     const rankByAppointments = /(dat lich|lich hen|hen nhieu|quay lai nhieu|so lan den|tan suat den)/.test(q)
-    const rankBySpend = /(chi tieu|tieu nhieu|tong tien|gia tri hoa don|mua hang nhieu tien|doanh so khach)/.test(q)
     if (!rankByProductCount && !rankByAppointments && !rankBySpend) {
       lines.push('Bạn muốn tìm khách theo tên/số điện thoại, hay xếp hạng theo chi tiêu, số lịch hẹn hoặc số lượng sản phẩm mua?')
     } else if (rankByAppointments) {
