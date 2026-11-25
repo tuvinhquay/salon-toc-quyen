@@ -189,6 +189,7 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Không hướng dẫn xóa IndexedDB/local storage. CI và Android acceptance đang chờ. Session: `docs/sessions/FIX-INDEXEDDB-OBJECT-STORE-P30.md`.
 
 ## P30 – sửa lỗi transaction seed (follow-up)
-- Root cause mới xác định trong `src/db/demo-data.ts`: truyền danh sách tables dưới dạng một array argument thay vì spread từng Dexie Table vào transaction.
-- Sửa `seedDemoData` và `clearDemoData` dùng `...demoTables`.
+- Lần sửa dùng spread từng Table đã bị Owner phát hiện lỗi TypeScript: Dexie 4 typings không nhận 19 arguments; API chính thức cho phép array tables.
+- Root cause runtime được xác định ở transaction scope: `assertNoRealReferences()` truy vấn `workflowEvents`, nhưng table này bị bỏ khỏi scope transaction.
+- Sửa `seedDemoData` và `clearDemoData` dùng `salonDb.transaction('rw', [...demoTables, salonDb.workflowEvents], callback)`. `workflowEvents` chỉ được đưa vào scope để đọc kiểm tra liên kết, không bị xóa/ghi.
 - Branch follow-up: `fix-demo-seed-dexie-transaction-tables`, base `fix-indexeddb-store-upgrade-p30`. Cần CI và Owner acceptance; chưa merge/deploy.
