@@ -20,7 +20,11 @@ export default defineConfig({
         background_color: '#041f1b',
         display: 'standalone',
         start_url: '/',
-        icons: [\n          { src: '/icons/pwa-192.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },\n          { src: '/icons/pwa-512.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'any' },\n          { src: '/icons/pwa-maskable.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' },\n        ],
+        icons: [
+          { src: '/icons/pwa-192.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
+          { src: '/icons/pwa-512.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'any' },
+          { src: '/icons/pwa-maskable.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' },
+        ],
       },
       workbox: {
         // Android ARM64 Termux has a known Rollup/Terser worker early-exit issue.
