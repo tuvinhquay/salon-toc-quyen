@@ -11,7 +11,8 @@ export type SalonInvoiceProfile = {
   bankAccount: string
   aftercareNote: string
 }
-const escapeHtml = (value: unknown) => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char] ?? char))
+const htmlEntities: Record<string,string> = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}
+const escapeHtml = (value: unknown) => String(value ?? '').replace(/[&<>"']/g, char => htmlEntities[char] ?? char)
 const vnd = (value: number) => Math.round(value).toLocaleString('vi-VN') + ' ₫'
 const dateTime = (value: string) => new Date(value).toLocaleString('vi-VN',{dateStyle:'medium',timeStyle:'short'})
 const paymentLabel: Record<Payment['method'],string> = { cash:'Tiền mặt',bank_transfer:'Chuyển khoản',card:'Thẻ',other:'Khác' }
