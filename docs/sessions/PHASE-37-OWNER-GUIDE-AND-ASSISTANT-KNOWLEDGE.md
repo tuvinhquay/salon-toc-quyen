@@ -21,5 +21,5 @@ Tạo một nơi hướng dẫn dễ đọc cho chủ salon/người sử dụng
 - PR Draft; không merge/deploy.
 
 ## Kiểm tra
-- CI đang chạy sau khi tạo PR.
+- CI: PASS (Typecheck, Lint, 64/64 unit tests, production build/PWA).
 - Owner cần xem nội dung hướng dẫn trên Android/Termux và hỏi bot vài câu mẫu.
