@@ -311,7 +311,8 @@ export function AssistantPage() {
           return
         }
         try {
-          const answer = await askGeminiConversation(sanitizeQuestionForGemini(prompt), 'owner')
+          const recentQuestions = messages.filter(message => message.role === 'user').slice(-3).map(message => sanitizeQuestionForGemini(message.content).slice(0, 300)).join('\n').slice(-900)
+          const answer = await askGeminiConversation(sanitizeQuestionForGemini(prompt), 'owner', recentQuestions)
           setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answer, source: 'gemini' }])
         } catch (cause) {
           const detail = getGeminiErrorDetails(cause)
