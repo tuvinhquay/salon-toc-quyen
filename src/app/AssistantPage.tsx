@@ -10,6 +10,7 @@ import { answerAssistantAbout, answerFromMemories, applyLearnedVocabulary, findM
 import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assistant-brain-store'
 import { archiveCustomers, createProductWithOpeningStock, listCustomers, listProducts, saveProduct } from '../db/repositories'
 import { askGeminiAdviser, isGeminiAssistantReady } from './assistant-gemini'
+import { makeAssistantLanguageFriendly } from './assistant-language'
 
 type Message = { id: string; role: 'assistant' | 'user'; content: string; source?: 'local' | 'gemini' }
 
@@ -306,16 +307,16 @@ export function AssistantPage() {
         if (geminiReady) {
           try {
             const safeQuestion = await redactQuestionForGemini(actor.salonId, prompt)
-            answer += '\n\n**Góc nhìn cố vấn Gemini**\n' + await askGeminiAdviser(safeQuestion, local.safeContext, describeAssistantMemory(nextMemory))
+            answer += '\n\n**Gợi ý từ trợ lý AI**\n' + await askGeminiAdviser(safeQuestion, local.safeContext, describeAssistantMemory(nextMemory))
             source = 'gemini'
           } catch {
-            setAdviserNotice('Gemini hiện chưa kết nối được. Câu trả lời vẫn sử dụng dữ liệu nội bộ trên thiết bị.')
+            setAdviserNotice('Trợ lý AI chưa kết nối được. Em vẫn trả lời bằng dữ liệu có sẵn trên thiết bị.')
           }
         } else {
-          setAdviserNotice('Gemini chưa được cấu hình App Check. Trợ lý nội bộ vẫn hoạt động bình thường.')
+          setAdviserNotice('Trợ lý AI chưa được kết nối. Các chức năng tra cứu trên thiết bị vẫn hoạt động bình thường.')
         }
       }
-      setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answer, source }])
+      setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: makeAssistantLanguageFriendly(answer), source }])
     } catch {
       setError('Mình chưa xử lý được yêu cầu trên thiết bị. Bạn kiểm tra lại ứng dụng và thử gửi câu hỏi lần nữa nhé.')
     } finally {
@@ -342,12 +343,12 @@ export function AssistantPage() {
 
   return <section className="work-page assistant-page">
     <div className="work-intro">
-      <div><small>TRỢ LÝ ĐỒNG HÀNH TÓC QUYỀN</small><h2>Bộ não trợ lý của chủ tiệm</h2><p>Trí nhớ dài hạn được lưu cục bộ. Gemini chỉ là cố vấn tùy chọn, không điều khiển quyền của trợ lý.</p></div>
+      <div><small>TRỢ LÝ ĐỒNG HÀNH TÓC QUYỀN</small><h2>Trợ lý của chủ tiệm</h2><p>Trợ lý lưu những điều bạn chủ động dặn nhớ trên thiết bị này. Khi có kết nối, trợ lý có thể dùng AI để tư vấn thêm.</p></div>
       <span className="assistant-role-badge">OWNER</span>
     </div>
     <div className="assistant-status-row">
-      <div><span className="assistant-status-dot"/> Trợ lý nội bộ sẵn sàng</div>
-      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Cố vấn Gemini {geminiReady ? 'sẵn sàng' : 'chưa kết nối'}</div>
+      <div><span className="assistant-status-dot"/> Trợ lý sẵn sàng</div>
+      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Trợ lý AI {geminiReady ? 'đã kết nối' : 'chưa kết nối'}</div>
     </div>
     <div className="assistant-chat" aria-live="polite" aria-relevant="additions" ref={chatRef} onScroll={handleChatScroll}>
       {messages.map(message => <article className={'assistant-message ' + message.role} key={message.id}>
@@ -357,9 +358,9 @@ export function AssistantPage() {
           <div className="assistant-message-content">{message.content.split('\n').map((line, index) => <p key={index}>{line.replaceAll('**', '').replaceAll('_', '') || '\u00a0'}</p>)}</div>
         </div>
       </article>)}
-      {busy && <div className="assistant-thinking"><Brain size={16}/> Mình đang tìm trong dữ liệu và trí nhớ nội bộ…</div>}
+      {busy && <div className="assistant-thinking"><Brain size={16}/> Em đang tìm thông tin trong dữ liệu của tiệm…</div>}
     </div>
-    <div className="assistant-chat-meta">Dữ liệu phân tích: IndexedDB trên thiết bị hiện tại · Chưa đồng bộ sang thiết bị khác.</div>
+    <div className="assistant-chat-meta">Thông tin được xem từ dữ liệu lưu trên thiết bị này; hiện chưa tự chuyển sang thiết bị khác.</div>
     {adviserNotice && <div className="assistant-adviser-note" role="status">{adviserNotice}</div>}
     {showLatest && <button type="button" className="assistant-latest-button" onClick={goToLatest}>↓ Tin nhắn mới</button>}
     {error && <p className="form-error" role="alert">{error}</p>}
@@ -375,12 +376,12 @@ export function AssistantPage() {
     </div>
     <div className="assistant-memory">
       <div className="assistant-memory-icon"><Brain size={19}/></div>
-      <div><strong>Trí nhớ dài hạn · {longTermMemories.length} mục</strong>
+      <div><strong>Điều trợ lý đã ghi nhớ · {longTermMemories.length} mục</strong>
         <p>Lưu thông tin cá nhân, sở thích và câu hỏi nghiệp vụ do chủ tiệm tự dạy. Ví dụ: “Hãy ghi nhớ thêm. Tổng hợp danh sách nhân viên xuất sắc tháng này”.</p>
         {longTermMemories.length > 0 ? <ul>{longTermMemories.map(item => <li key={item.id}><strong>{item.title}:</strong> {item.content} <button type="button" className="subtle-button" onClick={() => void forgetLongTermMemory(item.id)} aria-label="Lưu trữ trí nhớ"><Trash2 size={13}/></button></li>)}</ul> : <small>Chưa có mục nào. Hãy bắt đầu bằng “Hãy ghi nhớ…”</small>}
-        <small>Dữ liệu chỉ nằm trong IndexedDB trên thiết bị hiện tại. P2P chưa được triển khai nên chưa thể xuất hiện trên thiết bị khác.</small>
+        <small>Những điều đã lưu chỉ có trên thiết bị này, chưa tự chuyển sang thiết bị khác.</small>
       </div>
     </div>
-    <p className="assistant-privacy-note">Trợ lý chỉ lưu trí nhớ dài hạn khi chủ tiệm chủ động yêu cầu. Mục đã lưu có thể được xem và lưu trữ. Không có dữ liệu trí nhớ nào được gửi lên Firebase hoặc Gemini. Trợ lý chưa có quyền tự sửa dữ liệu nghiệp vụ.</p>
+    <p className="assistant-privacy-note">Trợ lý chỉ ghi nhớ khi bạn chủ động yêu cầu. Bạn có thể xem hoặc lưu trữ các mục đã nhớ. Trợ lý không tự sửa dữ liệu kinh doanh.</p>
   </section>
 }
