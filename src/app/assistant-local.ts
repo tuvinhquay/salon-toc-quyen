@@ -1,5 +1,6 @@
 import { salonDb } from '../db/database'
 import type { Appointment, Customer, Employee, Invoice, Payment, Refund, Expense, Product, InventoryLot, Service, WorkShift } from '../db/types'
+import { buildOwnerFinanceAnswer } from './assistant-language'
 
 export type AssistantPeriod = 'today' | 'month' | 'quarter' | 'year'
 export type AssistantIntent = 'finance' | 'staff' | 'customers' | 'services' | 'appointments' | 'inventory' | 'overview' | 'general'
@@ -255,16 +256,10 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
     const detailRequest = (!rankingRequest && /(tim nhan vien|tra cuu nhan vien|thong tin nhan vien|ho so nhan vien|chi tiet nhan vien|nhan vien [a-z])/.test(normalizedQuestion)) || question.replace(/\D/g, '').length >= 8
     if (detailRequest) return { answer: 'Em chưa tìm thấy một hồ sơ nhân viên khớp duy nhất với tên hoặc số điện thoại anh cung cấp. Anh kiểm tra lại chính tả hoặc số điện thoại trong mục Nhân viên giúp em nhé. Em không tự chọn hồ sơ gần giống để tránh nhầm người.', safeContext: 'Không tìm thấy kết quả hồ sơ nhân viên duy nhất trong salon hiện tại.', intent, period }
   }
-  const lines = ['**Tổng hợp ' + range.label + '**']
-  if (intent === 'finance' || intent === 'overview') {
-    lines.push('• Doanh thu hóa đơn đã phát hành: **' + money(data.gross) + '** (' + data.invoiceCount + ' hóa đơn, không tính hóa đơn đã hủy).')
-    lines.push('• Tiền đã thu: **' + money(data.collected) + '**.')
-    lines.push('• Tiền hoàn: **' + money(data.refunded) + '**.')
-    lines.push('• Chi phí đã ghi nhận: **' + money(data.spent) + '**.')
-    lines.push('• Thu ròng sau hoàn tiền và chi phí: **' + money(data.net) + '**.')
-    lines.push('Doanh thu hóa đơn, tiền thu thực tế và thu ròng là ba chỉ số khác nhau.')
-    if (normalizeAssistantText(question).includes('loi nhuan')) lines.push('Chưa thể kết luận lợi nhuận chính xác: dữ liệu hiện chưa phân bổ đầy đủ giá vốn vật tư, chi phí nhân công và hoa hồng theo dịch vụ.')
-  }
+  const asksProfit = normalizeAssistantText(question).includes('loi nhuan')
+  const lines = intent === 'finance' || intent === 'overview'
+    ? buildOwnerFinanceAnswer(range.label, { grossInvoiceVnd: data.gross, invoiceCount: data.invoiceCount, collectedVnd: data.collected, refundedVnd: data.refunded, expensesVnd: data.spent, remainingVnd: data.net }, asksProfit)
+    : ['**Tình hình tiệm trong ' + range.label + '**']
   if (intent === 'appointments' || intent === 'overview') {
     lines.push('• Lịch hẹn: **' + data.appointmentCount + '**; hoàn thành ' + data.completedCount + ', đã hủy ' + data.cancelledCount + ', khách không đến ' + data.noShowCount + '.')
   }
@@ -314,16 +309,16 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
     else data.topServices.forEach((row, index) => lines.push('  ' + (index + 1) + '. ' + row.name + ' – ' + row.count + ' lượt'))
   }
   if (intent === 'inventory' || intent === 'overview') {
-    lines.push('• Mặt hàng bằng hoặc dưới ngưỡng tồn tối thiểu: **' + data.lowStock.length + '**.')
-    if (data.lowStock.length) data.lowStock.slice(0, 8).forEach(row => lines.push('  - ' + row.name + ': ' + row.available + ' ' + row.unit + ' (ngưỡng ' + row.minimum + ')'))
+    lines.push('• Mặt hàng còn ít hơn mức tồn cần có: **' + data.lowStock.length + '**.')
+    if (data.lowStock.length) data.lowStock.slice(0, 8).forEach(row => lines.push('  - ' + row.name + ': ' + row.available + ' ' + row.unit + ' (mức cần có ' + row.minimum + ')'))
   }
   if (intent === 'staff') {
     lines.push('• Nhân viên đang hoạt động: **' + data.activeEmployeeCount + '/' + data.employeeTotal + '**.')
     if (data.topShiftEmployees.length) {
-      lines.push('• Xếp theo tổng giờ ca làm đã hoàn thành (không phải doanh thu cá nhân):')
+      lines.push('• Xếp theo tổng số giờ làm của các ca đã hoàn thành (không phải số tiền mỗi người mang về cho tiệm):')
       data.topShiftEmployees.forEach((row, index) => lines.push('  ' + (index + 1) + '. ' + row.name + ' – ' + row.hours + ' giờ, ' + row.shifts + ' ca'))
     } else {
-      lines.push('Chưa có ca làm hoàn thành trong khoảng thời gian này. Muốn đánh giá hiệu suất dịch vụ/doanh thu từng người, hệ thống cần ghi nhận nhân viên thực hiện trên từng dịch vụ hoặc hóa đơn.')
+      lines.push('Chưa có ca làm hoàn thành trong khoảng thời gian này. Muốn biết doanh thu từng người, tiệm cần ghi lại ai là người thực hiện từng dịch vụ hoặc hóa đơn.')
     }
   }
   if (intent === 'general') {

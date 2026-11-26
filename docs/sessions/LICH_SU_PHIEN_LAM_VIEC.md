@@ -475,3 +475,13 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Tests/documentation added; CI and local Owner confirmation pending. No merge/deploy.
 
 - CI build found Owner-provided `public/icons/icon.png` (~2.1 MB) exceeded Workbox's default 2 MiB precache limit. Increased `maximumFileSizeToCacheInBytes` to 3 MiB so the icon remains available offline; no icon file modification.
+
+
+## Phiên 2026-11-26 – Phase 36: Ngôn ngữ thân thiện với chủ tiệm
+- Owner đồng ý cải thiện ngôn ngữ toàn ứng dụng vì nhiều từ đang thiên về dân kỹ thuật/kế toán.
+- Tạo branch `phase-36-owner-friendly-language` từ Phase35.
+- Cải thiện câu trả lời tài chính của Trợ lý: diễn đạt tiền còn lại sau khi trừ hoàn tiền và chi phí; không gọi là lợi nhuận cuối cùng khi thiếu tiền vật tư, tiền công hoặc hoa hồng.
+- Thêm helper chuyển thuật ngữ, cập nhật hướng dẫn AI cố vấn, tiêu đề/nhãn trên Assistant, Dashboard, Reports và RevenueChart.
+- Unit tests mới cho câu trả lời lợi nhuận và thay thuật ngữ. Cần CI và Owner kiểm tra runtime.
+- Không thay công thức tài chính, dữ liệu, schema, auth, tenant scope, quyền Owner hoặc thao tác ghi. Không merge/deploy.
+- Tài liệu chi tiết: `docs/sessions/PHASE-36-OWNER-FRIENDLY-LANGUAGE.md`.
