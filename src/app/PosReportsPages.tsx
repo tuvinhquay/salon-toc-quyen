@@ -111,7 +111,7 @@ export function ReportsPage(){
  useEffect(()=>{void loadRange(initialRange.startAt,initialRange.endAt)},[loadRange,initialRange])
  const hasChartData=buckets.some(row=>row.collected>0||row.refunded>0||row.expenses>0)
  return <section className="work-page">
-  <div className="work-intro"><div><small>P09 · BÁO CÁO</small><h2>Báo cáo hoạt động</h2><p>Tổng hợp từ hóa đơn, thanh toán, hoàn tiền và chi phí đã ghi nhận.</p></div></div>
+  <div className="work-intro"><div><small>P09 · BÁO CÁO</small><h2>Báo cáo thu chi</h2><p>Xem tiền trên hóa đơn, tiền tiệm đã thu, tiền hoàn lại và các khoản chi.</p></div></div>
   <div className="report-presets"><span>Xem nhanh:</span><button type="button" className="subtle-button" onClick={()=>setPreset('fiveMonths')}>5 tháng gần nhất</button><button type="button" className="subtle-button" onClick={()=>setPreset('today')}>Hôm nay</button><button type="button" className="subtle-button" onClick={()=>setPreset('month')}>Tháng này</button><button type="button" className="subtle-button" onClick={()=>setPreset('quarter')}>Quý này</button><button type="button" className="subtle-button" onClick={()=>setPreset('year')}>Năm nay</button></div>
   <form className="work-form" onSubmit={e=>void load(e)}>
    <div className="form-grid"><Field label="Từ ngày"><input type="datetime-local" required value={start} onChange={e=>setStart(e.target.value)}/></Field><Field label="Đến trước ngày"><input type="datetime-local" required value={end} onChange={e=>setEnd(e.target.value)}/></Field></div>
@@ -119,15 +119,15 @@ export function ReportsPage(){
   </form>
   {report&&<>
    <div className="cards">
-    <article className="card report-net-card"><small>THU RÒNG</small><h3>{formatVnd(report.netCollectedVnd)}</h3><p>Đã thu − hoàn tiền − chi phí</p></article>
+    <article className="card report-net-card"><small>TIỀN CÒN LẠI</small><h3>{formatVnd(report.netCollectedVnd)}</h3><p>Tiền đã thu − tiền hoàn − các khoản chi</p></article>
     <article className="card"><small>ĐÃ THU</small><h3>{formatVnd(report.collectedVnd)}</h3></article>
-    <article className="card"><small>DOANH SỐ PHÁT HÀNH</small><h3>{formatVnd(report.grossSalesVnd)}</h3></article>
+    <article className="card"><small>TỔNG TIỀN HÓA ĐƠN</small><h3>{formatVnd(report.grossSalesVnd)}</h3></article>
     <article className="card"><small>SỐ HÓA ĐƠN</small><h3>{report.invoiceCount}</h3></article>
-    <article className="card"><small>ĐÃ HOÀN</small><h3>{formatVnd(report.refundedVnd)}</h3></article>
-    <article className="card"><small>CHI PHÍ</small><h3>{formatVnd(report.expensesVnd)}</h3></article>
+    <article className="card"><small>ĐÃ HOÀN TIỀN</small><h3>{formatVnd(report.refundedVnd)}</h3></article>
+    <article className="card"><small>CÁC KHOẢN ĐÃ CHI</small><h3>{formatVnd(report.expensesVnd)}</h3></article>
    </div>
    <section className="work-form revenue-chart">
-    <div className="list-heading"><div><h3>Biểu đồ thu – chi</h3><p className="record-note">Theo ngày khi khoảng xem không quá 45 ngày; theo tháng khi dài hơn.</p></div></div>
+    <div className="list-heading"><div><h3>Tiền thu và các khoản chi</h3><p className="record-note">Xem theo từng ngày hoặc từng tháng tùy khoảng thời gian.</p></div></div>
     {!hasChartData?<p className="empty-state report-empty">Không có giao dịch trong khoảng này. Nếu bạn vừa tạo dữ liệu mẫu, hãy chọn “5 tháng gần nhất”.</p>:<RevenueChart buckets={buckets} totals={{collected:report.collectedVnd,refunded:report.refundedVnd,expenses:report.expensesVnd,net:report.netCollectedVnd}}/>}
    </section>
   </>}
