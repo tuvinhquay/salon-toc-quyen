@@ -515,3 +515,17 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Vite đọc `.env.local` từ project root; `.gitignore` đã bỏ qua `.env`, `.env.*` và `*.local`. Sau khi thay env phải restart Vite. Các biến VITE_ được đưa vào bundle client; Firebase Web API key là config public, không phải Gemini secret. Không gửi key qua chat.
 - Tạo branch `phase-39-gemini-env-path-diagnostics` từ Phase38. Thêm diagnostics không lộ key (projectId, key loaded flag, site key loaded flag, App Check state, model) và hiển thị SDK error code/message đã redact key-like values. Cập nhật typing App Check env và CI filters.
 - Chưa chạy CI thành công/ chưa có kết quả; chờ Owner kiểm tra giá trị local bằng lệnh bảo mật, chạy app và cung cấp mã lỗi chi tiết. Không merge/deploy.
+
+
+## Phiên 2026-11-26 – Phase 40: Gemini hội thoại, định tuyến local/hybrid và giới hạn quyền
+- Tạo branch `phase-40-gemini-role-aware-assistant-routing` từ Phase 39; không sửa main, không merge và không deploy.
+- Tách định tuyến câu hỏi bằng `assistant-routing.ts`: chat/sáng tác thông thường đi thẳng Gemini, câu hỏi nghiệp vụ chính xác dùng bộ máy local, yêu cầu tư vấn kết hợp số liệu nghiệp vụ đã tổng hợp với Gemini.
+- Luồng chat thông thường không gọi `answerOwnerQuestion`, không mở IndexedDB salon, không đọc danh sách khách hàng/nhân viên và không nạp trí nhớ salon. Email/số điện thoại dạng rõ ràng được che trước khi gửi Gemini.
+- Luồng hybrid vẫn tính toán tại thiết bị theo salonId. Gemini chỉ nhận câu hỏi đã redaction, số liệu tổng hợp safeContext và thống kê thói quen; không nhận hồ sơ khách hàng/nhân viên, không được quyền ghi hoặc thực hiện thao tác.
+- Bổ sung `askGeminiConversation` với prompt hội thoại tự nhiên và role context OWNER lấy từ màn hình Owner đã được AuthGate bảo vệ. Gemini không được quyền tự xác định membership hoặc cấp quyền.
+- Thêm timeout: live probe 15 giây, tư vấn 25 giây, hội thoại 30 giây; hiển thị lỗi chi tiết đã lọc và kết thúc trạng thái chờ thay vì treo vô hạn.
+- Sửa nhãn cấu hình: hiển thị rõ Firebase Web API key, không gọi nhầm đó là Gemini API key; nhãn Gemini chỉ nói có cấu hình cơ bản, không khẳng định kết nối live trước khi probe thành công.
+- Bổ sung unit tests cho route chat/local/hybrid, và che email/số điện thoại + giới hạn độ dài prompt.
+- Ranh giới vai trò: AuthGate hiện chỉ chấp nhận membership active + role owner + salonId hợp lệ; Employee App/Auth/Membership chưa triển khai. Không cho nhân viên vào Owner Assistant và không giả định hồ sơ nhân viên trong bảng nhân sự là tài khoản đăng nhập. Employee AI sẽ cần membership riêng, quyền dữ liệu riêng và context vai trò được xác minh trước khi bật.
+- Cần CI xác nhận typecheck/lint/tests/build, review diff, rồi Owner chạy Termux/Android: hỏi làm thơ, chat tự nhiên, tra cứu doanh thu/kho/nhân viên/khách, tư vấn kết hợp dữ liệu, kiểm tra Gemini timeout và App Check.
+- Trạng thái: IMPLEMENTED ON BRANCH; chưa PASS runtime, chưa merge, chưa deploy. Không thay Firestore Rules, Firebase config, model ID hoặc billing.
