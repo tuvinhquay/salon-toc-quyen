@@ -275,3 +275,5 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Cải thiện prompt Gemini theo phong cách trò chuyện tiếng Việt tự nhiên, thân thiện, ngắn gọn; giữ local-first cho hướng dẫn, tra cứu và tính toán, Gemini chỉ cố vấn khi cần.
 - CI branch filter đã thêm Phase38. Chờ CI + Owner runtime test bằng nút kiểm tra Gemini trên Android/Termux. Không merge/deploy trước nghiệm thu.
 - Session: `docs/sessions/PHASE-38-GEMINI-LIVE-CHECK-AND-NATURAL-CHAT.md`.
+
+- Follow-up Phase38: thêm ngữ cảnh tối đa 3 câu hỏi gần nhất đã lọc thông tin nhận diện (tối đa 900 ký tự) cho câu hỏi nối tiếp; không gửi câu trả lời local trước đó.
