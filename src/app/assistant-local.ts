@@ -1,5 +1,6 @@
 import { salonDb } from '../db/database'
 import type { Appointment, Customer, Employee, Invoice, Payment, Refund, Expense, Product, InventoryLot, Service, WorkShift } from '../db/types'
+import { buildOwnerFinanceAnswer } from './assistant-language'
 
 export type AssistantPeriod = 'today' | 'month' | 'quarter' | 'year'
 export type AssistantIntent = 'finance' | 'staff' | 'customers' | 'services' | 'appointments' | 'inventory' | 'overview' | 'general'
@@ -255,16 +256,10 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
     const detailRequest = (!rankingRequest && /(tim nhan vien|tra cuu nhan vien|thong tin nhan vien|ho so nhan vien|chi tiet nhan vien|nhan vien [a-z])/.test(normalizedQuestion)) || question.replace(/\D/g, '').length >= 8
     if (detailRequest) return { answer: 'Em chưa tìm thấy một hồ sơ nhân viên khớp duy nhất với tên hoặc số điện thoại anh cung cấp. Anh kiểm tra lại chính tả hoặc số điện thoại trong mục Nhân viên giúp em nhé. Em không tự chọn hồ sơ gần giống để tránh nhầm người.', safeContext: 'Không tìm thấy kết quả hồ sơ nhân viên duy nhất trong salon hiện tại.', intent, period }
   }
-  const lines = ['**Tổng hợp ' + range.label + '**']
-  if (intent === 'finance' || intent === 'overview') {
-    lines.push('• Doanh thu hóa đơn đã phát hành: **' + money(data.gross) + '** (' + data.invoiceCount + ' hóa đơn, không tính hóa đơn đã hủy).')
-    lines.push('• Tiền đã thu: **' + money(data.collected) + '**.')
-    lines.push('• Tiền hoàn: **' + money(data.refunded) + '**.')
-    lines.push('• Chi phí đã ghi nhận: **' + money(data.spent) + '**.')
-    lines.push('• Thu ròng sau hoàn tiền và chi phí: **' + money(data.net) + '**.')
-    lines.push('Doanh thu hóa đơn, tiền thu thực tế và thu ròng là ba chỉ số khác nhau.')
-    if (normalizeAssistantText(question).includes('loi nhuan')) lines.push('Chưa thể kết luận lợi nhuận chính xác: dữ liệu hiện chưa phân bổ đầy đủ giá vốn vật tư, chi phí nhân công và hoa hồng theo dịch vụ.')
-  }
+  const asksProfit = normalizeAssistantText(question).includes('loi nhuan')
+  const lines = intent === 'finance' || intent === 'overview'
+    ? buildOwnerFinanceAnswer(range.label, { grossInvoiceVnd: data.gross, invoiceCount: data.invoiceCount, collectedVnd: data.collected, refundedVnd: data.refunded, expensesVnd: data.spent, remainingVnd: data.net }, asksProfit)
+    : ['**Tình hình tiệm trong ' + range.label + '**']
   if (intent === 'appointments' || intent === 'overview') {
     lines.push('• Lịch hẹn: **' + data.appointmentCount + '**; hoàn thành ' + data.completedCount + ', đã hủy ' + data.cancelledCount + ', khách không đến ' + data.noShowCount + '.')
   }
