@@ -313,7 +313,9 @@ export function AssistantPage() {
         if (geminiReady) {
           try {
             const safeQuestion = await redactQuestionForGemini(actor.salonId, prompt)
-            answer += '\n\n**Gợi ý từ trợ lý AI**\n' + await askGeminiAdviser(safeQuestion, local.safeContext, describeAssistantMemory(nextMemory))
+            const recentQuestions = await Promise.all(messages.filter(message => message.role === 'user').slice(-3).map(message => redactQuestionForGemini(actor.salonId, message.content)))
+            const conversationContext = recentQuestions.map(item => item.slice(0, 300)).join('\n').slice(-900)
+            answer += '\n\n**Gợi ý từ trợ lý AI**\n' + await askGeminiAdviser(safeQuestion, local.safeContext, describeAssistantMemory(nextMemory), conversationContext)
             source = 'gemini'
           } catch {
             setAdviserNotice('Trợ lý AI chưa kết nối được. Em vẫn trả lời bằng dữ liệu có sẵn trên thiết bị.')
