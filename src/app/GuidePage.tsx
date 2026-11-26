@@ -6,7 +6,7 @@ import { guideTopics, normalizeGuideText } from './guide-content'
 export function GuidePage() {
   const [search, setSearch] = useState('')
   const query = normalizeGuideText(search)
-  const topics = useMemo(() => guideTopics.filter(topic => !query || [topic.title, topic.summary, ...topic.keywords, ...topic.steps, ...(topic.tips ?? [])].join(' ').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/đ/g, 'd').toLocaleLowerCase('vi').includes(query)), [query])
+  const topics = useMemo(() => guideTopics.filter(topic => !query || normalizeGuideText([topic.title, topic.summary, ...topic.keywords, ...topic.steps, ...(topic.tips ?? [])].join(' ')).includes(query)), [query])
   return <section className="work-page owner-guide">
     <div className="work-intro"><div><small>TRỢ GIÚP · TÓC QUYỀN</small><h2>Hướng dẫn & giới thiệu</h2><p>Hướng dẫn từng bước để bạn và nhân viên làm quen, sử dụng các mục trong ứng dụng dễ dàng hơn.</p></div></div>
     <div className="guide-hero">
