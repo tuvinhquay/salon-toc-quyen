@@ -473,3 +473,5 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - New default range spans five-month demo data, quick preset added, quick filters trigger immediate reload, and chart replaced with a responsive SVG dashboard with readable axes/grid/legend/tooltip labels.
 - Net collected card made prominent and chart data presence checked from transaction values.
 - Tests/documentation added; CI and local Owner confirmation pending. No merge/deploy.
+
+- CI build found Owner-provided `public/icons/icon.png` (~2.1 MB) exceeded Workbox's default 2 MiB precache limit. Increased `maximumFileSizeToCacheInBytes` to 3 MiB so the icon remains available offline; no icon file modification.
