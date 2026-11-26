@@ -9,7 +9,7 @@ import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, rea
 import { answerAssistantAbout, answerFromMemories, applyLearnedVocabulary, findMatchingAssistantShortcut, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
 import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assistant-brain-store'
 import { archiveCustomers, createProductWithOpeningStock, listCustomers, listProducts, saveProduct } from '../db/repositories'
-import { askGeminiAdviser, isGeminiAssistantReady } from './assistant-gemini'
+import { askGeminiAdviser, isGeminiAssistantReady, testGeminiConnection } from './assistant-gemini'
 import { makeAssistantLanguageFriendly } from './assistant-language'
 import { isGuideQuestion } from './guide-content'
 
@@ -91,6 +91,8 @@ export function AssistantPage() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [adviserNotice, setAdviserNotice] = useState<string | null>(null)
+  const [geminiTestState, setGeminiTestState] = useState<'idle' | 'testing' | 'success' | 'failed'>('idle')
+  const [geminiTestMessage, setGeminiTestMessage] = useState<string | null>(null)
   const chatRef = useRef<HTMLDivElement | null>(null)
   const stickToLatestRef = useRef(true)
   const [showLatest, setShowLatest] = useState(false)
@@ -328,6 +330,24 @@ export function AssistantPage() {
     }
   }
 
+  async function testGemini() {
+    setGeminiTestState('testing')
+    setGeminiTestMessage(null)
+    try {
+      await testGeminiConnection()
+      setGeminiTestState('success')
+      setGeminiTestMessage('Gemini đã phản hồi thành công. Kết nối API đang hoạt động.')
+    } catch (cause) {
+      setGeminiTestState('failed')
+      const detail = cause instanceof Error ? (cause.message + ' ' + ('code' in cause ? String((cause as { code?: unknown }).code ?? '') : '')).toLowerCase() : ''
+      if (!geminiReady) setGeminiTestMessage('Chưa đủ cấu hình Firebase hoặc App Check để gọi Gemini.')
+      else if (/429|quota|resource.exhausted|rate.limit/.test(detail)) setGeminiTestMessage('Gemini đang hết lượt hoặc chạm giới hạn miễn phí. Bạn thử lại sau khi hạn mức được làm mới nhé.')
+      else if (/app.check|appcheck|recaptcha|permission.denied|403/.test(detail)) setGeminiTestMessage('Gemini bị chặn bởi App Check hoặc quyền Firebase. Cần kiểm tra cấu hình ứng dụng và AI Logic trong Firebase Console.')
+      else if (/api.key|api_key|invalid.argument|400/.test(detail)) setGeminiTestMessage('Cấu hình API chưa hợp lệ. Hãy kiểm tra Firebase AI Logic và cấu hình Firebase của ứng dụng.')
+      else setGeminiTestMessage('Chưa gọi được Gemini. Có thể dịch vụ chưa bật, mạng không ổn định hoặc cấu hình Firebase còn thiếu.')
+    }
+  }
+
   function submit(event: FormEvent) {
     event.preventDefault()
     void send()
@@ -352,8 +372,10 @@ export function AssistantPage() {
     </div>
     <div className="assistant-status-row">
       <div><span className="assistant-status-dot"/> Trợ lý sẵn sàng</div>
-      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Trợ lý AI {geminiReady ? 'đã kết nối' : 'chưa kết nối'}</div>
+      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Gemini {geminiReady ? 'đã cấu hình' : 'chưa cấu hình'}</div>
+      <button type="button" className="subtle-button" onClick={() => void testGemini()} disabled={!geminiReady || geminiTestState === 'testing'}><Sparkles size={14}/> {geminiTestState === 'testing' ? 'Đang kiểm tra…' : 'Kiểm tra kết nối'}</button>
     </div>
+    {geminiTestMessage && <p className={geminiTestState === 'success' ? 'assistant-gemini-test-success' : 'assistant-adviser-note'} role="status">{geminiTestMessage}</p>}
     <div className="assistant-chat" aria-live="polite" aria-relevant="additions" ref={chatRef} onScroll={handleChatScroll}>
       {messages.map(message => <article className={'assistant-message ' + message.role} key={message.id}>
         <span className="assistant-message-icon">{message.role === 'assistant' ? <Bot size={17}/> : <UserRound size={17}/>}</span>
