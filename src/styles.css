@@ -269,3 +269,24 @@ html,body{background:#031c17;color:#f8f4e8}
  .card,.work-form,.record,.module-page,.assistant-chat,.assistant-composer{background:#f5f9f5}
  .auth-card,.sidebar,.main header{background:#062d25}
 }
+
+/* Phase 35 — report dashboard and chart visualization */
+.report-net-card{background:linear-gradient(135deg,rgba(7,78,60,.96),rgba(4,47,39,.96))!important;border:1px solid rgba(230,201,143,.68)!important;box-shadow:0 12px 35px rgba(0,20,15,.24),inset 0 1px rgba(255,255,255,.12)}
+.report-net-card small,.report-net-card h3,.report-net-card p{color:#fff0c9!important}
+.report-net-card h3{font-size:clamp(1.25rem,2.1vw,1.85rem);font-variant-numeric:tabular-nums}
+.report-net-card p{font-size:.76rem;opacity:.88;margin:.45rem 0 0}
+.report-chart-shell{margin-top:.8rem;padding:1rem .8rem .7rem;border:1px solid rgba(20,77,59,.12);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.84),rgba(241,247,242,.94));overflow:hidden}
+.report-chart-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.report-chart-heading h4{margin:0;color:#143c30;font-size:1rem}
+.report-chart-heading p{margin:.3rem 0 0;color:#5a7166;font-size:.78rem}
+.report-chart-legend{display:flex;flex-wrap:wrap;gap:.6rem 1rem;margin:.85rem 0 .25rem}
+.report-chart-legend span{display:inline-flex;align-items:center;gap:.4rem;color:#415d51;font-size:.78rem}
+.report-chart-legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+.report-chart-legend .collected{background:#0f806b}.report-chart-legend .refunded{background:#8b5cf6}.report-chart-legend .expenses{background:#d6a34c}
+.report-chart-scroll{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+.report-chart-svg{display:block;width:100%;height:auto;min-width:620px}
+.report-chart-svg text{font-family:Inter,system-ui,sans-serif}
+.report-chart-footer{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;justify-content:space-between;margin-top:.65rem;padding-top:.75rem;border-top:1px solid rgba(20,77,59,.12);color:#486257;font-size:.78rem}
+.report-chart-footer strong{color:#183f32;font-variant-numeric:tabular-nums}
+.report-empty{border:1px dashed rgba(20,77,59,.25);background:rgba(255,255,255,.7);padding:1rem;border-radius:12px;color:#496258}
+@media(max-width:520px){.report-chart-shell{padding:.75rem .55rem}.report-chart-svg{min-width:700px}.report-chart-footer{flex-direction:column;gap:.45rem}}

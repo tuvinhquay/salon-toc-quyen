@@ -31,6 +31,8 @@ export default defineConfig({
         // Termux uses an unminified SW; CI and production environments stay optimized.
         mode: isTermux ? 'development' : 'production',
         navigateFallback: '/index.html',
+        // The Owner-provided public/icons/icon.png is ~2.1 MB; keep it precached for offline PWA use.
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
       },
     }),

@@ -464,3 +464,14 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Hóa đơn A4: thay hoa văn hình học bằng họa tiết đầu nai có sừng và watermark nhẹ; không thay logo nhận diện app (vẫn kéo cắt tóc).
 - Branch `phase-34-owner-glass-contrast-global-video-invoice-deer`, stacked từ Phase 33; PR #29 vẫn Draft. Không merge/deploy.
 - Kiểm thử CI và Owner visual acceptance còn pending.
+
+ 
+## Phase 35 – Reports: 5-month demo range & visual chart – 2026-11-26
+- Owner reported Reports showing 0 VND despite five-month demo net revenue ~25M; visual chart unchanged/simple.
+- Code inspection: ReportsPage defaulted to today only; P30 seed covers five calendar months. This explains zero when today's dataset has no payment.
+- Fix branch `phase-35-reports-five-month-data-and-visual-chart`, stacked on Phase34 visual accepted branch.
+- New default range spans five-month demo data, quick preset added, quick filters trigger immediate reload, and chart replaced with a responsive SVG dashboard with readable axes/grid/legend/tooltip labels.
+- Net collected card made prominent and chart data presence checked from transaction values.
+- Tests/documentation added; CI and local Owner confirmation pending. No merge/deploy.
+
+- CI build found Owner-provided `public/icons/icon.png` (~2.1 MB) exceeded Workbox's default 2 MiB precache limit. Increased `maximumFileSizeToCacheInBytes` to 3 MiB so the icon remains available offline; no icon file modification.
