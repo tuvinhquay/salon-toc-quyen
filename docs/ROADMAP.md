@@ -250,3 +250,5 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Chart empty-state now checks whether transactions exist, not merely whether date buckets exist.
 - Tests added for the five-month default and a 25,000,000 VND sample transaction aggregate.
 - Pending CI typecheck/lint/tests/build and Owner local verification against demo dataset. Do not merge/deploy until confirmed.
+
+- CI build found Owner-provided `public/icons/icon.png` (~2.1 MB) exceeded Workbox's default 2 MiB precache limit. Increased `maximumFileSizeToCacheInBytes` to 3 MiB so the icon remains available offline; no icon file modification.
