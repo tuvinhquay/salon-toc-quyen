@@ -252,3 +252,11 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Pending CI typecheck/lint/tests/build and Owner local verification against demo dataset. Do not merge/deploy until confirmed.
 
 - CI build found Owner-provided `public/icons/icon.png` (~2.1 MB) exceeded Workbox's default 2 MiB precache limit. Increased `maximumFileSizeToCacheInBytes` to 3 MiB so the icon remains available offline; no icon file modification.
+
+
+## Phase 36 – Ngôn ngữ thân thiện với chủ tiệm – 2026-11-26
+- Tạo branch `phase-36-owner-friendly-language` từ Phase35; cải thiện cách trả lời tài chính và thuật ngữ ở Trợ lý, Dashboard, Báo cáo và biểu đồ.
+- Trợ lý trả lời câu hỏi lợi nhuận bằng “tiền còn lại sau khi trừ tiền hoàn và chi phí”, đồng thời cảnh báo rõ chưa phải lợi nhuận cuối cùng nếu còn thiếu tiền vật tư, tiền công hoặc hoa hồng.
+- Thêm bộ chuyển đổi ngôn ngữ cho lời tư vấn AI; hướng dẫn AI dùng tiếng Việt đời thường, kết quả trước, tránh thuật ngữ kỹ thuật.
+- Thêm tests; cập nhật session docs. Không đổi công thức, dữ liệu, schema, auth, tenant scope hay nghiệp vụ.
+- CI và Owner acceptance pending. PR Draft; không merge/deploy.
