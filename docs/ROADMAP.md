@@ -267,3 +267,13 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Tích hợp nội dung vào Trợ lý cục bộ: câu hỏi cách sử dụng app trả lời từ kiến thức hướng dẫn sẵn có, không cần Gemini và không truy cập dữ liệu salon.
 - Làm rõ giới hạn đồng bộ thiết bị, backup, dữ liệu mẫu và cách hiểu số liệu tài chính.
 - Thêm kiểm thử định tuyến câu hỏi hướng dẫn. CI/Owner acceptance pending; PR Draft, chưa merge/deploy.
+
+
+## Phase 38 – Kiểm tra Gemini live & trò chuyện tự nhiên – 2026-11-26
+- Rà soát xác nhận app đã tích hợp Firebase AI Logic SDK, Gemini Developer API backend và model `gemini-3.8-flash`; tuy nhiên trạng thái cũ chỉ kiểm tra cấu hình Firebase/App Check, chưa xác minh request thật.
+- Thêm nút **Kiểm tra kết nối** gọi model thật với prompt rất ngắn và giới hạn output; UI phân biệt “đã cấu hình” với “đã phản hồi”. Hiển thị hướng xử lý khi gặp quota 429, App Check/quyền hoặc cấu hình lỗi.
+- Cải thiện prompt Gemini theo phong cách trò chuyện tiếng Việt tự nhiên, thân thiện, ngắn gọn; giữ local-first cho hướng dẫn, tra cứu và tính toán, Gemini chỉ cố vấn khi cần.
+- CI branch filter đã thêm Phase38. Chờ CI + Owner runtime test bằng nút kiểm tra Gemini trên Android/Termux. Không merge/deploy trước nghiệm thu.
+- Session: `docs/sessions/PHASE-38-GEMINI-LIVE-CHECK-AND-NATURAL-CHAT.md`.
+
+- Follow-up Phase38: thêm ngữ cảnh tối đa 3 câu hỏi gần nhất đã lọc thông tin nhận diện (tối đa 900 ký tự) cho câu hỏi nối tiếp; không gửi câu trả lời local trước đó.
