@@ -26,3 +26,5 @@ Base: `phase-34-owner-glass-contrast-global-video-invoice-deer`
 - GitHub Actions: pending.
 - Owner cần kiểm tra trên Termux với bộ demo hiện tại: chọn “5 tháng gần nhất”, đối chiếu thu/hoàn/chi và thu ròng với 25 triệu VND được báo cáo.
 - Không merge/deploy cho đến khi CI PASS và Owner xác nhận.
+
+- CI build found Owner-provided `public/icons/icon.png` (~2.1 MB) exceeded Workbox's default 2 MiB precache limit. Increased `maximumFileSizeToCacheInBytes` to 3 MiB so the icon remains available offline; no icon file modification.
