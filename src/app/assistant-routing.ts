@@ -10,6 +10,7 @@ export function classifyAssistantRoute(question: string, intent: AssistantIntent
   if (intent === 'guide') return 'local'
   const advisory = advisoryPattern.test(normalize(question))
   if (intent === 'general') return advisory ? 'hybrid' : 'chat'
+  if (intent === 'overview') return 'hybrid'
   return advisory ? 'hybrid' : 'local'
 }
 
