@@ -407,7 +407,7 @@ export function AssistantPage() {
       {messages.map(message => <article className={'assistant-message ' + message.role} key={message.id}>
         <span className="assistant-message-icon">{message.role === 'assistant' ? <Bot size={17}/> : <UserRound size={17}/>}</span>
         <div className="assistant-message-body">
-          <small>{message.role === 'assistant' ? (message.source === 'gemini' ? 'TRỢ LÝ · GEMINI CỐ VẤN' : 'TRỢ LÝ TÓC QUYỀN') : 'BẠN'}</small>
+          <small>{message.role === 'assistant' ? (message.source === 'gemini' ? 'TRỢ LÝ · GEMINI AI' : 'TRỢ LÝ TÓC QUYỀN') : 'BẠN'}</small>
           <div className="assistant-message-content">{message.content.split('\n').map((line, index) => <p key={index}>{line.replaceAll('**', '').replaceAll('_', '') || '\u00a0'}</p>)}</div>
         </div>
       </article>)}
