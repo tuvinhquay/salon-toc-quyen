@@ -77,7 +77,7 @@ export async function askGeminiAdviser(question: string, safeContext: string, me
 }
 
 /** General conversation is sent directly to Gemini without reading salon IndexedDB or memories. */
-export async function askGeminiConversation(question: string, role: 'owner' | 'employee' = 'owner'): Promise<string> {
+export async function askGeminiConversation(question: string, role: 'owner' | 'employee'): Promise<string> {
   if (!firebaseApp || !appCheck) throw new Error('GEMINI_NOT_CONFIGURED')
   const ai = getAI(firebaseApp, { backend: new GoogleAIBackend() })
   const model = getGenerativeModel(ai, {
