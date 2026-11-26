@@ -485,3 +485,13 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Unit tests mới cho câu trả lời lợi nhuận và thay thuật ngữ. Cần CI và Owner kiểm tra runtime.
 - Không thay công thức tài chính, dữ liệu, schema, auth, tenant scope, quyền Owner hoặc thao tác ghi. Không merge/deploy.
 - Tài liệu chi tiết: `docs/sessions/PHASE-36-OWNER-FRIENDLY-LANGUAGE.md`.
+
+
+## Phiên 2026-11-26 – Phase 37: Hướng dẫn & giới thiệu
+- Owner yêu cầu thêm mục hướng dẫn sử dụng app đầy đủ, dễ hiểu từ thao tác nhỏ đến các tính năng chính, đồng thời tích hợp nội dung vào bot để hỏi đáp.
+- Tạo branch `phase-37-owner-guide-and-assistant-knowledge` từ Phase36.
+- Thêm mục menu và trang hướng dẫn tìm kiếm/thu gọn; 13 chủ đề bao gồm đăng nhập/bắt đầu, lịch hẹn, khách, quy trình, nhân viên, dịch vụ, kho, thu ngân, báo cáo, trợ lý, thiết bị, backup, cài đặt/dữ liệu mẫu.
+- Trợ lý định tuyến câu hỏi hướng dẫn về nội dung cục bộ trước khi đọc dữ liệu kinh doanh; các câu hỏi hướng dẫn không cần gọi Gemini.
+- Nêu rõ giới hạn đồng bộ nhiều thiết bị và các lưu ý dữ liệu mẫu/tài chính. Thêm tests, cập nhật roadmap/session.
+- CI và Owner acceptance pending. Không đổi schema, dữ liệu, auth, tenant scope, quyền hoặc công thức; không merge/deploy.
+- Chi tiết: `docs/sessions/PHASE-37-OWNER-GUIDE-AND-ASSISTANT-KNOWLEDGE.md`.

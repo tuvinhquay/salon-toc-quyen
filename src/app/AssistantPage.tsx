@@ -11,6 +11,7 @@ import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assist
 import { archiveCustomers, createProductWithOpeningStock, listCustomers, listProducts, saveProduct } from '../db/repositories'
 import { askGeminiAdviser, isGeminiAssistantReady } from './assistant-gemini'
 import { makeAssistantLanguageFriendly } from './assistant-language'
+import { isGuideQuestion } from './guide-content'
 
 type Message = { id: string; role: 'assistant' | 'user'; content: string; source?: 'local' | 'gemini' }
 
@@ -65,6 +66,9 @@ const suggestions = [
   'Nhân viên nào có nhiều ca làm nhất tháng này?',
   'Tìm sản phẩm dầu gội trong kho.',
   'Bạn có thể làm được gì?',
+  'Hướng dẫn mình cách tạo lịch hẹn.',
+  'Cách lập hóa đơn và ghi nhận tiền khách trả?',
+  'Ứng dụng có những tính năng nào?',
   'Ai đã tạo ra bạn?',
 ]
 const needsAdviser = (question: string, intent: string) => intent === 'general' || /(tu van|giai thich|de xuat|nen lam gi|lam sao|chien luoc|ke hoach|vi sao)/i.test(question.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))
@@ -77,7 +81,7 @@ export function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([{
     id: 'welcome',
     role: 'assistant',
-    content: ownerName ? 'Dạ, em chào anh ' + ownerName + '! Hôm nay anh cần em hỗ trợ gì ạ? Em có thể tra cứu nhân viên, khách hàng, sản phẩm, lịch hẹn và thống kê doanh thu. Anh cứ nói ngắn gọn; nếu chưa hiểu rõ, em sẽ hỏi lại nhé.' : 'Dạ, em chào anh/chị! Hôm nay mình cần em hỗ trợ gì ạ? Em có thể tra cứu nhân viên, khách hàng, sản phẩm, lịch hẹn và thống kê doanh thu. Anh/chị cứ nói ngắn gọn; nếu chưa hiểu rõ, em sẽ hỏi lại nhé.',
+    content: ownerName ? 'Dạ, em chào anh ' + ownerName + '! Hôm nay anh cần em hỗ trợ gì ạ? Em có thể hướng dẫn cách dùng app, tra cứu nhân viên, khách hàng, sản phẩm, lịch hẹn và thống kê doanh thu. Anh cứ nói ngắn gọn; nếu chưa hiểu rõ, em sẽ hỏi lại nhé.' : 'Dạ, em chào anh/chị! Hôm nay mình cần em hỗ trợ gì ạ? Em có thể tra cứu nhân viên, khách hàng, sản phẩm, lịch hẹn và thống kê doanh thu. Anh/chị cứ nói ngắn gọn; nếu chưa hiểu rõ, em sẽ hỏi lại nhé.',
     source: 'local',
   }])
   const [memory, setMemory] = useState(() => readAssistantMemory(actor.salonId, actor.actorId))
@@ -303,7 +307,7 @@ export function AssistantPage() {
       if (relevant.length && /(ke hoach|lap ke hoach|nen lam gi|thoi quen|uu tien|buoi sang|hang ngay)/i.test(prompt.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))) {
         answer += '\n\n**Điều mình đã ghi nhớ có liên quan**\n' + relevant.map(item => '• ' + item.content).join('\n')
       }
-      if (!trainedShortcut && needsAdviser(prompt, local.intent)) {
+      if (!trainedShortcut && !isGuideQuestion(prompt) && needsAdviser(prompt, local.intent)) {
         if (geminiReady) {
           try {
             const safeQuestion = await redactQuestionForGemini(actor.salonId, prompt)
@@ -365,7 +369,7 @@ export function AssistantPage() {
     {showLatest && <button type="button" className="assistant-latest-button" onClick={goToLatest}>↓ Tin nhắn mới</button>}
     {error && <p className="form-error" role="alert">{error}</p>}
     <form className="assistant-composer" onSubmit={submit}>
-      <textarea aria-label="Nhập câu hỏi cho trợ lý" rows={3} maxLength={4000} value={question} onChange={event => setQuestion(event.target.value)} placeholder="Hỏi doanh thu, nhân viên, sản phẩm… hoặc: Hãy ghi nhớ thêm. Tổng hợp danh sách nhân viên xuất sắc tháng này" />
+      <textarea aria-label="Nhập câu hỏi cho trợ lý" rows={3} maxLength={4000} value={question} onChange={event => setQuestion(event.target.value)} placeholder="Hỏi về công việc, cách dùng app, doanh thu, khách hàng hoặc kho…" />
       <button className="primary-button" disabled={busy || !question.trim()}><Send size={16}/> Gửi câu hỏi</button>
     </form>
     <div className="assistant-suggestions"><div className="assistant-section-title">Gợi ý câu hỏi</div><div>{suggestions.map(item => <button key={item} type="button" className="assistant-suggestion" onClick={() => void send(item)} disabled={busy}>{item}</button>)}</div></div>

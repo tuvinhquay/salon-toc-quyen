@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { detectAssistantIntent, detectAssistantPeriod, findCustomerLookupMatches, getAssistantRange, isCustomerLookupRequest } from '../src/app/assistant-local'
+import { answerFromGuide, isGuideQuestion } from '../src/app/guide-content'
 import type { Customer } from '../src/db/types'
 
 describe('assistant question understanding', () => {
@@ -11,6 +12,12 @@ describe('assistant question understanding', () => {
     expect(detectAssistantIntent('Tìm thông tin nhân viên Hoàng Gia Hân số điện thoại 0909446008')).toBe('staff')
     expect(detectAssistantIntent('Liệt kê khách mua nhiều sản phẩm nhất quý này')).toBe('customers')
     expect(detectAssistantIntent('Khách hàng chi tiêu nhiều nhất trong tháng')).toBe('customers')
+  })
+  it('routes help and app-use questions to the built-in guide', () => {
+    expect(detectAssistantIntent('Hướng dẫn mình cách tạo lịch hẹn')).toBe('guide')
+    expect(isGuideQuestion('Cách lập hóa đơn cho khách')).toBe(true)
+    expect(answerFromGuide('Cách lập hóa đơn cho khách')).toContain('Phát hành hóa đơn')
+    expect(answerFromGuide('Ứng dụng có những tính năng nào?')).toContain('Các mục chính')
   })
   it('recognizes Vietnam calendar periods', () => {
     expect(detectAssistantPeriod('Doanh thu năm nay')).toBe('year')

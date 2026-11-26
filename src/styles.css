@@ -290,3 +290,37 @@ html,body{background:#031c17;color:#f8f4e8}
 .report-chart-footer strong{color:#183f32;font-variant-numeric:tabular-nums}
 .report-empty{border:1px dashed rgba(20,77,59,.25);background:rgba(255,255,255,.7);padding:1rem;border-radius:12px;color:#496258}
 @media(max-width:520px){.report-chart-shell{padding:.75rem .55rem}.report-chart-svg{min-width:700px}.report-chart-footer{flex-direction:column;gap:.45rem}}
+
+
+/* Phase 37 – searchable, plain-language owner guide */
+.owner-guide{max-width:1040px;margin:0 auto}
+.guide-hero,.guide-bot-card{display:flex;align-items:flex-start;gap:15px;padding:20px;border:1px solid #d9c5ad;border-radius:14px;background:linear-gradient(125deg,#fffdf8,#f3e7d8);color:#594337}
+.guide-hero-icon{width:48px;height:48px;flex:none;display:grid;place-items:center;border-radius:13px;background:#e7d6c1;color:#6b5039}
+.guide-hero h3,.guide-bot-card h3,.guide-quick-start h3,.guide-topic-heading h3{font:500 19px Georgia,serif;margin:0 0 8px;color:#594337}
+.guide-hero p,.guide-bot-card p{font-size:12px;line-height:1.8;color:#756458;margin:0}
+.guide-quick-start{padding:20px;border:1px solid #e9e2d9;border-radius:12px;background:#fffdfa}
+.guide-quick-start ol,.guide-topic-content ol{margin:10px 0 0;padding-left:22px;color:#594b40;font-size:12px;line-height:1.85}
+.guide-quick-start li,.guide-topic-content li{padding:2px 0}
+.guide-search{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 14px;border:1px solid #d9cfc4;border-radius:10px;background:#fffdfa;color:#8b7766}
+.guide-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#342b25;font:inherit;font-size:12px}
+.guide-topic-heading{display:flex;align-items:center;justify-content:space-between}
+.guide-topic-heading p{margin:0;color:#8b7d72;font-size:10px}
+.guide-topic-list{display:grid;gap:10px}
+.guide-topic{border:1px solid #e7ded3;border-radius:11px;background:#fffdfa;overflow:hidden}
+.guide-topic summary{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;cursor:pointer;list-style:none}
+.guide-topic summary::-webkit-details-marker{display:none}
+.guide-topic summary>span{display:grid;gap:5px}
+.guide-topic summary strong{font-size:13px;color:#594337}
+.guide-topic summary small{font-size:11px;line-height:1.6;color:#89796b}
+.guide-topic[open] summary{background:#f8f2eb;border-bottom:1px solid #e7ded3}
+.guide-topic[open] summary>svg{transform:rotate(180deg)}
+.guide-topic-content{padding:16px 18px 18px}
+.guide-topic-content h4{margin:0;color:#73583f;font-size:12px}
+.guide-tips{display:flex;align-items:flex-start;gap:9px;margin-top:15px;padding:12px;border-radius:9px;background:#f4efe7;color:#80664f}
+.guide-tips>svg{flex:none;margin-top:2px}
+.guide-tips strong{font-size:11px}
+.guide-tips ul{margin:5px 0 0;padding-left:17px;font-size:11px;line-height:1.75}
+.guide-assistant-link{display:inline-flex;align-items:center;gap:9px;margin-top:11px;padding:9px 12px;border:1px solid #d9bd9e;border-radius:8px;background:#fffaf4;color:#73583f;text-decoration:none;font-size:11px;font-weight:700}
+.guide-assistant-link:hover{background:#f4eadf}
+.guide-limit-note{margin:0;color:#8b7d72;font-size:10px;line-height:1.75}
+@media(max-width:600px){.guide-hero,.guide-bot-card{padding:15px;gap:11px}.guide-hero-icon{width:40px;height:40px}.guide-hero h3,.guide-bot-card h3,.guide-quick-start h3,.guide-topic-heading h3{font-size:17px}.guide-topic summary{padding:13px}.guide-topic-content{padding:14px}}
