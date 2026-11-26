@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { useOwnerContext } from '../auth/OwnerContext'
 import { addPayment, closeCashSession, createExpense, createInvoice, getSalesReport, listCashSessions, listCustomers, listEmployees, listExpenses, listInvoices, listPayments, listProducts, listRefunds, listServices, openCashSession, refundPayment, saveTaxPolicy } from '../db/repositories'
 import type { CashSession, Customer, Employee, Expense, Invoice, Payment, Product, Refund, Service } from '../db/types'
@@ -78,8 +78,9 @@ export function getDefaultReportRange(now=new Date()):ReportRange{
 }
 export function ReportsPage(){
  const actor=useOwnerContext()
- const [start,setStart]=useState(()=>getDefaultReportRange().startAt)
- const [end,setEnd]=useState(()=>getDefaultReportRange().endAt)
+ const [initialRange]=useState(()=>getDefaultReportRange())
+ const [start,setStart]=useState(initialRange.startAt)
+ const [end,setEnd]=useState(initialRange.endAt)
  const [report,setReport]=useState<{invoiceCount:number;grossSalesVnd:number;collectedVnd:number;refundedVnd:number;expensesVnd:number;netCollectedVnd:number}|null>(null)
  const [buckets,setBuckets]=useState<RevenueBucket[]>([])
  const [error,setError]=useState<string|null>(null)
@@ -96,7 +97,7 @@ export function ReportsPage(){
   setStart(nextStart);setEnd(nextEnd)
   void loadRange(nextStart,nextEnd)
  }
- async function loadRange(startValue:string,endValue:string){
+ const loadRange=useCallback(async(startValue:string,endValue:string)=>{
   setBusy(true);setError(null)
   try{
    const startIso=iso(startValue),endIso=iso(endValue)
@@ -105,9 +106,9 @@ export function ReportsPage(){
    setReport(summary)
    setBuckets(buildRevenueBuckets(paymentRows.filter(row=>row.paidAt>=startIso&&row.paidAt<endIso),expenseRows.filter(row=>row.paidAt>=startIso&&row.paidAt<endIso),refundRows.filter(row=>row.refundedAt>=startIso&&row.refundedAt<endIso),startIso,endIso))
   }catch(e){setError(e instanceof Error?e.message:'Không tải được báo cáo.');setReport(null);setBuckets([])}finally{setBusy(false)}
- }
+ },[actor.salonId,actor.actorId,actor.deviceId])
  async function load(e?:FormEvent){e?.preventDefault();await loadRange(start,end)}
- useEffect(()=>{void loadRange(start,end)},[actor.salonId,actor.actorId,actor.deviceId])
+ useEffect(()=>{void loadRange(initialRange.startAt,initialRange.endAt)},[loadRange,initialRange])
  const hasChartData=buckets.some(row=>row.collected>0||row.refunded>0||row.expenses>0)
  return <section className="work-page">
   <div className="work-intro"><div><small>P09 · BÁO CÁO</small><h2>Báo cáo hoạt động</h2><p>Tổng hợp từ hóa đơn, thanh toán, hoàn tiền và chi phí đã ghi nhận.</p></div></div>
