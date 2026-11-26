@@ -535,3 +535,5 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - GitHub Actions CI run #542 trên Phase 40 HEAD đã PASS: Typecheck, Lint, Unit tests và Production build/PWA. Chỉ xác nhận chất lượng code/build; chưa chứng minh Gemini live/App Check hoạt động trên Firebase project hoặc Android runtime.
 
 - Tinh chỉnh hội thoại trực tiếp: Gemini nhận tối đa 3 câu hỏi người dùng gần nhất (300 ký tự/câu, tối đa 900 ký tự) sau khi che email/số điện thoại; context chỉ lấy từ state chat hiện có, không đọc IndexedDB hay trí nhớ salon.
+
+- Sau khi bổ sung ngữ cảnh hội thoại an toàn (tối đa 3 câu hỏi, che email/số điện thoại, không đọc IndexedDB), CI run #553 trên HEAD Phase 40 PASS đầy đủ Typecheck, Lint, Unit tests và Production build/PWA.
