@@ -16,7 +16,7 @@ export function RevenueChart({buckets,totals}:RevenueChartProps){
  const series:[keyof RevenueBucket,string][]=[['collected','Tiệm đã thu'],['refunded','Đã hoàn khách'],['expenses','Các khoản chi']]
  return <div className="report-chart-shell">
   <div className="report-chart-heading"><div><h4>Tiền thu, tiền hoàn và các khoản chi</h4><p>So sánh tiền tiệm đã thu, hoàn lại khách và các khoản đã chi.</p></div></div>
-  <div className="report-chart-legend"><span><i className="collected"/ >Tiệm đã thu</span><span><i className="refunded"/ >Đã hoàn khách</span><span><i className="expenses"/ >Các khoản chi</span></div>
+  <div className="report-chart-legend"><span><i className="collected"/>Tiệm đã thu</span><span><i className="refunded"/>Đã hoàn khách</span><span><i className="expenses"/>Các khoản chi</span></div>
   <div className="report-chart-scroll">
    <svg className="report-chart-svg" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Biểu đồ so sánh tiền tiệm đã thu, tiền hoàn lại khách và các khoản chi">
     <defs>
