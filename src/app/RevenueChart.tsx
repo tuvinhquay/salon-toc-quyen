@@ -15,8 +15,8 @@ export function RevenueChart({buckets,totals}:RevenueChartProps){
  const labelStep=Math.max(1,Math.ceil(buckets.length/10))
  const series:[keyof RevenueBucket,string][]=[['collected','Đã thu'],['refunded','Hoàn tiền'],['expenses','Chi phí']]
  return <div className="report-chart-shell">
-  <div className="report-chart-heading"><div><h4>Biến động thu – hoàn – chi</h4><p>So sánh các khoản giao dịch theo ngày hoặc tháng trong kỳ đã chọn.</p></div></div>
-  <div className="report-chart-legend"><span><i className="collected"/>Tiền đã thu</span><span><i className="refunded"/>Hoàn tiền</span><span><i className="expenses"/>Chi phí</span></div>
+  <div className="report-chart-heading"><div><h4>Tiền thu, tiền hoàn và các khoản chi</h4><p>So sánh tiền tiệm đã thu, hoàn lại khách và các khoản đã chi.</p></div></div>
+  <div className="report-chart-legend"><span><i className="collected"/ >Tiệm đã thu</span><span><i className="refunded"/ >Đã hoàn khách</span><span><i className="expenses"/ >Các khoản chi</span></div>
   <div className="report-chart-scroll">
    <svg className="report-chart-svg" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Biểu đồ cột nhóm tiền đã thu, hoàn tiền và chi phí">
     <defs>
@@ -44,6 +44,6 @@ export function RevenueChart({buckets,totals}:RevenueChartProps){
     })}
    </svg>
   </div>
-  <div className="report-chart-footer"><span>Đã thu <strong>{formatVnd(totals.collected)}</strong></span><span>Hoàn tiền <strong>{formatVnd(totals.refunded)}</strong></span><span>Chi phí <strong>{formatVnd(totals.expenses)}</strong></span><span>Thu ròng <strong>{formatVnd(totals.net)}</strong></span></div>
+  <div className="report-chart-footer"><span>Đã thu <strong>{formatVnd(totals.collected)}</strong></span><span>Hoàn tiền <strong>{formatVnd(totals.refunded)}</strong></span><span>Chi phí <strong>{formatVnd(totals.expenses)}</strong></span><span>Tiền còn lại <strong>{formatVnd(totals.net)}</strong></span></div>
  </div>
 }
