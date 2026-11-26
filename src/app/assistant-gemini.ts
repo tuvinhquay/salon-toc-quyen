@@ -36,7 +36,7 @@ export function getGeminiErrorDetails(error: unknown): string {
   const code = 'code' in error ? String((error as Error & { code?: unknown }).code ?? '') : ''
   const message = error.message
     .replace(/AIza[0-9A-Za-z_-]{20,}/g, '[API KEY REDACTED]')
-    .replace(/(key|api_key|token)=([^&\\s]+)/gi, '$1=[REDACTED]')
+    .replace(/(key|api_key|token)=([^&\s]+)/gi, '$1=[REDACTED]')
     .slice(0, 240)
   return [code, message].filter(Boolean).join(': ')
 }
