@@ -309,16 +309,16 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
     else data.topServices.forEach((row, index) => lines.push('  ' + (index + 1) + '. ' + row.name + ' – ' + row.count + ' lượt'))
   }
   if (intent === 'inventory' || intent === 'overview') {
-    lines.push('• Mặt hàng bằng hoặc dưới ngưỡng tồn tối thiểu: **' + data.lowStock.length + '**.')
-    if (data.lowStock.length) data.lowStock.slice(0, 8).forEach(row => lines.push('  - ' + row.name + ': ' + row.available + ' ' + row.unit + ' (ngưỡng ' + row.minimum + ')'))
+    lines.push('• Mặt hàng còn ít hơn mức tồn cần có: **' + data.lowStock.length + '**.')
+    if (data.lowStock.length) data.lowStock.slice(0, 8).forEach(row => lines.push('  - ' + row.name + ': ' + row.available + ' ' + row.unit + ' (mức cần có ' + row.minimum + ')'))
   }
   if (intent === 'staff') {
     lines.push('• Nhân viên đang hoạt động: **' + data.activeEmployeeCount + '/' + data.employeeTotal + '**.')
     if (data.topShiftEmployees.length) {
-      lines.push('• Xếp theo tổng giờ ca làm đã hoàn thành (không phải doanh thu cá nhân):')
+      lines.push('• Xếp theo tổng số giờ làm của các ca đã hoàn thành (không phải số tiền mỗi người mang về cho tiệm):')
       data.topShiftEmployees.forEach((row, index) => lines.push('  ' + (index + 1) + '. ' + row.name + ' – ' + row.hours + ' giờ, ' + row.shifts + ' ca'))
     } else {
-      lines.push('Chưa có ca làm hoàn thành trong khoảng thời gian này. Muốn đánh giá hiệu suất dịch vụ/doanh thu từng người, hệ thống cần ghi nhận nhân viên thực hiện trên từng dịch vụ hoặc hóa đơn.')
+      lines.push('Chưa có ca làm hoàn thành trong khoảng thời gian này. Muốn biết doanh thu từng người, tiệm cần ghi lại ai là người thực hiện từng dịch vụ hoặc hóa đơn.')
     }
   }
   if (intent === 'general') {
