@@ -153,7 +153,7 @@ export function AssistantPage() {
     setBusy(true)
     setBusyLabel('Em đang xử lý yêu cầu…')
     try {
-      const normalizedPrompt = prompt.toLocaleLowerCase('vi').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/đ/g, 'd')
+      const normalizedPrompt = prompt.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
       if (pendingCustomerArchive) {
         if (/^(xac nhan luu tru|xac nhan)$/.test(normalizedPrompt.trim())) {
           const count = await archiveCustomers(actor, pendingCustomerArchive.map(customer => customer.id))
@@ -174,10 +174,10 @@ export function AssistantPage() {
       if (archiveIntent) {
         const customers = await listCustomers(actor)
         const allRequested = /(tat ca|toan bo|het danh sach|toan danh sach)/.test(normalizedPrompt)
-        const digits = prompt.replace(/\\D/g, '')
+        const digits = prompt.replace(/\D/g, '')
         const matched = allRequested ? customers : customers.filter(customer => {
-          const name = customer.fullName.toLocaleLowerCase('vi').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/đ/g, 'd')
-          const phone = (customer.phone ?? '').replace(/\\D/g, '')
+          const name = customer.fullName.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
+          const phone = (customer.phone ?? '').replace(/\D/g, '')
           return (name.length > 2 && normalizedPrompt.includes(name)) || (digits.length >= 8 && phone.length >= 8 && phone.includes(digits))
         })
         if (!allRequested && matched.length === 0) {
