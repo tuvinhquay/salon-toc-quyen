@@ -6,6 +6,8 @@ describe('assistant routing', () => {
   it('sends ordinary conversation and creative requests directly to Gemini', () => {
     expect(classifyAssistantRoute('Bạn biết làm thơ không?', 'general')).toBe('chat')
     expect(classifyAssistantRoute('Kể cho mình một câu chuyện vui', 'general')).toBe('chat')
+    expect(classifyAssistantRoute('Giải thích giúp mình bài thơ này', 'general')).toBe('chat')
+    expect(classifyAssistantRoute('Làm sao để làm thơ hay hơn?', 'general')).toBe('chat')
   })
   it('keeps exact business lookups local by default', () => {
     const cases: Array<[string, AssistantIntent]> = [
