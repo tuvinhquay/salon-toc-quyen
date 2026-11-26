@@ -5,7 +5,7 @@ import { useAuth } from '../auth/AuthProvider'
 import type { AssistantMemoryRecord, Customer, Product } from '../db/types'
 import type { ProductInput } from '../db/schema'
 import { answerOwnerQuestion, detectAssistantIntent, redactQuestionForGemini } from './assistant-local'
-import { classifyAssistantRoute } from './assistant-routing'
+import { classifyAssistantRoute, sanitizeQuestionForGemini } from './assistant-routing'
 import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, readAssistantMemory } from './assistant-memory'
 import { answerAssistantAbout, answerFromMemories, applyLearnedVocabulary, findMatchingAssistantShortcut, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
 import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assistant-brain-store'
@@ -311,7 +311,7 @@ export function AssistantPage() {
           return
         }
         try {
-          const answer = await askGeminiConversation(prompt, 'owner')
+          const answer = await askGeminiConversation(sanitizeQuestionForGemini(prompt), 'owner')
           setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answer, source: 'gemini' }])
         } catch (cause) {
           const detail = getGeminiErrorDetails(cause)
