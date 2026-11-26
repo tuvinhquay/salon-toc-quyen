@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { detectAssistantIntent, detectAssistantPeriod, findCustomerLookupMatches, getAssistantRange, isCustomerLookupRequest } from '../src/app/assistant-local'
+import { detectAssistantIntent, detectAssistantPeriod, findCustomerLookupMatches, getAssistantRange, isCustomerLookupRequest, answerOwnerQuestion } from '../src/app/assistant-local'
+import { answerFromGuide, isGuideQuestion } from '../src/app/guide-content'
 import type { Customer } from '../src/db/types'
 
 describe('assistant question understanding', () => {
@@ -12,7 +13,7 @@ describe('assistant question understanding', () => {
     expect(detectAssistantIntent('Liệt kê khách mua nhiều sản phẩm nhất quý này')).toBe('customers')
     expect(detectAssistantIntent('Khách hàng chi tiêu nhiều nhất trong tháng')).toBe('customers')
   })
-  it('recognizes Vietnam calendar periods', () => {
+  it('routes help and app-use questions to the built-in guide', () => {\n    expect(detectAssistantIntent('Hướng dẫn mình cách tạo lịch hẹn')).toBe('guide')\n    expect(isGuideQuestion('Cách lập hóa đơn cho khách')).toBe(true)\n    expect(answerFromGuide('Cách lập hóa đơn cho khách')).toContain('Phát hành hóa đơn')\n    expect(answerFromGuide('Ứng dụng có những tính năng nào?')).toContain('Các mục chính')\n  })\n  it('recognizes Vietnam calendar periods', () => {
     expect(detectAssistantPeriod('Doanh thu năm nay')).toBe('year')
     expect(detectAssistantPeriod('Tháng này có bao nhiêu lịch?')).toBe('month')
     expect(detectAssistantPeriod('Tổng kết tình hình kinh doanh quý này')).toBe('quarter')
