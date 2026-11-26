@@ -18,7 +18,8 @@ describe('assistant question understanding', () => {
     expect(isGuideQuestion('Cách lập hóa đơn cho khách')).toBe(true)
     expect(answerFromGuide('Cách lập hóa đơn cho khách')).toContain('Phát hành hóa đơn')
     expect(answerFromGuide('Ứng dụng có những tính năng nào?')).toContain('Các mục chính')
-  })\n  it('recognizes Vietnam calendar periods', () => {
+  })
+  it('recognizes Vietnam calendar periods', () => {
     expect(detectAssistantPeriod('Doanh thu năm nay')).toBe('year')
     expect(detectAssistantPeriod('Tháng này có bao nhiêu lịch?')).toBe('month')
     expect(detectAssistantPeriod('Tổng kết tình hình kinh doanh quý này')).toBe('quarter')
