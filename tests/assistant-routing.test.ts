@@ -19,6 +19,7 @@ describe('assistant routing', () => {
   })
   it('combines verified local business context with Gemini for advice', () => {
     expect(classifyAssistantRoute('Tư vấn giúp mình cải thiện doanh thu tiệm', 'overview')).toBe('hybrid')
+    expect(classifyAssistantRoute('Quý này tiệm kinh doanh thế nào?', 'overview')).toBe('hybrid')
     expect(classifyAssistantRoute('Có nên tăng giá dịch vụ không?', 'services')).toBe('hybrid')
     expect(classifyAssistantRoute('Lập kế hoạch marketing cho tiệm', 'general')).toBe('hybrid')
   })
