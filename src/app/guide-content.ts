@@ -1,4 +1,5 @@
-import { normalizeAssistantText } from './assistant-local'
+
+const normalizeGuideText = (value: string) => value.toLocaleLowerCase('vi').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9]+/g, ' ').trim()
 
 export type GuideTopic = {
   id: string
@@ -33,15 +34,32 @@ const overview = [
 const guideTriggers = /(huong dan|chi toi|cach su dung|su dung app|su dung ung dung|gioi thieu app|app lam duoc gi|ung dung lam gi|tinh nang nao|giup toi su dung|lam sao de)/
 
 export function isGuideQuestion(question: string): boolean {
-  const q = normalizeAssistantText(question)
-  return guideTriggers.test(q) || guideTopics.some(topic => topic.keywords.some(keyword => q.includes(normalizeAssistantText(keyword))) && /(cach|lam sao|huong dan|su dung|la gi|o dau|the nao|giup)/.test(q))
+  const q = normalizeGuideText(question)
+  return guideTriggers.test(q) || guideTopics.some(topic => topic.keywords.some(keyword => q.includes(normalizeGuideText(keyword))) && /(cach|lam sao|huong dan|su dung|la gi|o dau|the nao|giup)/.test(q))
 }
 
 export function answerFromGuide(question: string): string | null {
-  const q = normalizeAssistantText(question)
+  const q = normalizeGuideText(question)
   const asksOverview = /(app lam duoc gi|ung dung lam gi|tinh nang|gioi thieu|huong dan|cach su dung app|su dung ung dung)/.test(q)
-  const topic = guideTopics.find(item => item.keywords.some(keyword => q.includes(normalizeAssistantText(keyword))))
+  const topic = guideTopics.find(item => item.keywords.some(keyword => q.includes(normalizeGuideText(keyword))))
   if (!topic && !asksOverview) return null
-  if (!topic) return ['**Ứng dụng TÓC QUYỀN làm được gì?**', ...overview, '', '**Các mục chính**', ...guideTopics.map(item => '• ' + item.title.replace(/^\\d+\\. /, '') + ': ' + item.summary),].join('\n')
-  return ['**' + topic.title + '**', topic.summary, '', '**Cách sử dụng**', ...topic.steps.map((step, index) => (index + 1) + '. ' + step), ...(topic.tips?.length ? ['', '**Lưu ý**', ...topic.tips.map(tip => '• ' + tip)] : [])].join('\n')
+  if (!topic) {
+    return [
+      '**Ứng dụng TÓC QUYỀN làm được gì?**',
+      ...overview,
+      '',
+      '**Các mục chính**',
+      ...guideTopics.map(item => '• ' + item.title.replace(/^\\d+\\. /, '') + ': ' + item.summary),
+      '',
+      'Bạn có thể hỏi em: “Hướng dẫn tạo lịch hẹn”, “Cách lập hóa đơn”, “Làm sao sao lưu dữ liệu?” hoặc “Giải thích báo cáo”.',
+    ].join('\\n')
+  }
+  return [
+    '**' + topic.title + '**',
+    topic.summary,
+    '',
+    '**Cách sử dụng**',
+    ...topic.steps.map((step, index) => (index + 1) + '. ' + step),
+    ...(topic.tips?.length ? ['', '**Lưu ý**', ...topic.tips.map(tip => '• ' + tip)] : []),
+  ].join('\\n')
 }
