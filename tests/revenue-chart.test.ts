@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { buildRevenueBuckets } from '../src/app/PosReportsPages'
+import { buildRevenueBuckets, getDefaultReportRange } from '../src/app/PosReportsPages'
 import type { Expense, Payment, Refund } from '../src/db/types'
 
-describe('revenue chart aggregation', () => {
+describe('revenue chart aggregation', () => {\n  it('defaults to a range covering the five-month demo dataset, through today', () => {\n    const range = getDefaultReportRange(new Date(2026, 10, 26, 12))\n    const start = new Date(range.startAt)\n    const end = new Date(range.endAt)\n    expect(start.getFullYear()).toBe(2026)\n    expect(start.getMonth()).toBe(6)\n    expect(start.getDate()).toBe(1)\n    expect(end.getDate()).toBe(27)\n  })\n\n  it('shows a seeded 25 million VND collected amount in the five-month trend', () => {\n    const start = new Date(2026, 6, 1)\n    const end = new Date(2026, 10, 27)\n    const payments = [{ paidAt: new Date(2026, 7, 15, 12).toISOString(), amountVnd: 25000000, status: 'completed' }] as unknown as Payment[]\n    const rows = buildRevenueBuckets(payments, [], [], start.toISOString(), end.toISOString())\n    expect(rows).toHaveLength(5)\n    expect(rows.reduce((sum, row) => sum + row.collected, 0)).toBe(25000000)\n  })
   it('creates daily buckets and sums real payments and expenses', () => {
     const start = new Date(2026, 10, 1, 0, 0)
     const end = new Date(2026, 10, 3, 0, 0)
