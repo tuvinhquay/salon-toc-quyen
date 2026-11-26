@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { classifyAssistantRoute } from '../src/app/assistant-routing'
+import { classifyAssistantRoute, sanitizeQuestionForGemini } from '../src/app/assistant-routing'
 import type { AssistantIntent } from '../src/app/assistant-local'
 
 describe('assistant routing', () => {
@@ -21,5 +21,18 @@ describe('assistant routing', () => {
     expect(classifyAssistantRoute('Tư vấn giúp mình cải thiện doanh thu tiệm', 'overview')).toBe('hybrid')
     expect(classifyAssistantRoute('Có nên tăng giá dịch vụ không?', 'services')).toBe('hybrid')
     expect(classifyAssistantRoute('Lập kế hoạch marketing cho tiệm', 'general')).toBe('hybrid')
+  })
+})
+
+describe('Gemini conversation privacy', () => {
+  it('removes email addresses and phone numbers without reading salon data', () => {
+    const safe = sanitizeQuestionForGemini('Viết lời chúc cho khách test@example.com, gọi 0901234567 nhé')
+    expect(safe).not.toContain('test@example.com')
+    expect(safe).not.toContain('0901234567')
+    expect(safe).toContain('[email đã ẩn]')
+    expect(safe).toContain('[số điện thoại đã ẩn]')
+  })
+  it('limits the user prompt length', () => {
+    expect(sanitizeQuestionForGemini('x'.repeat(5000))).toHaveLength(4000)
   })
 })
