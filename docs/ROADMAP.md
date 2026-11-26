@@ -29,7 +29,7 @@ Phạm vi giai đoạn 1: Owner App. Employee App là giai đoạn 2, không tr�
 | P25 | Ghép đôi thiết bị Owner, danh tính thiết bị và xác thực peer | NOT STARTED |
 | P26 | P2P transport WebRTC, trao đổi change log mã hóa đầu cuối | NOT STARTED – không dùng cloud storage/signaling lưu dữ liệu |
 | P27 | Đồng bộ trí nhớ + dữ liệu Dexie, conflict resolution và offline recovery | NOT STARTED |
-| P28 | Gemini cố vấn tùy chọn, chỉ nhận dữ liệu được Owner cho phép | NOT STARTED – không có quyền ghi/điều khiển |
+| P28 | Gemini cố vấn tùy chọn, chỉ nhận dữ liệu được Owner cho phép | PARTIAL – Owner hybrid flow ở Phase 40; Employee AI chờ Employee Auth/Membership riêng |
 | P29 | Membership AI theo vai trò và hỗ trợ chủ động | OWNER ROLE VERIFIED BY AUTHGATE; EMPLOYEE MEMBERSHIP NOT IMPLEMENTED – chưa cấp Employee AI |
 | E01 | Employee App độc lập theo vai trò | GIAI ĐOẠN 2 – CHƯA TRIỂN KHAI |
 ## Nguyên tắc kiến trúc P2P-only đã chốt – 2026-11-23
