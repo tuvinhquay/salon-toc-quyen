@@ -11,7 +11,7 @@ describe('Owner navigation map', () => {
 
   it('includes the Owner modules defined by the roadmap', () => {
     expect(navigation.map((item) => item.to)).toEqual([
-      '/', '/appointments', '/customers', '/workflow', '/employees',
+      '/', '/guide', '/appointments', '/customers', '/workflow', '/employees',
       '/services', '/inventory', '/pos', '/reports', '/devices',
       '/backup', '/assistant', '/settings',
     ])
