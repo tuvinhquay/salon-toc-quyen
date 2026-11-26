@@ -24,3 +24,9 @@ Base: `phase-37-owner-guide-and-assistant-knowledge`
 - Gemini Developer API Free Tier không có một con số “1 triệu token/ngày” đảm bảo chung cho mọi project/model. Hạn mức thực tế theo model/project (requests/minute, tokens/minute, requests/day) và xem trong AI Studio/Google Cloud. Hãy xem con số của project hiện tại.
 - Không merge/deploy. Chờ CI và Owner kiểm tra thực tế trên Android/Termux.
 
+
+
+## Follow-up – ngữ cảnh hội thoại
+- Gemini nhận tối đa 3 câu hỏi gần nhất của chính người dùng để hiểu câu hỏi nối tiếp như “còn tháng trước thì sao?”.
+- Mỗi câu hỏi được chạy qua hàm lọc tên khách/nhân viên, email và số điện thoại; mỗi câu hỏi giới hạn 300 ký tự, toàn bộ ngữ cảnh tối đa 900 ký tự.
+- Không gửi lại các câu trả lời local trước đó vì có thể chứa hồ sơ khách hàng hoặc dữ liệu riêng tư.
