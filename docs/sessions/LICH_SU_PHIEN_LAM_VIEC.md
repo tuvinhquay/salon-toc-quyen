@@ -529,3 +529,5 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Ranh giới vai trò: AuthGate hiện chỉ chấp nhận membership active + role owner + salonId hợp lệ; Employee App/Auth/Membership chưa triển khai. Không cho nhân viên vào Owner Assistant và không giả định hồ sơ nhân viên trong bảng nhân sự là tài khoản đăng nhập. Employee AI sẽ cần membership riêng, quyền dữ liệu riêng và context vai trò được xác minh trước khi bật.
 - Cần CI xác nhận typecheck/lint/tests/build, review diff, rồi Owner chạy Termux/Android: hỏi làm thơ, chat tự nhiên, tra cứu doanh thu/kho/nhân viên/khách, tư vấn kết hợp dữ liệu, kiểm tra Gemini timeout và App Check.
 - Trạng thái: IMPLEMENTED ON BRANCH; chưa PASS runtime, chưa merge, chưa deploy. Không thay Firestore Rules, Firebase config, model ID hoặc billing.
+
+- Bổ sung kiểm thử chẩn đoán Gemini để xác nhận token/credential trong lỗi SDK được che; điều chỉnh nhãn tin nhắn AI để phân biệt câu trả lời Gemini tổng quát với trợ lý local. CI cần chạy lại trên HEAD mới nhất sau các chỉnh sửa cuối.
