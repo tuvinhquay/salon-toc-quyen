@@ -48,7 +48,7 @@ export function answerFromGuide(question: string): string | null {
       ...overview,
       '',
       '**Các mục chính**',
-      ...guideTopics.map(item => '• ' + item.title.replace(/^\\d+\\. /, '') + ': ' + item.summary),
+      ...guideTopics.map(item => '• ' + item.title.replace(/^\d+\. /, '') + ': ' + item.summary),
       '',
       'Bạn có thể hỏi em: “Hướng dẫn tạo lịch hẹn”, “Cách lập hóa đơn”, “Làm sao sao lưu dữ liệu?” hoặc “Giải thích báo cáo”.',
     ].join('\n')
