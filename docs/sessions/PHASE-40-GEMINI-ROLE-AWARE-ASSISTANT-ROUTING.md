@@ -22,7 +22,7 @@ Gemini cần là trợ lý hội thoại và cố vấn thực sự, kết hợp
 - Employee App/Auth/Membership chưa được triển khai. Không cấp Employee AI bằng cách suy đoán từ bảng Employee; cần thiết kế membership xác thực riêng và quyền dữ liệu riêng trước khi bật.
 
 ## Kiểm thử
-- Unit tests định tuyến chat/local/hybrid và redaction email/phone/prompt length.
+- Unit tests định tuyến chat/local/hybrid, redaction email/phone/prompt length và lọc thông tin credential trong lỗi SDK.
 - Cần CI typecheck, lint, tests, production build và Owner live acceptance trên Termux/Android.
 - Acceptance bắt buộc: chat thơ qua Gemini; tra cứu nghiệp vụ local; tư vấn hybrid; Gemini unavailable/timeout; App Check; xác minh không rò PII và không thay đổi tenant/auth.
 
