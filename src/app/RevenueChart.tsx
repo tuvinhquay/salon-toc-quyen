@@ -13,12 +13,12 @@ export function RevenueChart({buckets,totals}:RevenueChartProps){
  const groupWidth=plotWidth/Math.max(1,buckets.length)
  const barWidth=Math.min(22,Math.max(3,groupWidth*.22))
  const labelStep=Math.max(1,Math.ceil(buckets.length/10))
- const series:[keyof RevenueBucket,string][]=[['collected','Đã thu'],['refunded','Hoàn tiền'],['expenses','Chi phí']]
+ const series:[keyof RevenueBucket,string][]=[['collected','Tiệm đã thu'],['refunded','Đã hoàn khách'],['expenses','Các khoản chi']]
  return <div className="report-chart-shell">
   <div className="report-chart-heading"><div><h4>Tiền thu, tiền hoàn và các khoản chi</h4><p>So sánh tiền tiệm đã thu, hoàn lại khách và các khoản đã chi.</p></div></div>
   <div className="report-chart-legend"><span><i className="collected"/ >Tiệm đã thu</span><span><i className="refunded"/ >Đã hoàn khách</span><span><i className="expenses"/ >Các khoản chi</span></div>
   <div className="report-chart-scroll">
-   <svg className="report-chart-svg" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Biểu đồ cột nhóm tiền đã thu, hoàn tiền và chi phí">
+   <svg className="report-chart-svg" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Biểu đồ so sánh tiền tiệm đã thu, tiền hoàn lại khách và các khoản chi">
     <defs>
      <linearGradient id="report-collected-gradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#2bb99b"/><stop offset="100%" stopColor="#0b6656"/></linearGradient>
      <linearGradient id="report-refunded-gradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#c4b5fd"/><stop offset="100%" stopColor="#7c3aed"/></linearGradient>
@@ -44,6 +44,6 @@ export function RevenueChart({buckets,totals}:RevenueChartProps){
     })}
    </svg>
   </div>
-  <div className="report-chart-footer"><span>Đã thu <strong>{formatVnd(totals.collected)}</strong></span><span>Hoàn tiền <strong>{formatVnd(totals.refunded)}</strong></span><span>Chi phí <strong>{formatVnd(totals.expenses)}</strong></span><span>Tiền còn lại <strong>{formatVnd(totals.net)}</strong></span></div>
+  <div className="report-chart-footer"><span>Tiệm đã thu <strong>{formatVnd(totals.collected)}</strong></span><span>Đã hoàn khách <strong>{formatVnd(totals.refunded)}</strong></span><span>Các khoản chi <strong>{formatVnd(totals.expenses)}</strong></span><span>Tiền còn lại <strong>{formatVnd(totals.net)}</strong></span></div>
  </div>
 }
