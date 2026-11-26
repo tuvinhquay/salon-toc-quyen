@@ -260,3 +260,10 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Thêm bộ chuyển đổi ngôn ngữ cho lời tư vấn AI; hướng dẫn AI dùng tiếng Việt đời thường, kết quả trước, tránh thuật ngữ kỹ thuật.
 - Thêm tests; cập nhật session docs. Không đổi công thức, dữ liệu, schema, auth, tenant scope hay nghiệp vụ.
 - CI và Owner acceptance pending. PR Draft; không merge/deploy.
+
+
+## Phase 37 – Hướng dẫn & giới thiệu và kiến thức Trợ lý – 2026-11-26
+- Thêm trang Hướng dẫn & giới thiệu có phần bắt đầu nhanh, tìm kiếm và 13 chủ đề hướng dẫn từ phụ đến chính.
+- Tích hợp nội dung vào Trợ lý cục bộ: câu hỏi cách sử dụng app trả lời từ kiến thức hướng dẫn sẵn có, không cần Gemini và không truy cập dữ liệu salon.
+- Làm rõ giới hạn đồng bộ thiết bị, backup, dữ liệu mẫu và cách hiểu số liệu tài chính.
+- Thêm kiểm thử định tuyến câu hỏi hướng dẫn. CI/Owner acceptance pending; PR Draft, chưa merge/deploy.
