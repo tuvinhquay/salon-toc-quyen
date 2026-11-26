@@ -5,7 +5,6 @@ type RevenueChartProps={
  buckets:RevenueBucket[]
  totals:{collected:number;refunded:number;expenses:number;net:number}
 }
-const COLORS={collected:'#0f806b',refunded:'#8b5cf6',expenses:'#d6a34c'}
 function compactVnd(value:number){return new Intl.NumberFormat('vi-VN',{notation:'compact',maximumFractionDigits:1}).format(value)}
 export function RevenueChart({buckets,totals}:RevenueChartProps){
  const width=Math.max(960,buckets.length*34),height=320
@@ -14,9 +13,7 @@ export function RevenueChart({buckets,totals}:RevenueChartProps){
  const groupWidth=plotWidth/Math.max(1,buckets.length)
  const barWidth=Math.min(22,Math.max(3,groupWidth*.22))
  const labelStep=Math.max(1,Math.ceil(buckets.length/10))
- const series:[keyof RevenueBucket,string,string][]=[
-  ['collected','Đã thu',COLORS.collected],['refunded','Hoàn tiền',COLORS.refunded],['expenses','Chi phí',COLORS.expenses],
- ]
+ const series:[keyof RevenueBucket,string][]=[['collected','Đã thu'],['refunded','Hoàn tiền'],['expenses','Chi phí']]
  return <div className="report-chart-shell">
   <div className="report-chart-heading"><div><h4>Biến động thu – hoàn – chi</h4><p>So sánh các khoản giao dịch theo ngày hoặc tháng trong kỳ đã chọn.</p></div></div>
   <div className="report-chart-legend"><span><i className="collected"/>Tiền đã thu</span><span><i className="refunded"/>Hoàn tiền</span><span><i className="expenses"/>Chi phí</span></div>
@@ -35,7 +32,7 @@ export function RevenueChart({buckets,totals}:RevenueChartProps){
       const center=left+groupWidth*(index+.5),groupOffset=barWidth*1.65
       const labelVisible=index%labelStep===0||index===buckets.length-1
       return <g key={bucket.label+'-'+index}>
-       {series.map(([key,label,color],seriesIndex)=>{
+       {series.map(([key,label],seriesIndex)=>{
         const value=bucket[key] as number
         const barHeight=value>0?Math.max(2,value/maxValue*plotHeight):0
         const x=center+(seriesIndex-1)*groupOffset-barWidth/2,y=top+plotHeight-barHeight
