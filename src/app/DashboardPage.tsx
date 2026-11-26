@@ -39,10 +39,10 @@ export function DashboardPage(){
    <article className="card"><Users/><small>KHÁCH HÀNG</small><h3>{data.customers.length}</h3><p>Hồ sơ đang hoạt động.</p></article>
    <article className="card"><Scissors/><small>NHÂN VIÊN ĐANG LÀM</small><h3>{activeEmployees}</h3><p>Tổng {data.employees.length} hồ sơ nhân viên.</p></article>
    <article className="card"><Package/><small>SẢN PHẨM / VẬT TƯ</small><h3>{data.products.length}</h3><p>{lowStock.length} mặt hàng cần kiểm tra tồn.</p></article>
-   <article className="card"><Wallet/><small>THU RÒNG THÁNG NÀY</small><h3>{formatVnd(data.revenue)}</h3><p>Tiền đã thu trừ hoàn tiền và chi phí.</p></article>
+   <article className="card"><Wallet/><small>TIỀN CÒN LẠI THÁNG NÀY</small><h3>{formatVnd(data.revenue)}</h3><p>Tiền đã thu, sau khi trừ tiền hoàn và các khoản chi đã nhập.</p></article>
   </div>
   <div className="work-form"><h3>Lịch hẹn hôm nay</h3>{today.length?today.slice(0,8).map(a=><article className="record" key={a.id}><div><b>{new Date(a.startAt).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})} · {a.customerNameSnapshot}</b><p>{a.customerPhoneSnapshot||'Không có số điện thoại'} · {a.status}</p></div></article>):<p className="empty-state">{busy?'Đang tải dữ liệu…':'Chưa có lịch hẹn hôm nay.'}</p>}</div>
-  <div className="work-form"><h3>Cảnh báo tồn kho</h3>{lowStock.length?lowStock.map(({product,quantity})=><article className="record" key={product.id}><div><b>{product.name}</b><p>Tồn khả dụng: {quantity} {product.unit} · Mức tối thiểu: {product.minimumStock}</p></div></article>):<p className="empty-state">{busy?'Đang kiểm tra tồn kho…':'Không có mặt hàng dưới ngưỡng tồn tối thiểu.'}</p>}</div>
-  <div className="notice"><div><b>Lưu ý về dữ liệu</b><p>Dashboard sử dụng dữ liệu IndexedDB của salon hiện tại. Do chưa có đồng bộ P2P/cloud dữ liệu nghiệp vụ, số liệu chỉ phản ánh thiết bị đang mở.</p></div></div>
+  <div className="work-form"><h3>Cảnh báo tồn kho</h3>{lowStock.length?lowStock.map(({product,quantity})=><article className="record" key={product.id}><div><b>{product.name}</b><p>Còn trong kho: {quantity} {product.unit} · Mức cần có: {product.minimumStock}</p></div></article>):<p className="empty-state">{busy?'Đang kiểm tra tồn kho…':'Không có mặt hàng nào thấp hơn mức tồn cần có.'}</p>}</div>
+  <div className="notice"><div><b>Lưu ý về dữ liệu</b><p>Các số liệu này lấy từ dữ liệu lưu trên thiết bị hiện tại của tiệm. Hiện dữ liệu chưa tự chuyển sang thiết bị khác.</p></div></div>
  </section>
 }
