@@ -277,3 +277,10 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Session: `docs/sessions/PHASE-38-GEMINI-LIVE-CHECK-AND-NATURAL-CHAT.md`.
 
 - Follow-up Phase38: thêm ngữ cảnh tối đa 3 câu hỏi gần nhất đã lọc thông tin nhận diện (tối đa 900 ký tự) cho câu hỏi nối tiếp; không gửi câu trả lời local trước đó.
+
+
+## Phase 39 – Chẩn đoán đường dẫn Firebase env & lỗi Gemini – 2026-11-26
+- Xác nhận config Firebase đọc trực tiếp từ `import.meta.env.VITE_FIREBASE_API_KEY` trong `src/lib/firebase.ts`; Vite nạp biến từ file env ở root project, bao gồm `.env.local`. Không có file GEMINI_API_KEY riêng trong cấu trúc hiện tại; Firebase AI Logic sử dụng Firebase Web API key trong Firebase config.
+- Thêm trạng thái an toàn trên màn hình: project ID, API key đã nạp/chưa (không hiện giá trị), reCAPTCHA site key, App Check, model; cảnh báo nếu project ID khác `salonquyen-f21fa`.
+- Bổ sung mã lỗi và thông báo SDK đã lọc API key/token để xác định lỗi chính xác, thay vì thông báo chung.
+- Owner cần kiểm tra file `.env.local` tại thư mục gốc `~/salon-toc-quyen/.env.local`, restart Vite sau khi chỉnh. CI/runtime acceptance pending; không merge/deploy.

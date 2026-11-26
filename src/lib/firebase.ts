@@ -13,6 +13,16 @@ const config: FirebaseOptions = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 }
 
+export const firebaseEnvDiagnostics = {
+  apiKeyPresent: Boolean(config.apiKey?.trim()),
+  authDomainPresent: Boolean(config.authDomain?.trim()),
+  projectId: config.projectId || '',
+  storageBucketPresent: Boolean(config.storageBucket?.trim()),
+  messagingSenderIdPresent: Boolean(config.messagingSenderId?.trim()),
+  appIdPresent: Boolean(config.appId?.trim()),
+  recaptchaSiteKeyPresent: Boolean(import.meta.env.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY?.trim()),
+  expectedProject: config.projectId === 'salonquyen-f21fa',
+}
 export const isFirebaseConfigured = Boolean(config.apiKey && config.authDomain && config.projectId && config.appId)
 export const firebaseApp = isFirebaseConfigured ? (getApps().length ? getApp() : initializeApp(config)) : null
 const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY

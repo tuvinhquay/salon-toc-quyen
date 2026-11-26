@@ -1,9 +1,27 @@
 import { getAI, getGenerativeModel, GoogleAIBackend } from 'firebase/ai'
-import { appCheck, firebaseApp } from '../lib/firebase'
+import { appCheck, firebaseApp, firebaseEnvDiagnostics } from '../lib/firebase'
 
 const MODEL = 'gemini-3.8-flash'
 export function isGeminiAssistantReady() {
   return Boolean(firebaseApp && appCheck)
+}
+export function getGeminiConfigurationStatus() {
+  return {
+    ...firebaseEnvDiagnostics,
+    firebaseAppCreated: Boolean(firebaseApp),
+    appCheckCreated: Boolean(appCheck),
+    model: MODEL,
+  }
+}
+/** Returns actionable SDK error details while redacting any key-like strings. */
+export function getGeminiErrorDetails(error: unknown): string {
+  if (!(error instanceof Error)) return String(error || 'Unknown error').slice(0, 240)
+  const code = 'code' in error ? String((error as Error & { code?: unknown }).code ?? '') : ''
+  const message = error.message
+    .replace(/AIza[0-9A-Za-z_-]{20,}/g, '[API KEY REDACTED]')
+    .replace(/(key|api_key|token)=([^&\\s]+)/gi, '$1=[REDACTED]')
+    .slice(0, 240)
+  return [code, message].filter(Boolean).join(': ')
 }
 /** Makes a real, low-token model request; configuration presence alone is not a live connection. */
 export async function testGeminiConnection(): Promise<void> {

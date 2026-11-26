@@ -508,3 +508,10 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Chi tiết: `docs/sessions/PHASE-38-GEMINI-LIVE-CHECK-AND-NATURAL-CHAT.md`.
 
 - Follow-up Phase38: Gemini nhận tối đa 3 câu hỏi người dùng gần nhất đã qua redaction (300 ký tự/câu, tối đa 900 ký tự) để xử lý hội thoại nối tiếp; không đưa các câu trả lời local trước đó lên cloud.
+
+
+## Phiên 2026-11-26 – Phase 39: Chẩn đoán API key/env path Gemini
+- Owner báo live probe Phase38 trả thông báo chung. Rà soát branch Phase38 xác nhận app lấy Firebase Web API key bằng `import.meta.env.VITE_FIREBASE_API_KEY` trong `src/lib/firebase.ts`; `GoogleAIBackend` Firebase AI Logic dùng Firebase app config, không có `GEMINI_API_KEY` riêng trong frontend. reCAPTCHA lấy từ `VITE_RECAPTCHA_ENTERPRISE_SITE_KEY`.
+- Vite đọc `.env.local` từ project root; `.gitignore` đã bỏ qua `.env`, `.env.*` và `*.local`. Sau khi thay env phải restart Vite. Các biến VITE_ được đưa vào bundle client; Firebase Web API key là config public, không phải Gemini secret. Không gửi key qua chat.
+- Tạo branch `phase-39-gemini-env-path-diagnostics` từ Phase38. Thêm diagnostics không lộ key (projectId, key loaded flag, site key loaded flag, App Check state, model) và hiển thị SDK error code/message đã redact key-like values. Cập nhật typing App Check env và CI filters.
+- Chưa chạy CI thành công/ chưa có kết quả; chờ Owner kiểm tra giá trị local bằng lệnh bảo mật, chạy app và cung cấp mã lỗi chi tiết. Không merge/deploy.
