@@ -9,7 +9,7 @@ import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, rea
 import { answerAssistantAbout, answerFromMemories, applyLearnedVocabulary, findMatchingAssistantShortcut, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
 import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assistant-brain-store'
 import { archiveCustomers, createProductWithOpeningStock, listCustomers, listProducts, saveProduct } from '../db/repositories'
-import { askGeminiAdviser, isGeminiAssistantReady, testGeminiConnection } from './assistant-gemini'
+import { askGeminiAdviser, getGeminiConfigurationStatus, getGeminiErrorDetails, isGeminiAssistantReady, testGeminiConnection } from './assistant-gemini'
 import { makeAssistantLanguageFriendly } from './assistant-language'
 import { isGuideQuestion } from './guide-content'
 
@@ -97,6 +97,7 @@ export function AssistantPage() {
   const stickToLatestRef = useRef(true)
   const [showLatest, setShowLatest] = useState(false)
   const geminiReady = isGeminiAssistantReady()
+  const geminiConfigStatus = getGeminiConfigurationStatus()
 
   useEffect(() => {
     let active = true
@@ -341,12 +342,10 @@ export function AssistantPage() {
       setGeminiTestMessage('Gemini đã phản hồi thành công. Kết nối API đang hoạt động.')
     } catch (cause) {
       setGeminiTestState('failed')
-      const detail = cause instanceof Error ? (cause.message + ' ' + ('code' in cause ? String((cause as { code?: unknown }).code ?? '') : '')).toLowerCase() : ''
-      if (!geminiReady) setGeminiTestMessage('Chưa đủ cấu hình Firebase hoặc App Check để gọi Gemini.')
-      else if (/429|quota|resource.exhausted|rate.limit/.test(detail)) setGeminiTestMessage('Gemini đang hết lượt hoặc chạm giới hạn miễn phí. Bạn thử lại sau khi hạn mức được làm mới nhé.')
-      else if (/app.check|appcheck|recaptcha|permission.denied|403/.test(detail)) setGeminiTestMessage('Gemini bị chặn bởi App Check hoặc quyền Firebase. Cần kiểm tra cấu hình ứng dụng và AI Logic trong Firebase Console.')
-      else if (/api.key|api_key|invalid.argument|400/.test(detail)) setGeminiTestMessage('Cấu hình API chưa hợp lệ. Hãy kiểm tra Firebase AI Logic và cấu hình Firebase của ứng dụng.')
-      else setGeminiTestMessage('Chưa gọi được Gemini. Có thể dịch vụ chưa bật, mạng không ổn định hoặc cấu hình Firebase còn thiếu.')
+      const detail = getGeminiErrorDetails(cause)
+      const normalized = detail.toLowerCase()
+      const summary = !geminiReady ? 'Chưa đủ cấu hình Firebase hoặc App Check để gọi Gemini.' : /429|quota|resource.exhausted|rate.limit/.test(normalized) ? 'Gemini đang hết lượt hoặc chạm giới hạn miễn phí. Bạn thử lại sau khi hạn mức được làm mới nhé.' : /app.check|appcheck|recaptcha|permission.denied|403/.test(normalized) ? 'Gemini bị chặn bởi App Check hoặc quyền Firebase. Kiểm tra reCAPTCHA Enterprise và quyền Firebase AI Logic.' : /api.key|api_key|invalid.argument|400|key.invalid|invalid.key/.test(normalized) ? 'API key hoặc cấu hình Firebase có thể không hợp lệ. Kiểm tra VITE_FIREBASE_API_KEY trong .env.local và API key restrictions.' : 'Gemini chưa phản hồi. Chi tiết lỗi bên dưới sẽ giúp xác định chính xác nguyên nhân.'
+      setGeminiTestMessage(summary + '\nChi tiết: ' + detail)
     }
   }
 
