@@ -27,4 +27,4 @@ Gemini cần là trợ lý hội thoại và cố vấn thực sự, kết hợp
 - Acceptance bắt buộc: chat thơ qua Gemini; tra cứu nghiệp vụ local; tư vấn hybrid; Gemini unavailable/timeout; App Check; xác minh không rò PII và không thay đổi tenant/auth.
 
 ## Trạng thái
-IMPLEMENTED ON BRANCH – GitHub Actions CI run #542 PASS (Typecheck, Lint, Unit tests, Production build/PWA); live Gemini/App Check và Android/Termux acceptance còn chờ. Chưa merge, chưa deploy.
+IMPLEMENTED ON BRANCH – GitHub Actions CI run #553 PASS (Typecheck, Lint, Unit tests, Production build/PWA); live Gemini/App Check và Android/Termux acceptance còn chờ. Chưa merge, chưa deploy.
