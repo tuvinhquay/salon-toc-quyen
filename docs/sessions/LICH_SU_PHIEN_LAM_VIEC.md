@@ -506,3 +506,5 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Owner runtime acceptance còn bắt buộc: chạy app và bấm **Kiểm tra kết nối**. CI chỉ xác minh code/build, không thể xác nhận Firebase project thực tế đã bật AI Logic/App Check.
 - Tài liệu chính thức: Firebase AI Logic yêu cầu bật Gemini Developer API + Firebase AI Logic API và App Check; Free Tier quota phụ thuộc model/project, không có cam kết chung 1 triệu token/ngày.
 - Chi tiết: `docs/sessions/PHASE-38-GEMINI-LIVE-CHECK-AND-NATURAL-CHAT.md`.
+
+- Follow-up Phase38: Gemini nhận tối đa 3 câu hỏi người dùng gần nhất đã qua redaction (300 ký tự/câu, tối đa 900 ký tự) để xử lý hội thoại nối tiếp; không đưa các câu trả lời local trước đó lên cloud.
