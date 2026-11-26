@@ -16,7 +16,7 @@ export function classifyAssistantRoute(question: string, intent: AssistantIntent
 /** Remove obvious contact identifiers without opening any salon database tables. */
 export function sanitizeQuestionForGemini(question: string): string {
   return question
-    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/gi, '[email đã ẩn]')
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[email đã ẩn]')
     .replace(/(?:[+]?[0-9]{1,3})?(?:[ .-]*[0-9]){9,11}/g, '[số điện thoại đã ẩn]')
     .slice(0, 4000)
 }
