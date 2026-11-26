@@ -91,7 +91,7 @@ export async function askGeminiConversation(question: string, role: 'owner' | 'e
     'Có thể trò chuyện, sáng tác thơ, viết nội dung, giải thích kiến thức, lập ý tưởng và tư vấn chung. Nếu câu hỏi cần dữ liệu thực tế của salon mà chưa được ứng dụng cung cấp, hãy nói rõ chưa có dữ liệu thay vì bịa số liệu.',
     'Không yêu cầu mật khẩu, khóa API, mã đăng nhập hoặc thông tin cá nhân không cần thiết. Không tuyên bố đã đọc dữ liệu nội bộ, đã thực hiện thao tác hay đã thay đổi dữ liệu.',
     'Câu hỏi: ' + question.slice(0, 4000),
-  ].join('\\n\\n')
+  ].join('\n\n')
   const result = await withTimeout(model.generateContent(prompt), CHAT_TIMEOUT_MS)
   const answer = result.response.text().trim()
   if (!answer) throw new Error('GEMINI_EMPTY_RESPONSE')
