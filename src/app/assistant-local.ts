@@ -1,9 +1,10 @@
 import { salonDb } from '../db/database'
 import type { Appointment, Customer, Employee, Invoice, Payment, Refund, Expense, Product, InventoryLot, Service, WorkShift } from '../db/types'
 import { buildOwnerFinanceAnswer } from './assistant-language'
+import { answerFromGuide, isGuideQuestion } from './guide-content'
 
 export type AssistantPeriod = 'today' | 'month' | 'quarter' | 'year'
-export type AssistantIntent = 'finance' | 'staff' | 'customers' | 'services' | 'appointments' | 'inventory' | 'overview' | 'general'
+export type AssistantIntent = 'guide' | 'finance' | 'staff' | 'customers' | 'services' | 'appointments' | 'inventory' | 'overview' | 'general'
 type DateRange = { start: Date; end: Date; label: string }
 type Snapshot = {
   invoices: Invoice[]; payments: Payment[]; refunds: Refund[]; expenses: Expense[]
@@ -49,6 +50,7 @@ function within(value: string, range: DateRange) {
 }
 export function detectAssistantIntent(question: string): AssistantIntent {
   const q = normalizeAssistantText(question)
+  if (isGuideQuestion(question)) return 'guide'
   if (/(nhan vien|nhan su|tho nao|ai lam|nang suat|hieu suat|xuat sac|lam viec tot|gioi nhat|cham chi|nhieu ca)/.test(q)) return 'staff'
   if (/(khach hang|khach nao|khach quen|khach than thiet|top khach|so khach|khach mua|mua nhieu|chi tieu|mua nhieu san pham|tong tien khach)/.test(q)) return 'customers'
   if (/(dich vu|kieu toc|mon nao pho bien|lam nhieu nhat)/.test(q)) return 'services'
@@ -246,6 +248,10 @@ export async function answerOwnerQuestion(salonId: string, question: string, now
   const intent = detectAssistantIntent(question)
   const period = detectAssistantPeriod(question)
   const range = getAssistantRange(period, now)
+  if (intent === 'guide') {
+    const answer = answerFromGuide(question)
+    if (answer) return { answer, safeContext: 'Nội dung hướng dẫn sử dụng app đã được tích hợp sẵn; không truy cập hồ sơ hay dữ liệu kinh doanh.', intent, period }
+  }
   const snapshot = await readSnapshot(salonId)
   const data = buildSafeContext(snapshot, range, intent)
   if (intent === 'staff') {
