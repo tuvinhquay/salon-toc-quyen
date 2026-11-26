@@ -77,7 +77,7 @@ export async function askGeminiAdviser(question: string, safeContext: string, me
 }
 
 /** General conversation is sent directly to Gemini without reading salon IndexedDB or memories. */
-export async function askGeminiConversation(question: string, role: 'owner' | 'employee'): Promise<string> {
+export async function askGeminiConversation(question: string, role: 'owner' | 'employee', recentQuestions = ''): Promise<string> {
   if (!firebaseApp || !appCheck) throw new Error('GEMINI_NOT_CONFIGURED')
   const ai = getAI(firebaseApp, { backend: new GoogleAIBackend() })
   const model = getGenerativeModel(ai, {
@@ -90,7 +90,8 @@ export async function askGeminiConversation(question: string, role: 'owner' | 'e
     'Vai trò đã được ứng dụng xác thực trước khi gọi AI: ' + trustedRole + '. Không tự suy đoán hoặc thay đổi vai trò này.',
     'Có thể trò chuyện, sáng tác thơ, viết nội dung, giải thích kiến thức, lập ý tưởng và tư vấn chung. Nếu câu hỏi cần dữ liệu thực tế của salon mà chưa được ứng dụng cung cấp, hãy nói rõ chưa có dữ liệu thay vì bịa số liệu.',
     'Không yêu cầu mật khẩu, khóa API, mã đăng nhập hoặc thông tin cá nhân không cần thiết. Không tuyên bố đã đọc dữ liệu nội bộ, đã thực hiện thao tác hay đã thay đổi dữ liệu.',
-    'Câu hỏi: ' + question.slice(0, 4000),
+    'Một vài câu hỏi gần nhất để giữ mạch hội thoại (đã giới hạn và che email/số điện thoại; không truy cập dữ liệu salon): ' + (recentQuestions || 'Chưa có.'),
+    'Câu hỏi hiện tại: ' + question.slice(0, 4000),
   ].join('\n\n')
   const result = await withTimeout(model.generateContent(prompt), CHAT_TIMEOUT_MS)
   const answer = result.response.text().trim()
