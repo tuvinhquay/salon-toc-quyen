@@ -1,5 +1,6 @@
 import {
-  BookOpen,\n  CalendarDays,
+  BookOpen,
+  CalendarDays,
   ChartNoAxesCombined,
   Package,
   ReceiptText,
@@ -19,7 +20,8 @@ export type NavigationItem = {
 }
 
 export const navigation: NavigationItem[] = [
-  { label: 'Tổng quan', to: '/', Icon: ChartNoAxesCombined, description: 'Không gian điều hành và tình trạng thiết lập salon.' },\n  { label: 'Hướng dẫn & giới thiệu', to: '/guide', Icon: BookOpen, description: 'Cách sử dụng các mục trong ứng dụng và hỏi đáp hướng dẫn.' },
+  { label: 'Tổng quan', to: '/', Icon: ChartNoAxesCombined, description: 'Không gian điều hành và tình trạng thiết lập salon.' },
+  { label: 'Hướng dẫn & giới thiệu', to: '/guide', Icon: BookOpen, description: 'Cách sử dụng các mục trong ứng dụng và hỏi đáp hướng dẫn.' },
   { label: 'Lịch hẹn', to: '/appointments', Icon: CalendarDays, description: 'Lịch hẹn, khách vãng lai, thời lượng và tiền đặt cọc.' },
   { label: 'Khách hàng', to: '/customers', Icon: Users, description: 'Hồ sơ khách hàng, lịch sử dịch vụ và sự đồng ý lưu trữ dữ liệu.' },
   { label: 'Quy trình làm tóc', to: '/workflow', Icon: Scissors, description: 'Các công đoạn dịch vụ, phân công và nhật ký thực hiện.' },
