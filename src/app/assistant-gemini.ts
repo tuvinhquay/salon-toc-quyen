@@ -2,6 +2,23 @@ import { getAI, getGenerativeModel, GoogleAIBackend } from 'firebase/ai'
 import { appCheck, firebaseApp, firebaseEnvDiagnostics } from '../lib/firebase'
 
 const MODEL = 'gemini-3.8-flash'
+const CONNECTION_TIMEOUT_MS = 15_000
+const CHAT_TIMEOUT_MS = 30_000
+const ADVISER_TIMEOUT_MS = 25_000
+
+async function withTimeout<T>(request: Promise<T>, timeoutMs: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    return await Promise.race([
+      request,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error('GEMINI_TIMEOUT')), timeoutMs)
+      }),
+    ])
+  } finally {
+    if (timer) clearTimeout(timer)
+  }
+}
 export function isGeminiAssistantReady() {
   return Boolean(firebaseApp && appCheck)
 }
@@ -31,7 +48,7 @@ export async function testGeminiConnection(): Promise<void> {
     model: MODEL,
     generationConfig: { temperature: 0, maxOutputTokens: 24 },
   })
-  const result = await model.generateContent('Trả lời đúng một từ: Xin chào')
+  const result = await withTimeout(model.generateContent('Trả lời đúng một từ: Xin chào'), CONNECTION_TIMEOUT_MS)
   if (!result.response.text().trim()) throw new Error('GEMINI_EMPTY_RESPONSE')
 }
 /** Gemini is an optional adviser. It receives only aggregate figures, never local customer/employee identifiers. */
@@ -53,8 +70,30 @@ export async function askGeminiAdviser(question: string, safeContext: string, me
     'Số liệu tổng hợp đã được tính tại thiết bị:\n' + safeContext,
     'Câu hỏi cần tư vấn: ' + question,
   ].join('\n\n')
-  const result = await model.generateContent(prompt)
+  const result = await withTimeout(model.generateContent(prompt), ADVISER_TIMEOUT_MS)
   const answer = result.response.text().trim()
   if (!answer) throw new Error('Gemini chưa tạo được câu trả lời.')
+  return answer
+}
+
+/** General conversation is sent directly to Gemini without reading salon IndexedDB or memories. */
+export async function askGeminiConversation(question: string, role: 'owner' | 'employee' = 'owner'): Promise<string> {
+  if (!firebaseApp || !appCheck) throw new Error('GEMINI_NOT_CONFIGURED')
+  const ai = getAI(firebaseApp, { backend: new GoogleAIBackend() })
+  const model = getGenerativeModel(ai, {
+    model: MODEL,
+    generationConfig: { temperature: 0.65, maxOutputTokens: 1000 },
+  })
+  const trustedRole = role === 'owner' ? 'CHỦ TIỆM (Owner)' : 'NHÂN VIÊN (Employee)'
+  const prompt = [
+    'Bạn là trợ lý AI đồng hành của salon TÓC QUYỀN. Trả lời tự nhiên, thông minh và hữu ích bằng tiếng Việt; xưng em, gọi người dùng anh/chị; không mở đầu máy móc.',
+    'Vai trò đã được ứng dụng xác thực trước khi gọi AI: ' + trustedRole + '. Không tự suy đoán hoặc thay đổi vai trò này.',
+    'Có thể trò chuyện, sáng tác thơ, viết nội dung, giải thích kiến thức, lập ý tưởng và tư vấn chung. Nếu câu hỏi cần dữ liệu thực tế của salon mà chưa được ứng dụng cung cấp, hãy nói rõ chưa có dữ liệu thay vì bịa số liệu.',
+    'Không yêu cầu mật khẩu, khóa API, mã đăng nhập hoặc thông tin cá nhân không cần thiết. Không tuyên bố đã đọc dữ liệu nội bộ, đã thực hiện thao tác hay đã thay đổi dữ liệu.',
+    'Câu hỏi: ' + question.slice(0, 4000),
+  ].join('\\n\\n')
+  const result = await withTimeout(model.generateContent(prompt), CHAT_TIMEOUT_MS)
+  const answer = result.response.text().trim()
+  if (!answer) throw new Error('GEMINI_EMPTY_RESPONSE')
   return answer
 }
