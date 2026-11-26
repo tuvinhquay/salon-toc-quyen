@@ -533,3 +533,5 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Bổ sung kiểm thử chẩn đoán Gemini để xác nhận token/credential trong lỗi SDK được che; điều chỉnh nhãn tin nhắn AI để phân biệt câu trả lời Gemini tổng quát với trợ lý local. CI cần chạy lại trên HEAD mới nhất sau các chỉnh sửa cuối.
 
 - GitHub Actions CI run #542 trên Phase 40 HEAD đã PASS: Typecheck, Lint, Unit tests và Production build/PWA. Chỉ xác nhận chất lượng code/build; chưa chứng minh Gemini live/App Check hoạt động trên Firebase project hoặc Android runtime.
+
+- Tinh chỉnh hội thoại trực tiếp: Gemini nhận tối đa 3 câu hỏi người dùng gần nhất (300 ký tự/câu, tối đa 900 ký tự) sau khi che email/số điện thoại; context chỉ lấy từ state chat hiện có, không đọc IndexedDB hay trí nhớ salon.
