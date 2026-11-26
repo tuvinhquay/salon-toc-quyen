@@ -240,3 +240,13 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Hóa đơn in A4 thay hoa văn đối xứng cũ bằng họa tiết đầu nai có sừng; thêm watermark deer-antler mờ phía sau nội dung. Logo nhận diện app/sidebar vẫn giữ icon kéo, không đổi thương hiệu.
 - Không thay nghiệp vụ, xác thực, tenant security, dữ liệu hoặc routing.
 - Chờ CI typecheck/lint/tests/build và Owner smoke test trên Termux/Android, desktop và màn hình đăng nhập. Không merge/deploy trước khi Owner nghiệm thu.
+
+ 
+## Phase 35 – Reports: 5-month demo range & visual chart – 2026-11-26
+- Root cause identified: ReportsPage initialized date filter to current day only, while P30 demo business dataset spans current month and four previous months. No transactions on the current day therefore made report totals appear as 0 even though seeded data exists.
+- Default report period changed to cover the five-month demo range (first day of month four months ago through tomorrow as exclusive end). Added explicit “5 tháng gần nhất” preset.
+- Quick presets now load report immediately after selecting; no need to press a second time. Manual date range remains available; end field labeled as exclusive (“Đến trước ngày”) to avoid silently including/excluding dates.
+- Report summary emphasizes net collected; chart upgraded from basic CSS bars to a responsive SVG grouped bar visualization with grid, value axis, labels, accessible titles, and collected/refunded/expenses series.
+- Chart empty-state now checks whether transactions exist, not merely whether date buckets exist.
+- Tests added for the five-month default and a 25,000,000 VND sample transaction aggregate.
+- Pending CI typecheck/lint/tests/build and Owner local verification against demo dataset. Do not merge/deploy until confirmed.
