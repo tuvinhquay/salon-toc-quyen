@@ -17,7 +17,7 @@ export async function testGeminiConnection(): Promise<void> {
   if (!result.response.text().trim()) throw new Error('GEMINI_EMPTY_RESPONSE')
 }
 /** Gemini is an optional adviser. It receives only aggregate figures, never local customer/employee identifiers. */
-export async function askGeminiAdviser(question: string, safeContext: string, memorySummary: string): Promise<string> {
+export async function askGeminiAdviser(question: string, safeContext: string, memorySummary: string, recentQuestions = ''): Promise<string> {
   if (!firebaseApp || !appCheck) throw new Error('Gemini chưa sẵn sàng: cần cấu hình Firebase AI Logic và App Check.')
   const ai = getAI(firebaseApp, { backend: new GoogleAIBackend() })
   const model = getGenerativeModel(ai, {
@@ -30,6 +30,7 @@ export async function askGeminiAdviser(question: string, safeContext: string, me
     'Nếu câu hỏi còn thiếu chi tiết quan trọng, hỏi lại đúng một câu ngắn. Nếu có thể trả lời hữu ích ngay, hãy trả lời trước rồi nêu giả định rõ ràng. Không tự tạo số liệu, không tính lại tiền do hệ thống đã tính và không nói rằng đã làm thao tác khi chưa thực hiện.',
     'Nếu thiếu thông tin, nói cụ thể khoản nào chưa được nhập và điều đó ảnh hưởng ra sao. Không suy đoán doanh thu theo nhân viên khi chưa có dữ liệu gắn người thực hiện.',
     'Không yêu cầu tên, số điện thoại, email, mật khẩu, khóa API hoặc dữ liệu riêng tư.',
+    'Các câu hỏi gần đây của người dùng (đã lọc thông tin nhận diện, chỉ để hiểu ngữ cảnh): ' + (recentQuestions || 'Chưa có câu hỏi trước đó.'),
     'Thói quen tổng hợp của chủ tiệm: ' + memorySummary,
     'Số liệu tổng hợp đã được tính tại thiết bị:\n' + safeContext,
     'Câu hỏi cần tư vấn: ' + question,
