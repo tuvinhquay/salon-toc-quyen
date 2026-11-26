@@ -52,7 +52,7 @@ export function answerFromGuide(question: string): string | null {
       ...guideTopics.map(item => '• ' + item.title.replace(/^\\d+\\. /, '') + ': ' + item.summary),
       '',
       'Bạn có thể hỏi em: “Hướng dẫn tạo lịch hẹn”, “Cách lập hóa đơn”, “Làm sao sao lưu dữ liệu?” hoặc “Giải thích báo cáo”.',
-    ].join('\\n')
+    ].join('\n')
   }
   return [
     '**' + topic.title + '**',
@@ -61,5 +61,5 @@ export function answerFromGuide(question: string): string | null {
     '**Cách sử dụng**',
     ...topic.steps.map((step, index) => (index + 1) + '. ' + step),
     ...(topic.tips?.length ? ['', '**Lưu ý**', ...topic.tips.map(tip => '• ' + tip)] : []),
-  ].join('\\n')
+  ].join('\n')
 }
