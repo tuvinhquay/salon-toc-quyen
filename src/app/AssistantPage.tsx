@@ -65,7 +65,10 @@ const suggestions = [
   'Quý này tiệm kinh doanh thế nào?',
   'Nhân viên nào có nhiều ca làm nhất tháng này?',
   'Tìm sản phẩm dầu gội trong kho.',
-  'Bạn có thể làm được gì?',\n  'Hướng dẫn mình cách tạo lịch hẹn.',\n  'Cách lập hóa đơn và ghi nhận tiền khách trả?',\n  'Ứng dụng có những tính năng nào?',
+  'Bạn có thể làm được gì?',
+  'Hướng dẫn mình cách tạo lịch hẹn.',
+  'Cách lập hóa đơn và ghi nhận tiền khách trả?',
+  'Ứng dụng có những tính năng nào?',
   'Ai đã tạo ra bạn?',
 ]
 const needsAdviser = (question: string, intent: string) => intent === 'general' || /(tu van|giai thich|de xuat|nen lam gi|lam sao|chien luoc|ke hoach|vi sao)/i.test(question.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))
