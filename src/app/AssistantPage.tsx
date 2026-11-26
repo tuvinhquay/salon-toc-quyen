@@ -4,12 +4,13 @@ import { useOwnerContext } from '../auth/OwnerContext'
 import { useAuth } from '../auth/AuthProvider'
 import type { AssistantMemoryRecord, Customer, Product } from '../db/types'
 import type { ProductInput } from '../db/schema'
-import { answerOwnerQuestion, redactQuestionForGemini } from './assistant-local'
+import { answerOwnerQuestion, detectAssistantIntent, redactQuestionForGemini } from './assistant-local'
+import { classifyAssistantRoute, sanitizeQuestionForGemini } from './assistant-routing'
 import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, readAssistantMemory } from './assistant-memory'
 import { answerAssistantAbout, answerFromMemories, applyLearnedVocabulary, findMatchingAssistantShortcut, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
 import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assistant-brain-store'
 import { archiveCustomers, createProductWithOpeningStock, listCustomers, listProducts, saveProduct } from '../db/repositories'
-import { askGeminiAdviser, getGeminiConfigurationStatus, getGeminiErrorDetails, isGeminiAssistantReady, testGeminiConnection } from './assistant-gemini'
+import { askGeminiAdviser, askGeminiConversation, getGeminiConfigurationStatus, getGeminiErrorDetails, isGeminiAssistantReady, testGeminiConnection } from './assistant-gemini'
 import { makeAssistantLanguageFriendly } from './assistant-language'
 import { isGuideQuestion } from './guide-content'
 
@@ -71,7 +72,6 @@ const suggestions = [
   'Ứng dụng có những tính năng nào?',
   'Ai đã tạo ra bạn?',
 ]
-const needsAdviser = (question: string, intent: string) => intent === 'general' || /(tu van|giai thich|de xuat|nen lam gi|lam sao|chien luoc|ke hoach|vi sao)/i.test(question.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))
 
 export function AssistantPage() {
   const actor = useOwnerContext()
@@ -89,6 +89,7 @@ export function AssistantPage() {
   const [pendingCustomerArchive, setPendingCustomerArchive] = useState<Customer[] | null>(null)
   const [pendingProductAction, setPendingProductAction] = useState<PendingProductAction | null>(null)
   const [busy, setBusy] = useState(false)
+  const [busyLabel, setBusyLabel] = useState('Em đang xử lý yêu cầu…')
   const [error, setError] = useState<string | null>(null)
   const [adviserNotice, setAdviserNotice] = useState<string | null>(null)
   const [geminiTestState, setGeminiTestState] = useState<'idle' | 'testing' | 'success' | 'failed'>('idle')
@@ -150,8 +151,9 @@ export function AssistantPage() {
     setShowLatest(false)
     setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'user', content: prompt }])
     setBusy(true)
+    setBusyLabel('Em đang xử lý yêu cầu…')
     try {
-      const normalizedPrompt = prompt.toLocaleLowerCase('vi').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/đ/g, 'd')
+      const normalizedPrompt = prompt.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
       if (pendingCustomerArchive) {
         if (/^(xac nhan luu tru|xac nhan)$/.test(normalizedPrompt.trim())) {
           const count = await archiveCustomers(actor, pendingCustomerArchive.map(customer => customer.id))
@@ -172,10 +174,10 @@ export function AssistantPage() {
       if (archiveIntent) {
         const customers = await listCustomers(actor)
         const allRequested = /(tat ca|toan bo|het danh sach|toan danh sach)/.test(normalizedPrompt)
-        const digits = prompt.replace(/\\D/g, '')
+        const digits = prompt.replace(/\D/g, '')
         const matched = allRequested ? customers : customers.filter(customer => {
-          const name = customer.fullName.toLocaleLowerCase('vi').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/đ/g, 'd')
-          const phone = (customer.phone ?? '').replace(/\\D/g, '')
+          const name = customer.fullName.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
+          const phone = (customer.phone ?? '').replace(/\D/g, '')
           return (name.length > 2 && normalizedPrompt.includes(name)) || (digits.length >= 8 && phone.length >= 8 && phone.includes(digits))
         })
         if (!allRequested && matched.length === 0) {
@@ -299,6 +301,30 @@ export function AssistantPage() {
         return
       }
 
+      const intent = detectAssistantIntent(prompt)
+      const route = classifyAssistantRoute(prompt, intent)
+      if (route === 'chat') {
+        setBusyLabel('Em đang trò chuyện cùng Gemini…')
+        if (!geminiReady) {
+          setAdviserNotice('Gemini chưa sẵn sàng. Em chưa thể trả lời câu hỏi trò chuyện bằng AI; các chức năng tra cứu nội bộ vẫn dùng được.')
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Hiện Gemini chưa kết nối nên em chưa thể trò chuyện hoặc sáng tác bằng AI. Anh vẫn có thể dùng các chức năng tra cứu dữ liệu tiệm trên thiết bị.', source: 'local' }])
+          return
+        }
+        try {
+          const recentQuestions = messages.filter(message => message.role === 'user').slice(-3).map(message => sanitizeQuestionForGemini(message.content).slice(0, 300)).join('\n').slice(-900)
+          const answer = await askGeminiConversation(sanitizeQuestionForGemini(prompt), 'owner', recentQuestions)
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answer, source: 'gemini' }])
+        } catch (cause) {
+          const detail = getGeminiErrorDetails(cause)
+          setAdviserNotice('Gemini chưa phản hồi: ' + detail + '. Anh có thể thử gửi lại sau; dữ liệu nội bộ không bị ảnh hưởng.')
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em chưa nhận được phản hồi từ Gemini lần này. Anh thử gửi lại sau ít phút nhé. Các dữ liệu trong tiệm vẫn an toàn và không bị thay đổi.', source: 'local' }])
+        }
+        return
+      }
+
+      if (route === 'hybrid') setBusyLabel('Em đang kết hợp dữ liệu tiệm với Gemini…')
+      else setBusyLabel('Em đang tra cứu dữ liệu của tiệm…')
+
       const trainedShortcut = findMatchingAssistantShortcut(longTermMemories, prompt)
       const learnedPrompt = applyLearnedVocabulary(longTermMemories, prompt)
       const local = await answerOwnerQuestion(actor.salonId, trainedShortcut?.content ?? learnedPrompt)
@@ -310,16 +336,15 @@ export function AssistantPage() {
       if (relevant.length && /(ke hoach|lap ke hoach|nen lam gi|thoi quen|uu tien|buoi sang|hang ngay)/i.test(prompt.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))) {
         answer += '\n\n**Điều mình đã ghi nhớ có liên quan**\n' + relevant.map(item => '• ' + item.content).join('\n')
       }
-      if (!trainedShortcut && !isGuideQuestion(prompt) && needsAdviser(prompt, local.intent)) {
+      if (!trainedShortcut && route === 'hybrid' && !isGuideQuestion(prompt)) {
         if (geminiReady) {
           try {
             const safeQuestion = await redactQuestionForGemini(actor.salonId, prompt)
-            const recentQuestions = await Promise.all(messages.filter(message => message.role === 'user').slice(-3).map(message => redactQuestionForGemini(actor.salonId, message.content)))
-            const conversationContext = recentQuestions.map(item => item.slice(0, 300)).join('\n').slice(-900)
-            answer += '\n\n**Gợi ý từ trợ lý AI**\n' + await askGeminiAdviser(safeQuestion, local.safeContext, describeAssistantMemory(nextMemory), conversationContext)
+            answer += '\n\n**Gợi ý từ trợ lý AI**\n' + await askGeminiAdviser(safeQuestion, local.safeContext, describeAssistantMemory(nextMemory))
             source = 'gemini'
-          } catch {
-            setAdviserNotice('Trợ lý AI chưa kết nối được. Em vẫn trả lời bằng dữ liệu có sẵn trên thiết bị.')
+          } catch (cause) {
+            const detail = getGeminiErrorDetails(cause)
+            setAdviserNotice('Gemini chưa phản hồi: ' + detail + '. Em vẫn giữ câu trả lời từ dữ liệu nội bộ trên thiết bị.')
           }
         } else {
           setAdviserNotice('Trợ lý AI chưa được kết nối. Các chức năng tra cứu trên thiết bị vẫn hoạt động bình thường.')
@@ -373,21 +398,21 @@ export function AssistantPage() {
     </div>
     <div className="assistant-status-row">
       <div><span className="assistant-status-dot"/> Trợ lý sẵn sàng</div>
-      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Gemini {geminiReady ? 'đã cấu hình' : 'chưa cấu hình'}</div>
+      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Gemini {geminiReady ? 'có cấu hình cơ bản' : 'chưa đủ cấu hình'}</div>
       <button type="button" className="subtle-button" onClick={() => void testGemini()} disabled={!geminiReady || geminiTestState === 'testing'}><Sparkles size={14}/> {geminiTestState === 'testing' ? 'Đang kiểm tra…' : 'Kiểm tra kết nối'}</button>
     </div>
-    <p className="assistant-chat-meta">Cấu hình đang đọc: project {geminiConfigStatus.projectId || '(chưa có)'} · API key {geminiConfigStatus.apiKeyPresent ? 'đã nạp (không hiển thị)' : 'chưa nạp'} · reCAPTCHA {geminiConfigStatus.recaptchaSiteKeyPresent ? 'đã nạp' : 'chưa nạp'} · App Check {geminiConfigStatus.appCheckCreated ? 'khởi tạo' : 'chưa khởi tạo'} · Model {geminiConfigStatus.model}</p>
+    <p className="assistant-chat-meta">Cấu hình đang đọc: project {geminiConfigStatus.projectId || '(chưa có)'} · Firebase Web API key {geminiConfigStatus.apiKeyPresent ? 'đã nạp' : 'chưa nạp'} · reCAPTCHA {geminiConfigStatus.recaptchaSiteKeyPresent ? 'đã nạp' : 'chưa nạp'} · App Check {geminiConfigStatus.appCheckCreated ? 'khởi tạo' : 'chưa khởi tạo'} · Model {geminiConfigStatus.model}</p>
     {!geminiConfigStatus.expectedProject && <p className="assistant-adviser-note" role="alert">Cảnh báo: Project ID không trùng project salonquyen-f21fa đã ghi trong hướng dẫn triển khai.</p>}
     {geminiTestMessage && <p className={geminiTestState === 'success' ? 'assistant-gemini-test-success' : 'assistant-adviser-note'} role="status" style={{ whiteSpace: 'pre-wrap' }}>{geminiTestMessage}</p>}
     <div className="assistant-chat" aria-live="polite" aria-relevant="additions" ref={chatRef} onScroll={handleChatScroll}>
       {messages.map(message => <article className={'assistant-message ' + message.role} key={message.id}>
         <span className="assistant-message-icon">{message.role === 'assistant' ? <Bot size={17}/> : <UserRound size={17}/>}</span>
         <div className="assistant-message-body">
-          <small>{message.role === 'assistant' ? (message.source === 'gemini' ? 'TRỢ LÝ · GEMINI CỐ VẤN' : 'TRỢ LÝ TÓC QUYỀN') : 'BẠN'}</small>
+          <small>{message.role === 'assistant' ? (message.source === 'gemini' ? 'TRỢ LÝ · GEMINI AI' : 'TRỢ LÝ TÓC QUYỀN') : 'BẠN'}</small>
           <div className="assistant-message-content">{message.content.split('\n').map((line, index) => <p key={index}>{line.replaceAll('**', '').replaceAll('_', '') || '\u00a0'}</p>)}</div>
         </div>
       </article>)}
-      {busy && <div className="assistant-thinking"><Brain size={16}/> Em đang tìm thông tin trong dữ liệu của tiệm…</div>}
+      {busy && <div className="assistant-thinking"><Brain size={16}/> {busyLabel}</div>}
     </div>
     <div className="assistant-chat-meta">Thông tin được xem từ dữ liệu lưu trên thiết bị này; hiện chưa tự chuyển sang thiết bị khác.</div>
     {adviserNotice && <div className="assistant-adviser-note" role="status">{adviserNotice}</div>}

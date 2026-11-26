@@ -22,15 +22,15 @@ Phạm vi giai đoạn 1: Owner App. Employee App là giai đoạn 2, không tr�
 | P18 | Robot trợ lý và dữ liệu mẫu trên Owner App | IMPLEMENTED ON BRANCH – chờ CI/acceptance |
 | P19 | Trợ lý nội bộ: hỏi đáp số liệu salon bằng tiếng Việt | CI PASS – chờ Termux/Android smoke test |
 | P20 | Bộ nhớ học thói quen Owner, tenant-scoped, có quyền xóa | CODE IMPLEMENTED – chờ kiểm thử lưu trữ trên Android |
-| P21 | Gemini cố vấn qua Firebase AI Logic, Spark-compatible | CI PASS – chờ bật AI Logic/App Check và smoke test live |
+| P21 | Gemini qua Firebase AI Logic: trò chuyện trực tiếp, kết hợp dữ liệu local, timeout và redaction | IMPLEMENTED ON PHASE 40 BRANCH – CI PASS #553; chờ live Gemini + Android acceptance |
 | P22 | Salon Brain Core: trí nhớ dài hạn Owner lưu Dexie, ghi nhớ có chủ đích, truy xuất và quản lý trí nhớ | IMPLEMENTED ON BRANCH – chờ CI/Termux; local-only, chưa P2P |
 | P23 | Hiểu hội thoại, ngữ cảnh cá nhân và lập kế hoạch ngày/tuần | NOT STARTED |
 | P24 | Core Governance: quyền hạn, xác nhận hành động, audit và chống prompt injection | NOT STARTED |
 | P25 | Ghép đôi thiết bị Owner, danh tính thiết bị và xác thực peer | NOT STARTED |
 | P26 | P2P transport WebRTC, trao đổi change log mã hóa đầu cuối | NOT STARTED – không dùng cloud storage/signaling lưu dữ liệu |
 | P27 | Đồng bộ trí nhớ + dữ liệu Dexie, conflict resolution và offline recovery | NOT STARTED |
-| P28 | Gemini cố vấn tùy chọn, chỉ nhận dữ liệu được Owner cho phép | NOT STARTED – không có quyền ghi/điều khiển |
-| P29 | Membership AI theo vai trò và hỗ trợ chủ động | NOT STARTED; Employee AI chỉ sau Employee Auth/Membership |
+| P28 | Gemini cố vấn tùy chọn, chỉ nhận dữ liệu được Owner cho phép | PARTIAL – Owner hybrid flow ở Phase 40; Employee AI chờ Employee Auth/Membership riêng |
+| P29 | Membership AI theo vai trò và hỗ trợ chủ động | OWNER ROLE VERIFIED BY AUTHGATE; EMPLOYEE MEMBERSHIP NOT IMPLEMENTED – chưa cấp Employee AI |
 | E01 | Employee App độc lập theo vai trò | GIAI ĐOẠN 2 – CHƯA TRIỂN KHAI |
 ## Nguyên tắc kiến trúc P2P-only đã chốt – 2026-11-23
 - Owner chọn phương án A: chỉ P2P, không lưu dữ liệu nghiệp vụ, trí nhớ hoặc kiến thức AI trên Firebase/Google Drive/cloud storage.
