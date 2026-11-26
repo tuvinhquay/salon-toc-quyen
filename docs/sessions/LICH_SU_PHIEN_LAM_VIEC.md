@@ -495,3 +495,14 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Nêu rõ giới hạn đồng bộ nhiều thiết bị và các lưu ý dữ liệu mẫu/tài chính. Thêm tests, cập nhật roadmap/session.
 - CI và Owner acceptance pending. Không đổi schema, dữ liệu, auth, tenant scope, quyền hoặc công thức; không merge/deploy.
 - Chi tiết: `docs/sessions/PHASE-37-OWNER-GUIDE-AND-ASSISTANT-KNOWLEDGE.md`.
+
+
+## Phiên 2026-11-26 – Phase 38: Kiểm tra Gemini API và cải thiện trò chuyện
+- Owner yêu cầu kiểm tra Trợ lý có thực sự kết nối Gemini API không, đồng thời làm câu trả lời thông minh và tự nhiên hơn khi dùng gói miễn phí.
+- Rà soát branch Phase37: `assistant-gemini.ts` dùng Firebase AI Logic SDK (`firebase/ai`), `GoogleAIBackend`, model `gemini-3.8-flash`; `AssistantPage` gọi Gemini khi câu hỏi thuộc nhóm tư vấn/chưa nhận diện. Câu hỏi hướng dẫn, truy vấn nghiệp vụ và số liệu vẫn local-first.
+- Phát hiện nhãn “đã kết nối” cũ chỉ dựa vào sự hiện diện Firebase config + App Check; chưa phải request live.
+- Tạo branch `phase-38-gemini-live-check-and-natural-chat` từ Phase37. Thêm live probe token thấp, nút kiểm tra kết nối, phân biệt cấu hình/kết nối thật và thông báo lỗi quota/App Check/cấu hình. Prompt Gemini được chỉnh để trò chuyện tiếng Việt ấm áp, ít máy móc, ít gạch đầu dòng; giới hạn output giảm nhẹ.
+- Cập nhật CI branch filters, ROADMAP và session note. Chưa merge/deploy.
+- Owner runtime acceptance còn bắt buộc: chạy app và bấm **Kiểm tra kết nối**. CI chỉ xác minh code/build, không thể xác nhận Firebase project thực tế đã bật AI Logic/App Check.
+- Tài liệu chính thức: Firebase AI Logic yêu cầu bật Gemini Developer API + Firebase AI Logic API và App Check; Free Tier quota phụ thuộc model/project, không có cam kết chung 1 triệu token/ngày.
+- Chi tiết: `docs/sessions/PHASE-38-GEMINI-LIVE-CHECK-AND-NATURAL-CHAT.md`.
