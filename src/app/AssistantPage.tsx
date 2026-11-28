@@ -207,7 +207,7 @@ export function AssistantPage() {
         }
         if (/^(xac nhan|xac nhan them khach hang|xac nhan cap nhat|dong y|luu)$/.test(normalizedPrompt.trim())) {
           const saved = await saveCustomer(actor, pendingCustomerSave.input, pendingCustomerSave.customerId)
-          await recordAssistantEpisode(actor, pendingCustomerSave.kind === 'create' ? 'customer_created' : 'customer_updated', pendingCustomerSave.kind === 'create' ? 'Đã thêm hồ sơ khách hàng mới vào salon (thông tin liên hệ được giữ trong danh mục khách hàng, không sao chép vào trí nhớ ENA).' : 'Đã cập nhật hồ sơ một khách hàng trong salon (chi tiết nằm trong danh mục khách hàng).', 4)
+          await recordAssistantEpisode(actor, pendingCustomerSave.kind === 'create' ? 'customer_created' : 'customer_updated', pendingCustomerSave.kind === 'create' ? 'Đã thêm khách hàng ' + saved.fullName + ' vào salon; số điện thoại và email không được sao chép vào trí nhớ ENA.' : 'Đã cập nhật hồ sơ khách hàng ' + saved.fullName + '; thông tin liên hệ chi tiết vẫn nằm trong danh mục khách hàng.', 4)
           setPendingCustomerSave(null)
           setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: (pendingCustomerSave.kind === 'create' ? 'Đã thêm khách hàng ' : 'Đã cập nhật hồ sơ khách hàng ') + saved.fullName + (saved.phone ? ' · ' + saved.phone : '') + '. Thay đổi đã được ghi vào salon hiện tại và nhật ký thao tác.' }])
           return
