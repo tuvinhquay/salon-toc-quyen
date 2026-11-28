@@ -1,5 +1,7 @@
+import { firebaseEnvDiagnostics } from '../lib/firebase'
+
 const MODEL = 'gemini-3.8-flash'
-const CONNECTION_TIMEOUT_MS = 15_000
+const CONNECTION_TIMEOUT_MS = 40_000
 const CHAT_TIMEOUT_MS = 30_000
 const ADVISER_TIMEOUT_MS = 25_000
 const LOCAL_GEMINI_ENDPOINT = '/__local-api/gemini'
@@ -44,6 +46,8 @@ export function getGeminiConfigurationStatus() {
     keyStorage: 'GEMINI_API_KEY trong .env.local (chỉ máy chủ Termux đọc)',
     runtimeMode: import.meta.env.DEV ? 'Termux/Vite local' : 'Không khả dụng trong production build',
     model: MODEL,
+    expectedProject: firebaseEnvDiagnostics.expectedProject,
+    firebaseProjectId: firebaseEnvDiagnostics.projectId,
   }
 }
 
@@ -59,7 +63,7 @@ export function getGeminiErrorDetails(error: unknown): string {
 }
 
 export async function testGeminiConnection(): Promise<void> {
-  const answer = await requestGemini('Trả lời đúng một từ: Xin chào', CONNECTION_TIMEOUT_MS, 0, 24)
+  const answer = await requestGemini('Trả lời đúng một từ: Xin chào', CONNECTION_TIMEOUT_MS, 0, 1024)
   if (!answer) throw new Error('GEMINI_EMPTY_RESPONSE')
 }
 
@@ -75,7 +79,7 @@ export async function askGeminiAdviser(question: string, safeContext: string, me
     'Số liệu tổng hợp đã được tính tại thiết bị:\\n' + safeContext,
     'Câu hỏi cần tư vấn: ' + question,
   ].join('\\n\\n')
-  return requestGemini(prompt, ADVISER_TIMEOUT_MS, 0.35, 1200)
+  return requestGemini(prompt, ADVISER_TIMEOUT_MS, 0.35, 2048)
 }
 
 export async function askGeminiConversation(question: string, role: 'owner' | 'employee', recentQuestions = ''): Promise<string> {
@@ -88,5 +92,5 @@ export async function askGeminiConversation(question: string, role: 'owner' | 'e
     'Một vài câu hỏi gần nhất để giữ mạch hội thoại (đã giới hạn và che email/số điện thoại; không truy cập dữ liệu salon): ' + (recentQuestions || 'Chưa có.'),
     'Câu hỏi hiện tại: ' + question.slice(0, 4000),
   ].join('\\n\\n')
-  return requestGemini(prompt, CHAT_TIMEOUT_MS, 0.65, 1000)
+  return requestGemini(prompt, CHAT_TIMEOUT_MS, 0.65, 2048)
 }
