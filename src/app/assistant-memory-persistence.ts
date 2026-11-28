@@ -84,9 +84,8 @@ export async function loadAssistantChatHistory(actor: ActorContext): Promise<Ass
 
 export async function recordAssistantEpisode(actor: ActorContext, episodeType: AssistantEpisodeType, summary: string, importance: 1 | 2 | 3 | 4 | 5 = 4): Promise<AssistantEpisode | null> {
   if (!actor.salonId || !actor.actorId) return null
-  const clean = summary.replace(/[\\w.+-]+@[\\w.-]+\\.[a-z]{2,}/gi, '[email ẩn]').replace(/\\s+/g, ' ').trim().slice(0, 360)
+  const clean = summary.replace(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/gi, '[email ẩn]').replace(/\s+/g, ' ').trim().slice(0, 360)
   if (!clean || (episodeType === 'conversation' && isLowValueMemoryText(clean))) return null
-  const limits = await storageLimits()
   const now = new Date().toISOString()
   const rows = await salonDb.assistantEpisodes.where('[salonId+ownerId]').equals([actor.salonId, actor.actorId]).toArray()
   const duplicate = rows.find(row => row.status === 'active' && row.episodeType === episodeType && normalizeMemoryText(row.summary) === normalizeMemoryText(clean))
