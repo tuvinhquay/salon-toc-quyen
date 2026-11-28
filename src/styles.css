@@ -324,3 +324,29 @@ html,body{background:#031c17;color:#f8f4e8}
 .guide-assistant-link:hover{background:#f4eadf}
 .guide-limit-note{margin:0;color:#8b7d72;font-size:10px;line-height:1.75}
 @media(max-width:600px){.guide-hero,.guide-bot-card{padding:15px;gap:11px}.guide-hero-icon{width:40px;height:40px}.guide-hero h3,.guide-bot-card h3,.guide-quick-start h3,.guide-topic-heading h3{font-size:17px}.guide-topic summary{padding:13px}.guide-topic-content{padding:14px}}
+
+/* Phase 45 – ENA chat readability, scroll and floating unread bell */
+.assistant-page{width:100%;max-width:min(1320px,100%);margin:0 auto}
+.assistant-chat{width:100%;height:clamp(380px,68vh,780px);min-height:380px;max-height:72vh;align-content:start;overflow-y:auto;overflow-x:hidden;scroll-padding-bottom:20px;padding:clamp(12px,2vw,22px)}
+.assistant-message{width:100%;max-width:100%}
+.assistant-message-body{max-width:calc(100% - 42px)}
+.assistant-message-content{font-size:clamp(13px,.95vw,15px);line-height:1.7}
+.assistant-message-content p{margin:6px 0}
+.assistant-thinking{font-size:12px}
+.assistant-extra-panel{border:1px solid rgba(230,201,143,.3);border-radius:12px;background:rgba(245,249,245,.8);color:#244b3c;overflow:hidden}
+.assistant-extra-panel>summary{padding:12px 15px;cursor:pointer;font-size:12px;font-weight:700;list-style-position:inside}
+.assistant-extra-panel[open]>summary{border-bottom:1px solid rgba(20,77,59,.14);background:rgba(255,255,255,.6)}
+.assistant-extra-panel>.assistant-suggestions,.assistant-extra-panel>.assistant-memory{margin:12px}
+.assistant-fab{overflow:visible}
+.assistant-notification-bell{position:absolute;top:-7px;right:-6px;width:30px;height:30px;display:grid;place-items:center;border:2px solid #f6edcf;border-radius:50%;background:#0d5947;color:#f6df9e;box-shadow:0 4px 14px rgba(0,0,0,.28);z-index:2}
+.assistant-unread-badge{position:absolute;top:-12px;right:-13px;min-width:21px;height:21px;padding:0 5px;display:grid;place-items:center;border:2px solid #fff3d6;border-radius:999px;background:#c73c35;color:#fff;font-size:10px;font-weight:800;line-height:1;z-index:3}
+.assistant-fab:has(.assistant-unread-badge){animation:assistant-float 2.4s ease-in-out infinite}
+@media(max-width:700px){
+ .assistant-page{max-width:100%}
+ .assistant-chat{height:62vh;min-height:340px;max-height:68vh;padding:10px}
+ .assistant-message-body{max-width:calc(100% - 38px);padding:10px 11px}
+ .assistant-message-content{font-size:13px}
+ .assistant-status-row{padding:9px 10px}
+ .assistant-status-row .subtle-button{min-height:34px}
+ .assistant-extra-panel>summary{padding:10px 12px}
+}
