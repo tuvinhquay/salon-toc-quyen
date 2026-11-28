@@ -54,3 +54,17 @@ export function memoryKeywords(value: string): string[] {
 export function estimateMemoryBytes(value: string): number {
   return value.length * 2
 }
+
+export function isAssistantEpisodeRecallQuestion(value: string): boolean {
+  const q = normalizeMemoryText(value)
+  return /(ban nho|ena nho|nho lai|luc nay|hoi nay|truoc do|vua roi|lan truoc|da lam gi|da them|da tao|da cap nhat|da luu tru|minh vua|toi vua|san pham nao|ma sku nao|nhung viec vua lam|viec gan day|cuoc tro chuyen truoc)/.test(q)
+}
+
+export function shouldRememberConversation(userText: string, assistantText: string): boolean {
+  const q = normalizeMemoryText(userText)
+  const a = normalizeMemoryText(assistantText)
+  if (isLowValueMemoryText(userText) || isLowValueMemoryText(assistantText)) return false
+  if (/(^(them|tao|nhap|bo sung|cap nhat|sua|xoa|luu tru|ngung kinh doanh|xac nhan|huy)\b)/.test(q)) return false
+  if (/(doanh thu|bao cao|ton kho|lich hen|top khach|thong ke)/.test(q) && a.length < 180) return false
+  return q.split(/\s+/).filter(word => word.length > 2).length >= 4 && a.length >= 80
+}
