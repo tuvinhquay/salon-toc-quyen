@@ -8,10 +8,10 @@ export function GuidePage() {
   const query = normalizeGuideText(search)
   const topics = useMemo(() => guideTopics.filter(topic => !query || normalizeGuideText([topic.title, topic.summary, ...topic.keywords, ...topic.steps, ...(topic.tips ?? [])].join(' ')).includes(query)), [query])
   return <section className="work-page owner-guide">
-    <div className="work-intro"><div><small>TRỢ GIÚP · TÓC QUYỀN</small><h2>Hướng dẫn & giới thiệu</h2><p>Hướng dẫn từng bước để bạn và nhân viên làm quen, sử dụng các mục trong ứng dụng dễ dàng hơn.</p></div></div>
+    <div className="work-intro"><div><small>TRỢ GIÚP · TÓC QUYỀN</small><h2>Hướng dẫn & giới thiệu</h2><p>Hướng dẫn sử dụng salon, dữ liệu lưu trên thiết bị, đồng bộ nhiều máy và cách ENA hỗ trợ chủ tiệm.</p></div></div>
     <div className="guide-hero">
       <div className="guide-hero-icon"><BookOpen size={26}/></div>
-      <div><h3>Ứng dụng giúp salon quản lý công việc hằng ngày</h3><p>Từ đặt lịch, chăm sóc khách, quản lý dịch vụ và kho đến thu ngân, báo cáo và sao lưu. Bạn có thể đọc hướng dẫn tại đây hoặc hỏi Trợ lý Tóc Quyền bằng lời nói tự nhiên.</p></div>
+      <div><h3>Ứng dụng giúp salon quản lý công việc hằng ngày</h3><p>Từ đặt lịch, chăm sóc khách, quản lý dịch vụ và kho đến thu ngân, báo cáo, sao lưu và sử dụng trên máy tính, laptop, iPhone hoặc Android. Bạn có thể đọc hướng dẫn tại đây hoặc hỏi ENA bằng lời nói tự nhiên.</p></div>
     </div>
     <div className="guide-quick-start">
       <h3>Bắt đầu nhanh</h3>
@@ -32,7 +32,7 @@ export function GuidePage() {
       </details>)}
       {topics.length===0&&<p className="empty-state">Chưa tìm thấy hướng dẫn phù hợp. Thử tìm bằng từ ngắn hơn, ví dụ “lịch hẹn” hoặc “kho”.</p>}
     </div>
-    <div className="guide-bot-card"><div className="guide-hero-icon"><MessageCircleQuestion size={23}/></div><div><h3>Hỏi Trợ lý Tóc Quyền</h3><p>Bot đã được tích hợp nội dung hướng dẫn này. Bạn có thể hỏi: “Hướng dẫn tạo lịch hẹn”, “Cách lập hóa đơn”, “Sao lưu dữ liệu ở đâu?” hoặc “Ứng dụng có những tính năng gì?”.</p><Link to={"/assistant" as never} className="guide-assistant-link">Mở Trợ lý AI để hỏi <span>→</span></Link></div></div>
-    <p className="guide-limit-note">Lưu ý: hướng dẫn phản ánh các chức năng đang có trong phiên bản hiện tại. Tính năng đồng bộ tự động nhiều thiết bị chưa hoàn thiện; hãy kiểm tra trạng thái và sao lưu trước khi chuyển thiết bị.</p>
+    <div className="guide-bot-card"><div className="guide-hero-icon"><MessageCircleQuestion size={23}/></div><div><h3>Hỏi ENA – Trợ lý điều hành</h3><p>Bot đã được tích hợp nội dung hướng dẫn này. Bạn có thể hỏi: “Hướng dẫn tạo lịch hẹn”, “Cách lập hóa đơn”, “Sao lưu dữ liệu ở đâu?” hoặc “Ứng dụng có những tính năng gì?”.</p><Link to={"/assistant" as never} className="guide-assistant-link">Mở Trợ lý AI để hỏi <span>→</span></Link></div></div>
+    <p className="guide-limit-note">Lưu ý: dữ liệu salon được thiết kế lưu chính trong IndexedDB trên từng thiết bị. Firebase đảm nhiệm đăng nhập, kiểm tra quyền và điều phối đồng bộ, không phải kho dữ liệu salon chính. Giao thức mã hóa và quản lý thiết bị đã có nhưng kênh truyền đồng bộ thực tế chưa hoàn thiện; hãy sao lưu và xác nhận đồng bộ trước khi xóa dữ liệu hoặc ngừng sử dụng thiết bị cũ.</p>
   </section>
 }
