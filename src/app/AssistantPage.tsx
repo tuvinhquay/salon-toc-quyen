@@ -312,7 +312,7 @@ export function AssistantPage() {
 
       const archiveProductIntent = /(xoa|luu tru|ngung kinh doanh|an)/.test(normalizedPrompt) && /(san pham|mat hang)/.test(normalizedPrompt)
       if (archiveProductIntent) {
-        const skuMatch = prompt.match(/(?:mã|sku)\\s+([a-z0-9-]+)/i)
+        const skuMatch = prompt.match(/(?:mã|sku)\s+([a-z0-9-]+)/i)
         if (!skuMatch) {
           setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Để tránh ngừng nhầm sản phẩm, anh vui lòng cung cấp mã SKU chính xác. ENA sẽ lưu trữ bằng cách ngừng kinh doanh, không xóa lịch sử kho.' }])
           return
@@ -328,7 +328,7 @@ export function AssistantPage() {
           return
         }
         setPendingProductAction({ kind: 'archive', phase: 'confirm', product })
-        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Anh xác nhận ngừng kinh doanh sản phẩm này?\\nTên: ' + product.name + '\\nSKU: ' + (product.sku ?? '') + '\\nTồn kho và lịch sử giao dịch được giữ nguyên; sản phẩm sẽ không còn được chọn cho giao dịch mới.\\n\\nGõ “XÁC NHẬN” để tiếp tục hoặc “HỦY” để dừng.' }])
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Anh xác nhận ngừng kinh doanh sản phẩm này?\nTên: ' + product.name + '\nSKU: ' + (product.sku ?? '') + '\nTồn kho và lịch sử giao dịch được giữ nguyên; sản phẩm sẽ không còn được chọn cho giao dịch mới.\n\nGõ “XÁC NHẬN” để tiếp tục hoặc “HỦY” để dừng.' }])
         return
       }
 
