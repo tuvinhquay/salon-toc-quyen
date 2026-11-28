@@ -310,7 +310,7 @@ export function AssistantPage() {
         return
       }
 
-      const archiveProductIntent = /(xoa|luu tru|ngung kinh doanh|an)/.test(normalizedPrompt) && /(san pham|mat hang)/.test(normalizedPrompt)
+      const archiveProductIntent = /(?:^|\\s)(?:xoa|luu tru|ngung kinh doanh|an)(?:\\s|$)/.test(normalizedPrompt) && /(san pham|mat hang)/.test(normalizedPrompt)
       if (archiveProductIntent) {
         const skuMatch = prompt.match(/(?:mã|sku)\s+([a-z0-9-]+)/i)
         if (!skuMatch) {
