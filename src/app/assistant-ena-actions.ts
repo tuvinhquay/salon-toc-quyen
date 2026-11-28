@@ -2,7 +2,7 @@ import type { CustomerInput } from '../db/schema'
 
 /** Parse only explicitly supplied customer fields. */
 export function parseCustomerCreateCommand(prompt: string): CustomerInput | null {
-  const match = prompt.match(/(?:thêm|tạo|lập|đăng ký)\s+(?:mới\s+)?khách hàng\s+(.+?)(?=,?\s*(?:sđt|số điện thoại|điện thoại|email|ghi chú)(?:\s|[:=]|$)|$)/i)
+  const match = prompt.match(/(?:thêm|tạo|lập|đăng ký)\s+(?:mới\s+)?khách hàng(?:\s+mới)?\s+(.+?)(?=,?\s*(?:sđt|số điện thoại|điện thoại|email|ghi chú)(?:\s|[:=]|$)|$)/i)
   if (!match) return null
   const fullName = match[1].trim().replace(/[,.\s]+$/, '')
   if (fullName.length < 2) return null
@@ -18,7 +18,7 @@ export function parseCustomerCreateCommand(prompt: string): CustomerInput | null
 /** Supports an exact customer-name match plus one explicit phone-number change. */
 export function parseCustomerPhoneUpdate(prompt: string): { name: string; phone: string } | null {
   const normalized = prompt.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
-  if (!/(sua|cap nhat|doi thong tin)/.test(normalized) || !/khach hang/.test(normalized)) return null
+  if (!/(sua|cap nhat|doi(?: thong tin)?)/.test(normalized) || !/khach hang/.test(normalized)) return null
   const nameMatch = prompt.match(/khách hàng\s+(.+?)(?=,?\s*(?:đổi|cập nhật|thành|sđt|số điện thoại)(?:\s|[:=]|$))/i)
   const phoneMatch = prompt.match(/(?:sđt|số điện thoại)(?:\s+mới)?\s*(?:thành|là|[:=])?\s*([+()\d .-]{8,})/i)
   if (!nameMatch || !phoneMatch) return null
