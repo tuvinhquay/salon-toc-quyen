@@ -279,8 +279,8 @@ export function AssistantPage() {
           return
         }
         setPendingCustomerArchive(matched)
-        const preview = matched.slice(0, 12).map((customer, index) => (index + 1) + '. ' + customer.fullName + (customer.phone ? ' · ' + customer.phone : '')).join('\\n')
-        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em tìm thấy ' + matched.length + ' hồ sơ sẽ được lưu trữ:\\n' + preview + (matched.length > 12 ? '\\n… và ' + (matched.length - 12) + ' hồ sơ khác.' : '') + '\\n\\nĐây là thao tác lưu trữ, không xóa lịch sử hóa đơn/thanh toán. Để tiếp tục, anh gõ “XÁC NHẬN LƯU TRỮ”. Gõ “HỦY” để dừng.', source: 'local' }])
+        const preview = matched.slice(0, 12).map((customer, index) => (index + 1) + '. ' + customer.fullName + (customer.phone ? ' · ' + customer.phone : '')).join('\n')
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em tìm thấy ' + matched.length + ' hồ sơ sẽ được lưu trữ:\n' + preview + (matched.length > 12 ? '\n… và ' + (matched.length - 12) + ' hồ sơ khác.' : '') + '\n\nĐây là thao tác lưu trữ, không xóa lịch sử hóa đơn/thanh toán. Để tiếp tục, anh gõ “XÁC NHẬN LƯU TRỮ”. Gõ “HỦY” để dừng.', source: 'local' }])
         return
       }
 
@@ -416,7 +416,7 @@ export function AssistantPage() {
       if (isMemoryRecallQuestion(prompt) || isAssistantEpisodeRecallQuestion(prompt)) {
         const rows = await refreshLongTermMemories()
         const episodes = await searchAssistantEpisodes(actor, prompt, 6)
-        const answer = answerFromMemories(rows) + '\\n\\n' + formatAssistantEpisodes(episodes)
+        const answer = answerFromMemories(rows) + '\n\n' + formatAssistantEpisodes(episodes)
         setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answer, source: 'local' }])
         return
       }
@@ -433,7 +433,7 @@ export function AssistantPage() {
         try {
           const recentQuestions = messages.filter(message => message.role === 'user').slice(-3).map(message => sanitizeQuestionForGemini(message.content).slice(0, 300)).join('\n').slice(-700)
           const remembered = await searchAssistantEpisodes(actor, prompt, 4)
-          const memoryContext = remembered.length ? '\\n\\nKý ức nội bộ liên quan (đã được lọc, chỉ để tham khảo):\\n' + remembered.map(item => '• ' + item.summary).join('\\n').slice(0, 900) : ''
+          const memoryContext = remembered.length ? '\n\nKý ức nội bộ liên quan (đã được lọc, chỉ để tham khảo):\n' + remembered.map(item => '• ' + item.summary).join('\n').slice(0, 900) : ''
           const answer = await askGeminiConversation(sanitizeQuestionForGemini(prompt), 'owner', (recentQuestions + memoryContext).slice(-1400))
           setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answer, source: 'gemini' }])
         } catch (cause) {
