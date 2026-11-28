@@ -592,3 +592,13 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Thêm tests `assistant-ena-policy.test.ts`, `assistant-ena-actions.test.ts`; cập nhật CI branch filters và ROADMAP.
 - Giới hạn production: `GEMINI_API_KEY` vẫn server-only trong `.env.local`; proxy hiện chỉ chạy Vite development trên Termux, chưa phải backend production. Không deploy production với proxy dev.
 - Trạng thái: IMPLEMENTED ON BRANCH; chưa xác nhận typecheck/lint/test/build/CI hoặc kiểm thử app trên Termux/Android; chưa merge/deploy. Employee ENA bị khóa có chủ đích cho đến khi có auth + membership + permission context.
+
+
+## Phiên 2026-11-28 – Phase 45: ENA ghi dữ liệu và cải thiện khung chat
+- Tạo branch `phase-45-ena-write-chat-ux-notifications` từ Phase 44; không sửa main, không merge/deploy.
+- Phân tích phản hồi ENA “không có quyền tự nhập/chỉnh sửa”: Gemini đã được prompt giới hạn không truy cập DB, nhưng app-level command parser cho sản phẩm chưa đọc đúng cấu trúc “mã SKU / giá vốn / giá bán / số lượng nhập ban đầu”. Khi không được route thành action local, yêu cầu có thể rơi vào Gemini và bị trả lời từ chối chung.
+- Thêm parser sản phẩm tách riêng giá bán và giá vốn, đọc tên, SKU, đơn vị, tồn đầu; thêm test cho câu lệnh người dùng. Luồng ghi qua repository hiện có, Owner actor guard, xác nhận trước khi commit.
+- Điều chỉnh prompt Gemini: phân biệt quyền của model với quyền thao tác của ENA qua ứng dụng; không trả lời rằng ENA nói chung không có quyền ghi, không giả vờ đã ghi khi action chưa được thực hiện.
+- Cải thiện auto-scroll bằng layout effect, tăng vùng chat, tăng cỡ chữ, thu gọn gợi ý/trí nhớ vào mục mở rộng, bỏ ghi chú kết nối/đồng bộ lặp lại ở khu vực chính.
+- Thêm chuông và badge tin nhắn chưa đọc trên nút ENA nổi ở góc màn hình. Badge tăng khi có phản hồi mới trong lúc người dùng đang xem tin cũ; mở ENA sẽ xóa badge.
+- Thêm nhánh CI và ghi roadmap/session. Chưa có bằng chứng test trên Termux/Android hoặc CI nên chưa đánh dấu PASS; chưa merge/deploy.
