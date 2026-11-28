@@ -7,6 +7,9 @@ describe('ENA customer command parsing', () => {
       fullName: 'Nguyễn Văn A', phone: '0901234567', email: 'a@example.com', notes: 'khách quen', groupIds: [], customFields: {},
     })
   })
+  it('accepts the common phrase customer mới after khách hàng', () => {
+    expect(parseCustomerCreateCommand('Thêm khách hàng mới Nguyễn Văn B, số điện thoại 0912345678')?.fullName).toBe('Nguyễn Văn B')
+  })
   it('rejects missing names and malformed phone numbers', () => {
     expect(parseCustomerCreateCommand('Thêm khách hàng')).toBeNull()
     expect(parseCustomerCreateCommand('Thêm khách hàng Nguyễn Văn A, số điện thoại 123')).toBeNull()
