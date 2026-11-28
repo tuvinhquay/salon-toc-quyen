@@ -21,7 +21,7 @@ describe('Gemini Developer API local proxy', () => {
     expect(requestBody.prompt).toContain('SAFE_CONTEXT: doanh thu thuần 1000000')
     expect(requestBody.prompt).toContain('ENA có thể thực hiện thao tác salon')
     expect(requestBody.prompt).toContain('không được truy cập DB trực tiếp')
-    expect(requestBody.prompt).not.toContain('ENA không có quyền ghi')
+    expect(requestBody.prompt).toContain('Không trả lời chung chung rằng ENA không có quyền ghi')
   })
   it('uses a server-only .env.local key configuration', () => {
     const status = getGeminiConfigurationStatus()
