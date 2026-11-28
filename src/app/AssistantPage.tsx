@@ -475,7 +475,9 @@ export function AssistantPage() {
         if (geminiReady) {
           try {
             const safeQuestion = await redactQuestionForGemini(actor.salonId, prompt)
-            answer = await askGeminiAdviser(safeQuestion, local.safeContext + '\n\nKết quả nghiệp vụ đã được ứng dụng tính và xác minh:\n' + local.answer, describeAssistantMemory(nextMemory))
+            const relevantEpisodes = await searchAssistantEpisodes(actor, prompt, 4)
+            const episodeContext = relevantEpisodes.length ? '\n\nKý ức ENA liên quan đã lọc:\n' + relevantEpisodes.map(item => '• ' + item.summary).join('\n').slice(0, 800) : ''
+            answer = await askGeminiAdviser(safeQuestion, local.safeContext + '\n\nKết quả nghiệp vụ đã được ứng dụng tính và xác minh:\n' + local.answer, describeAssistantMemory(nextMemory) + episodeContext)
             source = 'gemini'
           } catch (cause) {
             const detail = getGeminiErrorDetails(cause)
