@@ -92,15 +92,26 @@ function localGeminiProxy(): Plugin {
           }
           const temperature = typeof body.temperature === 'number' ? Math.max(0, Math.min(1, body.temperature)) : 0.4;
           const maxOutputTokens = typeof body.maxOutputTokens === 'number' ? Math.max(256, Math.min(4096, Math.floor(body.maxOutputTokens))) : 2048;
-          const upstream = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + encodeURIComponent(apiKey), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: body.prompt }] }], generationConfig: { temperature, maxOutputTokens, thinkingConfig: { thinkingLevel: 'LOW' } } }),
-            signal: AbortSignal.timeout(35_000),
-          });
+          const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + encodeURIComponent(apiKey);
+          const requestBody = JSON.stringify({ contents: [{ role: 'user', parts: [{ text: body.prompt }] }], generationConfig: { temperature, maxOutputTokens, thinkingConfig: { thinkingLevel: 'LOW' } } });
+          let upstream: Response | undefined;
+          // Gemini can return 503 during temporary capacity spikes. Retry at most twice
+          // with exponential backoff and jitter; do not retry auth, validation or quota errors.
+          for (let attempt = 0; attempt < 3; attempt += 1) {
+            upstream = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: requestBody,
+              signal: AbortSignal.timeout(18_000),
+            });
+            if (![500, 502, 503, 504].includes(upstream.status) || attempt === 2) break;
+            const delay = 1_000 * (2 ** attempt) + Math.floor(Math.random() * 300);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+          if (!upstream) throw new Error('GEMINI_UPSTREAM_NO_RESPONSE');
           const payload = await upstream.json().catch(() => null) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> }; finishReason?: string }>; promptFeedback?: { blockReason?: string }; error?: { status?: string } } | null;
           if (!upstream.ok) {
-            res.statusCode = upstream.status === 429 ? 429 : upstream.status === 400 ? 400 : 502;
+            res.statusCode = upstream.status === 429 ? 429 : upstream.status === 400 ? 400 : upstream.status === 503 ? 503 : 502;
             res.setHeader('Content-Type', 'application/json; charset=utf-8');
             const code = upstream.status === 401 ? 'GEMINI_API_KEY_REJECTED' : upstream.status === 403 ? 'GEMINI_ACCESS_DENIED' : upstream.status === 404 ? 'GEMINI_MODEL_NOT_FOUND' : upstream.status === 429 ? 'GEMINI_QUOTA_OR_RATE_LIMIT' : upstream.status === 503 ? 'GEMINI_SERVICE_UNAVAILABLE' : upstream.status === 400 ? 'GEMINI_INVALID_REQUEST' : 'GEMINI_UPSTREAM_ERROR';
             res.end(JSON.stringify({ error: code }));
