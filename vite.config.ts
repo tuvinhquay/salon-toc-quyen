@@ -91,26 +91,29 @@ function localGeminiProxy(): Plugin {
             return;
           }
           const temperature = typeof body.temperature === 'number' ? Math.max(0, Math.min(1, body.temperature)) : 0.4;
-          const maxOutputTokens = typeof body.maxOutputTokens === 'number' ? Math.max(1, Math.min(2048, Math.floor(body.maxOutputTokens))) : 1024;
+          const maxOutputTokens = typeof body.maxOutputTokens === 'number' ? Math.max(256, Math.min(4096, Math.floor(body.maxOutputTokens))) : 2048;
           const upstream = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + encodeURIComponent(apiKey), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: body.prompt }] }], generationConfig: { temperature, maxOutputTokens } }),
+            body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: body.prompt }] }], generationConfig: { temperature, maxOutputTokens, thinkingConfig: { thinkingLevel: 'LOW' } } }),
             signal: AbortSignal.timeout(35_000),
           });
-          const payload = await upstream.json().catch(() => ({})) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+          const payload = await upstream.json().catch(() => null) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> }; finishReason?: string }>; promptFeedback?: { blockReason?: string }; error?: { status?: string } } | null;
           if (!upstream.ok) {
             res.statusCode = upstream.status === 429 ? 429 : upstream.status === 400 ? 400 : 502;
             res.setHeader('Content-Type', 'application/json; charset=utf-8');
-            const code = upstream.status === 401 || upstream.status === 403 ? 'GEMINI_API_KEY_REJECTED' : upstream.status === 429 ? 'GEMINI_QUOTA_OR_RATE_LIMIT' : 'GEMINI_UPSTREAM_ERROR';
+            const code = upstream.status === 401 ? 'GEMINI_API_KEY_REJECTED' : upstream.status === 403 ? 'GEMINI_ACCESS_DENIED' : upstream.status === 404 ? 'GEMINI_MODEL_NOT_FOUND' : upstream.status === 429 ? 'GEMINI_QUOTA_OR_RATE_LIMIT' : upstream.status === 503 ? 'GEMINI_SERVICE_UNAVAILABLE' : upstream.status === 400 ? 'GEMINI_INVALID_REQUEST' : 'GEMINI_UPSTREAM_ERROR';
             res.end(JSON.stringify({ error: code }));
             return;
           }
-          const text = payload.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('').trim() || '';
+          const text = payload?.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('').trim() || '';
           if (!text) {
             res.statusCode = 502;
             res.setHeader('Content-Type', 'application/json; charset=utf-8');
-            res.end(JSON.stringify({ error: 'GEMINI_EMPTY_RESPONSE' }));
+            const blockReason = payload?.promptFeedback?.blockReason;
+            const finishReason = payload?.candidates?.[0]?.finishReason;
+            const error = blockReason ? 'GEMINI_PROMPT_BLOCKED:' + blockReason : 'GEMINI_NO_TEXT:' + (finishReason || 'UNKNOWN');
+            res.end(JSON.stringify({ error }));
             return;
           }
           res.statusCode = 200;
