@@ -558,3 +558,13 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Sửa UI bỏ các hướng dẫn lỗi Firebase AI Logic/App Check và `VITE_FIREBASE_API_KEY` còn sót; chẩn đoán theo Gemini Developer API.
 - Sửa lỗi UI đọc `expectedProject` không tồn tại trong cấu hình; hiện lấy project ID thật từ `firebaseEnvDiagnostics` và giải thích cảnh báo Firebase project không tự động là nguyên nhân lỗi Gemini AI Studio.
 - Bổ sung unit tests cho token budget và Firebase project diagnostic. Chưa xác nhận CI hoặc live Gemini trên Termux; chưa merge/deploy. Firebase Auth/Firestore/App Check và Dexie giữ nguyên.
+
+
+## Phase 42 – Xử lý Gemini SERVICE_UNAVAILABLE – 2026-11-28
+- Người dùng báo kiểm tra kết nối trả `GEMINI_SERVICE_UNAVAILABLE`.
+- Rà soát `vite.config.ts`: mã này chỉ được gán khi Google upstream trả HTTP 503. Nhánh lỗi khóa thiếu/sai, model 404 và quota 429 được phân loại riêng. Do đó 503 hiện tại không chứng minh .env.local sai; nhiều khả năng là lỗi khả dụng/quá tải tạm thời phía dịch vụ Gemini.
+- Theo hướng dẫn Gemini API của Google, 503 là dịch vụ tạm thời quá tải/không khả dụng; khuyến nghị retry với exponential backoff.
+- Đã cập nhật proxy: retry tối đa 2 lần bổ sung cho HTTP 500/502/503/504, delay exponential + jitter; không retry lỗi xác thực, request 400 hoặc quota 429. Giữ HTTP 503 khi trả về client để chẩn đoán chính xác hơn.
+- Tăng timeout client lên 60 giây để đủ thời gian cho retry có giới hạn.
+- Commit: `46a8a9bd3b58eede80a84ebed1e547073ea90911`, `07a781b27eddf77b5e4ff6094893855ec69d75a4`.
+- Chưa xác nhận CI và chưa có live smoke test trên Termux; chưa merge/deploy. Firebase Auth, Firestore, App Check và Dexie không thay đổi.
