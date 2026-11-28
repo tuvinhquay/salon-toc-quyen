@@ -18,7 +18,7 @@ describe('Gemini Developer API local proxy', () => {
     expect(status.provider).toContain('Gemini Developer API')
     expect(status.keyStorage).toContain('.env.local')
     expect(status.keyStorage).not.toContain('VITE_')
-    expect(status.model).toBe('gemini-3.8-flash')
+    expect(status.model).toBe('gemini-3.5-flash-lite')
     expect(typeof status.expectedProject).toBe('boolean')
     expect(typeof status.firebaseProjectId).toBe('string')
   })
