@@ -138,7 +138,7 @@ export async function pruneAssistantMemory(actor: ActorContext): Promise<{ chatC
   ])
   const chatValid = chatRows.filter(row => Date.parse(row.messageAt) >= chatCutoff).sort((a, b) => Date.parse(a.messageAt) - Date.parse(b.messageAt)).slice(-limits.chatMaxMessages)
   let chatBytes = chatValid.reduce((sum, row) => sum + estimateMemoryBytes(row.content), 0)
-  let chatKept = [...chatValid]
+  const chatKept = [...chatValid]
   while (chatKept.length && chatBytes > limits.chatMaxBytes) {
     chatBytes -= estimateMemoryBytes(chatKept[0].content)
     chatKept.shift()
@@ -146,7 +146,7 @@ export async function pruneAssistantMemory(actor: ActorContext): Promise<{ chatC
   const chatKeepIds = new Set(chatKept.map(row => row.id))
   const episodeValid = episodeRows.filter(row => row.status === 'active' && Date.parse(row.createdAt) >= episodeCutoff)
     .sort((a, b) => b.importance - a.importance || Date.parse(b.createdAt) - Date.parse(a.createdAt))
-  let episodeKept = episodeValid.slice(0, limits.episodeMaxCount)
+  const episodeKept = episodeValid.slice(0, limits.episodeMaxCount)
   let episodeBytes = episodeKept.reduce((sum, row) => sum + estimateMemoryBytes(row.summary), 0)
   while (episodeKept.length && episodeBytes > limits.episodeMaxBytes) {
     const removed = episodeKept.pop()!
