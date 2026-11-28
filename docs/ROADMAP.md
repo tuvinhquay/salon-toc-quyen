@@ -290,3 +290,16 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Termux kiểm tra cho thấy `npm test` có 69 test PASS nhưng suite `assistant-gemini.test.ts` lỗi `ReferenceError: document is not defined` khi import `assistant-gemini.ts` kéo theo `src/lib/firebase.ts` và khởi tạo reCAPTCHA Enterprise App Check trong môi trường Node.
 - Sửa `assistant-gemini.ts` đọc riêng `VITE_FIREBASE_PROJECT_ID` chỉ để hiển thị chẩn đoán project; không import module khởi tạo Firebase. Firebase Auth/Firestore/App Check runtime không bị thay đổi.
 - Thêm branch filter CI cho nhánh sửa lỗi. Cần xác nhận lại typecheck/lint/test/build trên Termux và CI; chưa đánh dấu PASS, chưa merge/deploy.
+
+
+## Phase 44 – ENA unified salon operations assistant – 2026-11-28
+- Branch: `phase-44-ena-unified-operations-assistant`, based on Phase 43 Gemini 3.5 Flash-Lite branch. Phase 43 PR #41 remains Draft; no merge/deploy.
+- Replace the visible split identity (local assistant vs Gemini) with one assistant identity: **ENA – Trợ lý điều hành**. Message attribution no longer labels separate assistant versions.
+- Gemini is used for general conversation and for explaining selected verified salon read results (finance, inventory, appointments, services, overview). Local repositories calculate results; Gemini receives only the supplied result/context and cannot access IndexedDB or write directly.
+- Add explicit Owner actor guard: current AuthGate mounts OwnerContext only after active Owner membership; ENA additionally checks authenticated Firebase UID equals actorId and requires salonId/deviceId. Employee access remains blocked because employee authentication/membership and permission context are not implemented in the current Owner-only application. Do not infer employee privileges from employee directory records.
+- Add confirmed customer creation and exact-name phone update through existing `saveCustomer` repository (schema validation, salonId scope and audit event). Duplicate name/phone detection prevents creating an obvious duplicate. Existing customer archive remains confirmation-gated.
+- Add confirmed product archival by exact SKU: mark inactive rather than physically deleting product or stock history. Existing confirmed product creation with opening stock and sale-price update remain.
+- All pending changes require explicit confirmation; cancellation does not write. Gemini prompt explicitly states it has no DB access and must not invent or claim writes.
+- Added unit tests for Owner identity boundary and customer command parsing. CI workflow branch filters now include Phase 43/44.
+- Security/production boundary: Gemini key remains server-only in `.env.local`; current Vite proxy is development-only. Production ENA is not ready until a secure server-side backend/secret store and production authorization checks are implemented.
+- Status: IMPLEMENTED ON BRANCH; typecheck/lint/unit tests/build/CI and Owner Termux + Android acceptance pending. Employee ENA is intentionally not enabled. No merge/deploy.
