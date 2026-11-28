@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 const isTermux = Boolean(process.env.TERMUX_VERSION);
-const GEMINI_MODEL = 'gemini-3.8-flash';
+const GEMINI_MODEL = 'gemini-3.5-flash-lite';
 const requestBuckets = new Map<string, { startedAt: number; count: number }>();
 
 function localGeminiProxy(): Plugin {

@@ -22,7 +22,7 @@ Phạm vi giai đoạn 1: Owner App. Employee App là giai đoạn 2, không tr�
 | P18 | Robot trợ lý và dữ liệu mẫu trên Owner App | IMPLEMENTED ON BRANCH – chờ CI/acceptance |
 | P19 | Trợ lý nội bộ: hỏi đáp số liệu salon bằng tiếng Việt | CI PASS – chờ Termux/Android smoke test |
 | P20 | Bộ nhớ học thói quen Owner, tenant-scoped, có quyền xóa | CODE IMPLEMENTED – chờ kiểm thử lưu trữ trên Android |
-| P21 | Gemini Developer API (AI Studio) qua local Termux proxy, key server-only trong .env.local | IMPLEMENTED ON PHASE 42 BRANCH – chờ CI + live API/Android acceptance; đang sửa lỗi Vitest/App Check DOM isolation |
+| P21 | Gemini Developer API (AI Studio) qua local Termux proxy, key server-only trong .env.local | IMPLEMENTED ON PHASE 43 BRANCH – model gemini-3.5-flash-lite đã live-test HTTP 200 trực tiếp; chờ proxy smoke test, CI và Android acceptance |
 | P22 | Salon Brain Core: trí nhớ dài hạn Owner lưu Dexie, ghi nhớ có chủ đích, truy xuất và quản lý trí nhớ | IMPLEMENTED ON BRANCH – chờ CI/Termux; local-only, chưa P2P |
 | P23 | Hiểu hội thoại, ngữ cảnh cá nhân và lập kế hoạch ngày/tuần | NOT STARTED |
 | P24 | Core Governance: quyền hạn, xác nhận hành động, audit và chống prompt injection | NOT STARTED |

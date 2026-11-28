@@ -1,6 +1,6 @@
 const firebaseProjectId = import.meta.env.VITE_FIREBASE_PROJECT_ID || ''
 
-const MODEL = 'gemini-3.8-flash'
+const MODEL = 'gemini-3.5-flash-lite'
 const CONNECTION_TIMEOUT_MS = 60_000
 const CHAT_TIMEOUT_MS = 60_000
 const ADVISER_TIMEOUT_MS = 60_000
