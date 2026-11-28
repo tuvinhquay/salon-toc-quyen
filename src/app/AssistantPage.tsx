@@ -401,7 +401,7 @@ export function AssistantPage() {
       <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Gemini {geminiReady ? 'có cấu hình cơ bản' : 'chưa đủ cấu hình'}</div>
       <button type="button" className="subtle-button" onClick={() => void testGemini()} disabled={!geminiReady || geminiTestState === 'testing'}><Sparkles size={14}/> {geminiTestState === 'testing' ? 'Đang kiểm tra…' : 'Kiểm tra kết nối'}</button>
     </div>
-    <p className="assistant-chat-meta">Cấu hình đang đọc: project {geminiConfigStatus.projectId || '(chưa có)'} · Firebase Web API key {geminiConfigStatus.apiKeyPresent ? 'đã nạp' : 'chưa nạp'} · reCAPTCHA {geminiConfigStatus.recaptchaSiteKeyPresent ? 'đã nạp' : 'chưa nạp'} · App Check {geminiConfigStatus.appCheckCreated ? 'khởi tạo' : 'chưa khởi tạo'} · Model {geminiConfigStatus.model}</p>
+    <p className="assistant-chat-meta">Kết nối: {geminiConfigStatus.provider} · Khóa: {geminiConfigStatus.keyStorage} · Chế độ: {geminiConfigStatus.runtimeMode} · Model: {geminiConfigStatus.model}</p>
     {!geminiConfigStatus.expectedProject && <p className="assistant-adviser-note" role="alert">Cảnh báo: Project ID không trùng project salonquyen-f21fa đã ghi trong hướng dẫn triển khai.</p>}
     {geminiTestMessage && <p className={geminiTestState === 'success' ? 'assistant-gemini-test-success' : 'assistant-adviser-note'} role="status" style={{ whiteSpace: 'pre-wrap' }}>{geminiTestMessage}</p>}
     <div className="assistant-chat" aria-live="polite" aria-relevant="additions" ref={chatRef} onScroll={handleChatScroll}>
