@@ -614,4 +614,4 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Tự học tóm tắt hội thoại có ích; bỏ lời chào, xác nhận/hủy ngắn, lệnh thao tác trùng và nội dung báo cáo ngắn/ồn.
 - Câu hỏi “ENA nhớ lúc nãy…” tìm trong ký ức sự kiện; Gemini chỉ nhận một số tóm tắt đã lọc liên quan, không được truy cập DB.
 - Tự dọn theo hạn lưu, trùng lặp, số lượng và dung lượng. Mặc định giữ tối đa 40 tin/48 KB/30 ngày, 120 ký ức sự kiện/64 KB/180 ngày, 80 mục trí nhớ rõ ràng/64 KB. Khi quota browser origin đạt 85% hoặc 95%, giới hạn giảm; nếu IndexedDB báo quota, dọn rồi thử ghi với giới hạn nhỏ hơn.
-- Thêm test policy; cần CI và nghiệm thu thực tế trên Android/Termux.
+- GitHub Actions CI run #645 PASS tại commit `27904fec6a28357d74838bff4cc819b9bc6c9e84`: typecheck, lint, unit tests, production PWA build PASS. Nghiệm thu Android/Termux còn chờ Owner.
