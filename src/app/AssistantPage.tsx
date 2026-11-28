@@ -75,7 +75,7 @@ export function AssistantPage() {
   const [memory, setMemory] = useState(() => readAssistantMemory(actor.salonId, actor.actorId))
   const [longTermMemories, setLongTermMemories] = useState<AssistantMemoryRecord[]>([])
   const [recentEpisodes, setRecentEpisodes] = useState<Awaited<ReturnType<typeof listRecentAssistantEpisodes>>>([])
-  const [chatHistoryLoaded, setChatHistoryLoaded] = useState(false)
+  const [chatHistoryScope, setChatHistoryScope] = useState('')
   const [memoryStats, setMemoryStats] = useState({ chatCount: 0, episodeCount: 0, bytes: 0 })
   const [pendingCustomerArchive, setPendingCustomerArchive] = useState<Customer[] | null>(null)
   const [pendingCustomerSave, setPendingCustomerSave] = useState<PendingCustomerSave | null>(null)
@@ -106,17 +106,18 @@ export function AssistantPage() {
       setRecentEpisodes(episodes)
       setMemoryStats(stats)
       if (history.length) setMessages(history)
-      setChatHistoryLoaded(true)
+      else setMessages([{ id: 'welcome', role: 'assistant', content: ownerName ? 'Dạ, em chào anh ' + ownerName + '! Hôm nay anh cần em hỗ trợ gì ạ? Em có thể hướng dẫn cách dùng app, tra cứu nhân viên, khách hàng, sản phẩm, lịch hẹn và thống kê doanh thu. Anh cứ nói ngắn gọn; nếu chưa hiểu rõ, em sẽ hỏi lại nhé.' : 'Dạ, em chào anh/chị! Hôm nay mình cần em hỗ trợ gì ạ? Em có thể tra cứu nhân viên, khách hàng, sản phẩm, lịch hẹn và thống kê doanh thu. Anh/chị cứ nói ngắn gọn; nếu chưa hiểu rõ, em sẽ hỏi lại nhé.', source: 'local' }])
+      setChatHistoryScope(actor.salonId + ':' + actor.actorId)
     }).catch(() => {
       if (!active) return
       setError('Không đọc được bộ nhớ ENA trên thiết bị.')
-      setChatHistoryLoaded(true)
+      setChatHistoryScope(actor.salonId + ':' + actor.actorId)
     })
     return () => { active = false }
   }, [actor.salonId, actor.actorId])
 
   useEffect(() => {
-    if (!chatHistoryLoaded) return
+    if (chatHistoryScope !== actor.salonId + ':' + actor.actorId) return
     void saveAssistantChatSnapshot(actor, messages).then(async () => {
       const stats = await pruneAssistantMemory(actor)
       setMemoryStats(stats)
@@ -129,7 +130,7 @@ export function AssistantPage() {
     if (assistant?.role === 'assistant' && userMessage?.role === 'user' && shouldRememberConversation(userMessage.content, assistant.content)) {
       void recordAssistantEpisode(actor, 'conversation', 'Trao đổi: ' + userMessage.content + ' — ENA: ' + assistant.content.slice(0, 240), 2)
     }
-  }, [chatHistoryLoaded, messages, actor.salonId, actor.actorId])
+  }, [chatHistoryScope, messages, actor.salonId, actor.actorId])
 
   useLayoutEffect(() => {
     const node = chatRef.current
