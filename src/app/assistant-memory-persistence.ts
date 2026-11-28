@@ -120,7 +120,8 @@ export async function searchAssistantEpisodes(actor: ActorContext, query: string
     const score = terms.reduce((sum, term) => sum + (haystack.includes(term) ? 2 : 0), 0)
     return { row, score }
   }).filter(item => item.score > 0).sort((a, b) => b.score - a.score || Date.parse(b.row.createdAt) - Date.parse(a.row.createdAt))
-  const recent = active.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))\n  const selected = (terms.length && scored.length ? scored.map(item => item.row) : recent).slice(0, maxResults)
+  const recent = active.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+  const selected = (terms.length && scored.length ? scored.map(item => item.row) : recent).slice(0, maxResults)
   const now = new Date().toISOString()
   await Promise.all(selected.map(row => salonDb.assistantEpisodes.put({ ...row, lastRecalledAt: now, recallCount: row.recallCount + 1, updatedAt: now, revision: row.revision + 1 })))
   return selected
