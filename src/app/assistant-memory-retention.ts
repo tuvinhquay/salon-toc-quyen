@@ -9,6 +9,8 @@ export type MemoryRetentionLimits = {
   episodeMaxCount: number
   episodeMaxBytes: number
   episodeRetentionDays: number
+  manualMaxCount: number
+  manualMaxBytes: number
 }
 
 export function getMemoryRetentionLimits(usageBytes = 0, quotaBytes = 0): MemoryRetentionLimits {
