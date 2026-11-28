@@ -50,10 +50,23 @@ export async function saveAssistantChatSnapshot(actor: ActorContext, messages: A
     bytes -= estimateMemoryBytes(kept[0].content)
     kept = kept.slice(1)
   }
-  await salonDb.transaction('rw', salonDb.assistantChatHistory, async () => {
+  const replaceChatRows = async (rows: AssistantChatHistory[]) => salonDb.transaction('rw', salonDb.assistantChatHistory, async () => {
     await salonDb.assistantChatHistory.where('[salonId+ownerId]').equals([actor.salonId, actor.actorId]).delete()
-    if (kept.length) await salonDb.assistantChatHistory.bulkPut(kept)
+    if (rows.length) await salonDb.assistantChatHistory.bulkPut(rows)
   })
+  try {
+    await replaceChatRows(kept)
+  } catch (cause) {
+    if (!(cause instanceof DOMException) || !/quota/i.test(cause.name + ' ' + cause.message)) throw cause
+    await pruneAssistantMemory(actor)
+    let emergency = candidates.slice(-12)
+    let emergencyBytes = emergency.reduce((sum, row) => sum + estimateMemoryBytes(row.content), 0)
+    while (emergency.length && emergencyBytes > 10_000) {
+      emergencyBytes -= estimateMemoryBytes(emergency[0].content)
+      emergency = emergency.slice(1)
+    }
+    await replaceChatRows(emergency)
+  }
 }
 
 export async function loadAssistantChatHistory(actor: ActorContext): Promise<AssistantChatMessage[]> {
@@ -83,7 +96,16 @@ export async function recordAssistantEpisode(actor: ActorContext, episodeType: A
       ...baseRecord(actor, 'episode_' + crypto.randomUUID(), now), ownerId: actor.actorId, episodeType,
       summary: clean, keywords: memoryKeywords(clean), importance, status: 'active', lastRecalledAt: null, recallCount: 0,
     }
-  await salonDb.assistantEpisodes.put(record)
+  try {
+    await salonDb.assistantEpisodes.put(record)
+  } catch (cause) {
+    if (!(cause instanceof DOMException) || !/quota/i.test(cause.name + ' ' + cause.message)) throw cause
+    await pruneAssistantMemory(actor)
+    const existingRows = await salonDb.assistantEpisodes.where('[salonId+ownerId]').equals([actor.salonId, actor.actorId]).toArray()
+    const removable = existingRows.filter(row => row.id !== record.id).sort((a, b) => a.importance - b.importance || Date.parse(a.createdAt) - Date.parse(b.createdAt))
+    for (const row of removable.slice(0, Math.max(1, Math.ceil(removable.length / 2)))) await salonDb.assistantEpisodes.delete(row.id)
+    await salonDb.assistantEpisodes.put(record)
+  }
   await pruneAssistantMemory(actor)
   return record
 }
