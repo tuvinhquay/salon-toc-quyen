@@ -603,3 +603,15 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Cải thiện auto-scroll bằng layout effect, tăng vùng chat, tăng cỡ chữ, thu gọn gợi ý/trí nhớ vào mục mở rộng, bỏ ghi chú kết nối/đồng bộ lặp lại ở khu vực chính.
 - Thêm chuông và badge tin nhắn chưa đọc trên nút ENA nổi ở góc màn hình. Badge tăng khi có phản hồi mới trong lúc người dùng đang xem tin cũ; mở ENA sẽ xóa badge.
 - Thêm nhánh CI và ghi roadmap/session. Chưa có bằng chứng test trên Termux/Android hoặc CI nên chưa đánh dấu PASS; chưa merge/deploy.
+
+
+## Phiên 2026-11-28 – Phase 46: ENA bộ nhớ ký ức nhẹ và tự dọn dẹp
+- Tạo branch `phase-46-ena-lightweight-memory-retention` từ Phase 45; không merge/deploy.
+- Vấn đề gốc: chat state chỉ nằm trong React state, thoát trang là mất; bộ nhớ dài hạn trước đây chỉ lưu khi Owner nói “hãy ghi nhớ”, không ghi lại các thao tác đã xác nhận.
+- Thêm IndexedDB v9 với hai store mới: lịch sử chat giới hạn và ký ức theo sự kiện; migration không xóa store/record cũ.
+- Khôi phục lịch sử chat gần đây khi vào ENA; lưu theo salonId + ownerId, chặn ghi nhầm chat giữa tenant khi đổi tài khoản.
+- Ghi ký ức sau khi thao tác thành công: tạo/cập nhật/ngừng sản phẩm; thêm/cập nhật/lưu trữ khách hàng. Sự kiện sản phẩm giữ SKU, giá vốn, giá bán, đơn vị và tồn đầu. Không sao chép số điện thoại/email khách vào trí nhớ.
+- Tự học tóm tắt hội thoại có ích; bỏ lời chào, xác nhận/hủy ngắn, lệnh thao tác trùng và nội dung báo cáo ngắn/ồn.
+- Câu hỏi “ENA nhớ lúc nãy…” tìm trong ký ức sự kiện; Gemini chỉ nhận một số tóm tắt đã lọc liên quan, không được truy cập DB.
+- Tự dọn theo hạn lưu, trùng lặp, số lượng và dung lượng. Mặc định giữ tối đa 40 tin/48 KB/30 ngày, 120 ký ức sự kiện/64 KB/180 ngày, 80 mục trí nhớ rõ ràng/64 KB. Khi quota browser origin đạt 85% hoặc 95%, giới hạn giảm; nếu IndexedDB báo quota, dọn rồi thử ghi với giới hạn nhỏ hơn.
+- GitHub Actions CI run #660 PASS tại commit `270afbe4f217d366bd0201e68fb1d9791e9f5c7a`: typecheck, lint, unit tests, production PWA build PASS. Nghiệm thu Android/Termux còn chờ Owner.

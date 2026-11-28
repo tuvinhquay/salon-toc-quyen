@@ -41,3 +41,7 @@ export type BackupRecord=BaseEntity&{createdAt:string;schemaVersion:number;forma
 
 export type AssistantMemoryCategory='profile'|'preference'|'routine'|'project'|'knowledge'|'shortcut'
 export type AssistantMemoryRecord=BaseEntity&{ownerId:string;category:AssistantMemoryCategory;title:string;content:string;keywords:string[];status:'active'|'archived';syncState:'local_only'}
+
+export type AssistantEpisodeType='product_created'|'product_updated'|'product_archived'|'customer_created'|'customer_updated'|'customer_archived'|'conversation'
+export type AssistantEpisode=BaseEntity&{ownerId:string;episodeType:AssistantEpisodeType;summary:string;keywords:string[];importance:1|2|3|4|5;status:'active'|'archived';lastRecalledAt:string|null;recallCount:number}
+export type AssistantChatHistory=BaseEntity&{ownerId:string;role:'assistant'|'user';content:string;source?:'local'|'gemini';messageAt:string}

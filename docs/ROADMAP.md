@@ -315,3 +315,15 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Add parser tests for the exact full product prompt and ensure CI includes Phase 45 and Phase 44 as a PR base.
 - Permission model remains least-privilege: no unrestricted Gemini DB access. Supported app commands execute through scoped repositories with Owner actor verification, validation, salon isolation and confirmation. Employee access remains blocked until trusted employee auth/membership/permissions exist.
 - CI GitHub Actions PASS (run #616, commit `391cd9e4f96a642eafa0ffaafc67ff614b929d7e`): TypeScript, lint, unit tests and optimized PWA production build all succeeded. Owner Termux/Android acceptance remains pending. No merge/deploy.
+
+
+## Phase 46 – ENA episodic memory and bounded chat retention – 2026-11-28
+- Branch: `phase-46-ena-lightweight-memory-retention`, based on Phase 45. Draft PR planned; no merge/deploy.
+- Add IndexedDB v9 stores for `assistantEpisodes` and `assistantChatHistory`; existing v1-v8 stores and records remain intact. Tenant/owner scoped by salonId + ownerId.
+- Persist the recent chat transcript and restore it when the Owner reopens ENA. Greeting, short confirmations/cancellations and noise are filtered; phone/email are redacted in chat-memory text.
+- Automatically record successful confirmed product create/update/archive and customer create/update/archive outcomes. Product episode includes exact SKU, unit cost, sale price and opening stock. Customer memory does not duplicate customer contact details.
+- Automatically learn concise, useful non-command conversation summaries; exclude greetings, confirmations, raw operational commands and short report noise.
+- Memory recall queries search episodes; Gemini conversation receives only a small filtered set of relevant episode summaries, not direct database access or entire customer records.
+- Automatic cleanup by age, duplicate, usefulness, count and byte limits. Base limits: 40 chat messages / 48 KB / 30 days; 120 episodes / 64 KB / 180 days; 80 explicit memory items / 64 KB. Browser-origin quota pressure reduces these progressively (85% and 95% thresholds). Quota write failure triggers cleanup and a smaller retry.
+- Chat history scope guard prevents one salon/owner's saved chat from being written into another tenant during account switching.
+- Add pure tests for filtering, recall detection, redaction and storage pressure. Local TypeScript/lint/unit/build and CI plus Android acceptance are pending.
