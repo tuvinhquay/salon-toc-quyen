@@ -303,3 +303,15 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Added unit tests for Owner identity boundary and customer command parsing. CI workflow branch filters now include Phase 43/44.
 - Security/production boundary: Gemini key remains server-only in `.env.local`; current Vite proxy is development-only. Production ENA is not ready until a secure server-side backend/secret store and production authorization checks are implemented.
 - Status: IMPLEMENTED ON BRANCH; typecheck/lint/unit tests/build/CI and Owner Termux + Android acceptance pending. Employee ENA is intentionally not enabled. No merge/deploy.
+
+
+## Phase 45 – ENA product write routing + chat UX – 2026-11-28
+- Branch: `phase-45-ena-write-chat-ux-notifications`, based on Phase 44. Draft PR review required; no merge/deploy.
+- Fix the complete Vietnamese product command parser: separates sale price from unit cost, extracts SKU after “mã SKU”, product name, explicit unit, initial quantity and unit cost. Full command enters the local product repository flow and displays an exact preview; the user must confirm before a product and opening-stock movement are written.
+- Clarify Gemini system instructions: Gemini itself has no direct DB access, but ENA may execute supported, validated app actions. Gemini must not blanket-deny ENA's app-level ability or claim a write occurred.
+- Improve chat follow-to-latest using a layout-phase scroll update; retain a “Tin nhắn mới” jump when the user intentionally scrolls upward.
+- Increase the chat pane height/width and text readability; collapse suggestions and memory management under a closed “Gợi ý và ghi nhớ” section; remove repeated connection/device/privacy notes from the primary chat view.
+- Add a persistent local unread-message counter and visible bell/badge to the floating ENA launcher. New assistant replies are counted only when the user has scrolled away from the latest message; opening ENA clears the badge.
+- Add parser tests for the exact full product prompt and ensure CI includes Phase 45 and Phase 44 as a PR base.
+- Permission model remains least-privilege: no unrestricted Gemini DB access. Supported app commands execute through scoped repositories with Owner actor verification, validation, salon isolation and confirmation. Employee access remains blocked until trusted employee auth/membership/permissions exist.
+- CI GitHub Actions PASS (run #616, commit `391cd9e4f96a642eafa0ffaafc67ff614b929d7e`): TypeScript, lint, unit tests and optimized PWA production build all succeeded. Owner Termux/Android acceptance remains pending. No merge/deploy.
