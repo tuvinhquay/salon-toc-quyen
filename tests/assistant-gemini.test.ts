@@ -9,7 +9,9 @@ describe('Gemini Developer API local proxy', () => {
     vi.stubGlobal('fetch', fetchMock)
     await testGeminiConnection()
     expect(fetchMock).toHaveBeenCalledWith('/__local-api/gemini', expect.objectContaining({ method: 'POST' }))
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body).prompt).toContain('Xin chào')
+    const requestBody = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(requestBody.prompt).toContain('Xin chào')
+    expect(requestBody.maxOutputTokens).toBeGreaterThanOrEqual(1024)
   })
   it('uses a server-only .env.local key configuration', () => {
     const status = getGeminiConfigurationStatus()
@@ -17,6 +19,8 @@ describe('Gemini Developer API local proxy', () => {
     expect(status.keyStorage).toContain('.env.local')
     expect(status.keyStorage).not.toContain('VITE_')
     expect(status.model).toBe('gemini-3.8-flash')
+    expect(typeof status.expectedProject).toBe('boolean')
+    expect(typeof status.firebaseProjectId).toBe('string')
   })
   it('redacts key-like values from errors', () => {
     const detail = getGeminiErrorDetails(new Error('request failed token=very-secret-value&retry=1'))
