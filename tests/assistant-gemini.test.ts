@@ -19,7 +19,9 @@ describe('Gemini Developer API local proxy', () => {
     await askGeminiAdviser('Tóm tắt tình hình', 'SAFE_CONTEXT: doanh thu thuần 1000000', '', '')
     const requestBody = JSON.parse(fetchMock.mock.calls[0][1].body)
     expect(requestBody.prompt).toContain('SAFE_CONTEXT: doanh thu thuần 1000000')
-    expect(requestBody.prompt).toContain('không được tự ghi, sửa hoặc xóa dữ liệu')
+    expect(requestBody.prompt).toContain('ENA có thể thực hiện thao tác salon')
+    expect(requestBody.prompt).toContain('không được truy cập DB trực tiếp')
+    expect(requestBody.prompt).not.toContain('ENA không có quyền ghi')
   })
   it('uses a server-only .env.local key configuration', () => {
     const status = getGeminiConfigurationStatus()
