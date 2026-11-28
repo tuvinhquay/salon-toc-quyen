@@ -578,3 +578,17 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Giữ nguyên API key server-only trong `.env.local`, Firebase Auth, Firestore, App Check, Dexie, prompt và quyền Owner.
 - Bằng chứng direct API live test PASS do Owner chạy trên Termux. Proxy smoke test, typecheck/lint/test/build trên HEAD Phase 43, CI và kiểm tra sâu trong app còn pending.
 - Không merge/deploy; không đánh dấu P21 PASS cho đến khi các bước kiểm chứng còn lại hoàn tất.
+
+
+## Phiên 2026-11-28 – Phase 44: Hợp nhất ENA điều hành salon
+- Tạo branch `phase-44-ena-unified-operations-assistant` từ `phase-43-gemini-model-flash-lite`; không sửa main, không merge/deploy.
+- Rà soát AuthGate: hiện ứng dụng chỉ có luồng đăng nhập Google và Owner Membership active; `OwnerContext` cung cấp `salonId`, `actorId`, `deviceId`. Employee App/Auth/Membership chưa có. Vì vậy ENA chỉ hoạt động trong Owner workspace; nhân viên không được mở trợ lý cho đến khi có danh tính đăng nhập, membership và quyền dữ liệu riêng được xác minh.
+- Hợp nhất danh tính hiển thị thành ENA, bỏ nhãn tin nhắn phân biệt local/Gemini. Gemini vẫn là mô hình xử lý ngôn ngữ; app/repository mới là nơi đọc/ghi dữ liệu.
+- Gemini nhận kết quả nghiệp vụ đã tính cho nhóm báo cáo an toàn: tài chính, tồn kho, lịch hẹn, dịch vụ, tổng quan. Không gửi hồ sơ khách hàng/nhân viên có định danh trong các luồng báo cáo. Các yêu cầu tra cứu hồ sơ cá nhân vẫn được xử lý local.
+- Thêm guard kiểm tra Firebase UID hiện tại khớp `actorId` của OwnerContext và ngữ cảnh salon/thiết bị đầy đủ.
+- Thêm tạo khách hàng có kiểm tra trùng, xem trước và xác nhận; cập nhật số điện thoại theo tên chính xác, chỉ sửa khi tìm được đúng một hồ sơ; dùng repository `saveCustomer` có Zod validation và audit log.
+- Thêm ngừng kinh doanh sản phẩm theo SKU và xác nhận; đánh dấu inactive, không xóa sản phẩm/lịch sử tồn kho. Giữ nguyên tạo sản phẩm + tồn đầu kỳ, cập nhật giá bán và lưu trữ khách hàng đã có.
+- Gemini được ràng buộc chỉ diễn giải dữ liệu do ứng dụng cung cấp; không có quyền truy cập DB và không được tự ghi/sửa/xóa.
+- Thêm tests `assistant-ena-policy.test.ts`, `assistant-ena-actions.test.ts`; cập nhật CI branch filters và ROADMAP.
+- Giới hạn production: `GEMINI_API_KEY` vẫn server-only trong `.env.local`; proxy hiện chỉ chạy Vite development trên Termux, chưa phải backend production. Không deploy production với proxy dev.
+- Trạng thái: IMPLEMENTED ON BRANCH; chưa xác nhận typecheck/lint/test/build/CI hoặc kiểm thử app trên Termux/Android; chưa merge/deploy. Employee ENA bị khóa có chủ đích cho đến khi có auth + membership + permission context.

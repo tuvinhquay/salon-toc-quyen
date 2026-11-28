@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getGeminiConfigurationStatus, getGeminiErrorDetails, testGeminiConnection } from '../src/app/assistant-gemini'
+import { askGeminiAdviser, getGeminiConfigurationStatus, getGeminiErrorDetails, testGeminiConnection } from '../src/app/assistant-gemini'
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -12,6 +12,14 @@ describe('Gemini Developer API local proxy', () => {
     const requestBody = JSON.parse(fetchMock.mock.calls[0][1].body)
     expect(requestBody.prompt).toContain('Xin chào')
     expect(requestBody.maxOutputTokens).toBeGreaterThanOrEqual(1024)
+  })
+  it('sends verified app facts to Gemini with a no-database-write instruction', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ text: 'Doanh thu đã được ứng dụng xác minh.' }) })
+    vi.stubGlobal('fetch', fetchMock)
+    await askGeminiAdviser('Tóm tắt tình hình', 'SAFE_CONTEXT: doanh thu thuần 1000000', '', '')
+    const requestBody = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(requestBody.prompt).toContain('SAFE_CONTEXT: doanh thu thuần 1000000')
+    expect(requestBody.prompt).toContain('không được tự ghi, sửa hoặc xóa dữ liệu')
   })
   it('uses a server-only .env.local key configuration', () => {
     const status = getGeminiConfigurationStatus()
