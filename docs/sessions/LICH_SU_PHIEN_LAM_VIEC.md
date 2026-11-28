@@ -596,6 +596,7 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 
 ## Phiên 2026-11-28 – Phase 45: ENA ghi dữ liệu và cải thiện khung chat
 - Tạo branch `phase-45-ena-write-chat-ux-notifications` từ Phase 44; không sửa main, không merge/deploy.
+- GitHub Actions CI PASS run #616 tại commit `391cd9e4f96a642eafa0ffaafc67ff614b929d7e`: typecheck, lint, unit tests và production build đều PASS. Kiểm thử app thực tế trên Termux/Android còn chờ Owner.
 - Phân tích phản hồi ENA “không có quyền tự nhập/chỉnh sửa”: Gemini đã được prompt giới hạn không truy cập DB, nhưng app-level command parser cho sản phẩm chưa đọc đúng cấu trúc “mã SKU / giá vốn / giá bán / số lượng nhập ban đầu”. Khi không được route thành action local, yêu cầu có thể rơi vào Gemini và bị trả lời từ chối chung.
 - Thêm parser sản phẩm tách riêng giá bán và giá vốn, đọc tên, SKU, đơn vị, tồn đầu; thêm test cho câu lệnh người dùng. Luồng ghi qua repository hiện có, Owner actor guard, xác nhận trước khi commit.
 - Điều chỉnh prompt Gemini: phân biệt quyền của model với quyền thao tác của ENA qua ứng dụng; không trả lời rằng ENA nói chung không có quyền ghi, không giả vờ đã ghi khi action chưa được thực hiện.
