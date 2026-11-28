@@ -117,6 +117,7 @@ export function AssistantPage() {
     if (!node) return
     const atLatest = node.scrollHeight - node.clientHeight - node.scrollTop < 72
     stickToLatestRef.current = atLatest
+    if (atLatest) clearEnaUnreadCount()
     setShowLatest(!atLatest)
   }
 
