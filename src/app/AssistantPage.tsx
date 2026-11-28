@@ -426,8 +426,8 @@ export function AssistantPage() {
       if (relevant.length && /(ke hoach|lap ke hoach|nen lam gi|thoi quen|uu tien|buoi sang|hang ngay)/i.test(prompt.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))) {
         answer += '\n\n**Điều mình đã ghi nhớ có liên quan**\n' + relevant.map(item => '• ' + item.content).join('\n')
       }
-      const geminiReadableIntent = ['finance', 'inventory', 'appointments', 'services', 'overview'].includes(local.intent)
-      if (!trainedShortcut && (route === 'hybrid' || geminiReadableIntent) && !isGuideQuestion(prompt)) {
+      const geminiReadableIntent = ['finance', 'inventory', 'appointments', 'services', 'overview', 'general'].includes(local.intent)
+      if (!trainedShortcut && geminiReadableIntent && !isGuideQuestion(prompt)) {
         if (geminiReady) {
           try {
             const safeQuestion = await redactQuestionForGemini(actor.salonId, prompt)
