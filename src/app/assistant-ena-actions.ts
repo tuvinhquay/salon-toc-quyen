@@ -37,25 +37,25 @@ export type ParsedProductCreateCommand = {
 
 /** Parse an explicit product name, SKU, sale price, cost and opening quantity. */
 export function parseProductCreateCommand(prompt: string): ParsedProductCreateCommand | null {
-  const nameMatch = prompt.match(/(?:thêm|tạo|nhập|bổ sung)\\s+(?:sản phẩm\\s+)?(?:mới\\s+)?(?:tên\\s+)?(.+?)(?=\\s*,?\\s*(?:mã|sku)\\s+)/i)
-  const skuMatch = prompt.match(/(?:mã|sku)\\s*[:=]?\\s*([a-z0-9-]+)/i)
-  const saleMatch = prompt.match(/giá bán\\s*[:=]?\\s*([\\d.,]+)\\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k|đồng|dong|vnd)?/i)
+  const nameMatch = prompt.match(/(?:thêm|tạo|nhập|bổ sung)\s+(?:sản phẩm\s+)?(?:mới\s+)?(?:tên\s+)?(.+?)(?=\s*,?\s*(?:mã|sku)\s+)/i)
+  const skuMatch = prompt.match(/(?:mã|sku)\s*[:=]?\s*([a-z0-9-]+)/i)
+  const saleMatch = prompt.match(/giá bán\s*[:=]?\s*([\d.,]+)\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k|đồng|dong|vnd)?/i)
   if (!nameMatch || !skuMatch || !saleMatch) return null
 
   const toVnd = (raw: string, unit?: string) => {
-    const value = Number(raw.replace(/[.,\\s]/g, ''))
+    const value = Number(raw.replace(/[.,\s]/g, ''))
     const multiplier = /^(triệu|trieu)$/i.test(unit ?? '') ? 1_000_000
       : /^(nghìn|nghin|ngàn|ngan|k)$/i.test(unit ?? '') ? 1000 : 1
     return Number.isFinite(value) && value >= 0 ? Math.round(value * multiplier) : null
   }
-  const name = nameMatch[1].trim().replace(/[,.\\s]+$/, '')
+  const name = nameMatch[1].trim().replace(/[,.\s]+$/, '')
   const sku = skuMatch[1].trim().toUpperCase()
   const salePriceVnd = toVnd(saleMatch[1], saleMatch[2])
   if (name.length < 2 || !sku || salePriceVnd === null) return null
 
-  const costMatch = prompt.match(/giá vốn\\s*[:=]?\\s*([\\d.,]+)\\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k|đồng|dong|vnd)?/i)
-  const quantityMatch = prompt.match(/(?:số lượng nhập ban đầu|số lượng nhập|nhập ban đầu|tồn đầu|số lượng)\\s*[:=]?\\s*(\\d+(?:[.,]\\d+)?)/i)
-  const unitMatch = prompt.match(/đơn vị\\s*(?:là|:)??\\s*([a-zA-ZÀ-ỹ]+)\\b/i)
+  const costMatch = prompt.match(/giá vốn\s*[:=]?\s*([\d.,]+)\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k|đồng|dong|vnd)?/i)
+  const quantityMatch = prompt.match(/(?:số lượng nhập ban đầu|số lượng nhập|nhập ban đầu|tồn đầu|số lượng)\s*[:=]?\s*(\d+(?:[.,]\d+)?)/i)
+  const unitMatch = prompt.match(/đơn vị\s*(?:là|:)??\s*([a-zA-ZÀ-ỹ]+)\b/i)
   const unit = unitMatch?.[1]?.trim().toLocaleLowerCase('vi') ?? (/(hũ|hu|sáp|sap)/i.test(name) ? 'hũ' : 'chai')
   const unitCostVnd = costMatch ? toVnd(costMatch[1], costMatch[2]) : null
   const quantity = quantityMatch ? Number(quantityMatch[1].replace(',', '.')) : null
