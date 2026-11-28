@@ -1,4 +1,4 @@
-import { firebaseEnvDiagnostics } from '../lib/firebase'
+const firebaseProjectId = import.meta.env.VITE_FIREBASE_PROJECT_ID || ''
 
 const MODEL = 'gemini-3.8-flash'
 const CONNECTION_TIMEOUT_MS = 60_000
@@ -46,8 +46,8 @@ export function getGeminiConfigurationStatus() {
     keyStorage: 'GEMINI_API_KEY trong .env.local (chỉ máy chủ Termux đọc)',
     runtimeMode: import.meta.env.DEV ? 'Termux/Vite local' : 'Không khả dụng trong production build',
     model: MODEL,
-    expectedProject: firebaseEnvDiagnostics.expectedProject,
-    firebaseProjectId: firebaseEnvDiagnostics.projectId,
+    expectedProject: firebaseProjectId === 'salonquyen-f21fa',
+    firebaseProjectId,
   }
 }
 
