@@ -73,7 +73,8 @@ export function AssistantPage() {
     source: 'local',
   }])
   const [memory, setMemory] = useState(() => readAssistantMemory(actor.salonId, actor.actorId))
-  const [longTermMemories, setLongTermMemories] = useState<AssistantMemoryRecord[]>([])\n  const [recentEpisodes, setRecentEpisodes] = useState<Awaited<ReturnType<typeof listRecentAssistantEpisodes>>>([])\n  const [chatHistoryLoaded, setChatHistoryLoaded] = useState(false)\n  const [memoryStats, setMemoryStats] = useState({ chatCount: 0, episodeCount: 0, bytes: 0 })
+  const [longTermMemories, setLongTermMemories] = useState<AssistantMemoryRecord[]>([])
+  const [recentEpisodes, setRecentEpisodes] = useState<Awaited<ReturnType<typeof listRecentAssistantEpisodes>>>([])\n  const [chatHistoryLoaded, setChatHistoryLoaded] = useState(false)\n  const [memoryStats, setMemoryStats] = useState({ chatCount: 0, episodeCount: 0, bytes: 0 })
   const [pendingCustomerArchive, setPendingCustomerArchive] = useState<Customer[] | null>(null)
   const [pendingCustomerSave, setPendingCustomerSave] = useState<PendingCustomerSave | null>(null)
   const [pendingProductAction, setPendingProductAction] = useState<PendingProductAction | null>(null)
