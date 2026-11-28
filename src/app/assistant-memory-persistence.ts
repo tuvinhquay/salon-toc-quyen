@@ -57,7 +57,7 @@ export async function saveAssistantChatSnapshot(actor: ActorContext, messages: A
   try {
     await replaceChatRows(kept)
   } catch (cause) {
-    if (!(cause instanceof DOMException) || !/quota/i.test(cause.name + ' ' + cause.message)) throw cause
+    if (!(cause instanceof Error) || !/quota/i.test(cause.name + ' ' + cause.message)) throw cause
     await pruneAssistantMemory(actor)
     let emergency = candidates.slice(-12)
     let emergencyBytes = emergency.reduce((sum, row) => sum + estimateMemoryBytes(row.content), 0)
