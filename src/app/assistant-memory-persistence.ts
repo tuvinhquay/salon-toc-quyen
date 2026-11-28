@@ -1,6 +1,6 @@
 import { salonDb } from '../db/database'
 import type { ActorContext, AssistantChatHistory, AssistantEpisode, AssistantEpisodeType } from '../db/types'
-import { estimateMemoryBytes, getMemoryRetentionLimits, isLowValueMemoryText, memoryKeywords, normalizeMemoryText, sanitizeAssistantMemoryText } from './assistant-memory-retention'
+import { estimateMemoryBytes, getMemoryRetentionLimits, isAssistantEpisodeRecallQuestion, isLowValueMemoryText, memoryKeywords, normalizeMemoryText, sanitizeAssistantMemoryText } from './assistant-memory-retention'
 
 export type AssistantChatMessage = { id: string; role: 'assistant' | 'user'; content: string; source?: 'local' | 'gemini'; createdAt?: string }
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -120,7 +120,7 @@ export async function searchAssistantEpisodes(actor: ActorContext, query: string
     return { row, score }
   }).filter(item => item.score > 0).sort((a, b) => b.score - a.score || Date.parse(b.row.createdAt) - Date.parse(a.row.createdAt))
   const recent = active.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
-  const selected = (terms.length && scored.length ? scored.map(item => item.row) : recent).slice(0, maxResults)
+  const selected = (terms.length && scored.length ? scored.map(item => item.row) : isAssistantEpisodeRecallQuestion(query) ? recent : []).slice(0, maxResults)
   const now = new Date().toISOString()
   await Promise.all(selected.map(row => salonDb.assistantEpisodes.put({ ...row, lastRecalledAt: now, recallCount: row.recallCount + 1, updatedAt: now, revision: row.revision + 1 })))
   return selected
