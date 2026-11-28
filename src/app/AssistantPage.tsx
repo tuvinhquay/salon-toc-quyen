@@ -177,6 +177,10 @@ export function AssistantPage() {
   async function send(value = question) {
     const prompt = value.trim()
     if (!prompt || busy) return
+    if (chatHistoryScope !== actor.salonId + ':' + actor.actorId) {
+      setError('ENA đang nạp trí nhớ của salon hiện tại. Anh gửi lại sau giây lát nhé.')
+      return
+    }
     try { assertEnaOwnerActor(actor, user?.uid) } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'ENA không thể xác minh quyền truy cập.')
       return
