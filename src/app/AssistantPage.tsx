@@ -117,6 +117,10 @@ export function AssistantPage() {
   }, [actor.salonId, actor.actorId])
 
   useEffect(() => {
+    if (messages.length > 60) setMessages(previous => previous.slice(-60))
+  }, [messages])
+
+  useEffect(() => {
     if (chatHistoryScope !== actor.salonId + ':' + actor.actorId) return
     void saveAssistantChatSnapshot(actor, messages).then(async () => {
       const stats = await pruneAssistantMemory(actor)
