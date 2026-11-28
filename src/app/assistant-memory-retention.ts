@@ -13,9 +13,9 @@ export type MemoryRetentionLimits = {
 
 export function getMemoryRetentionLimits(usageBytes = 0, quotaBytes = 0): MemoryRetentionLimits {
   const ratio = quotaBytes > 0 ? usageBytes / quotaBytes : 0
-  if (ratio >= 0.95) return { pressure: 'critical', chatMaxMessages: 12, chatMaxBytes: 10_000, chatRetentionDays: 3, episodeMaxCount: 25, episodeMaxBytes: 12_000, episodeRetentionDays: 30 }
-  if (ratio >= 0.85) return { pressure: 'high', chatMaxMessages: 24, chatMaxBytes: 24_000, chatRetentionDays: 14, episodeMaxCount: 60, episodeMaxBytes: 32_000, episodeRetentionDays: 90 }
-  return { pressure: 'normal', chatMaxMessages: 40, chatMaxBytes: 48_000, chatRetentionDays: 30, episodeMaxCount: 120, episodeMaxBytes: 64_000, episodeRetentionDays: 180 }
+  if (ratio >= 0.95) return { pressure: 'critical', chatMaxMessages: 12, chatMaxBytes: 10_000, chatRetentionDays: 3, episodeMaxCount: 25, episodeMaxBytes: 12_000, episodeRetentionDays: 30, manualMaxCount: 15, manualMaxBytes: 12_000 }
+  if (ratio >= 0.85) return { pressure: 'high', chatMaxMessages: 24, chatMaxBytes: 24_000, chatRetentionDays: 14, episodeMaxCount: 60, episodeMaxBytes: 32_000, episodeRetentionDays: 90, manualMaxCount: 40, manualMaxBytes: 32_000 }
+  return { pressure: 'normal', chatMaxMessages: 40, chatMaxBytes: 48_000, chatRetentionDays: 30, episodeMaxCount: 120, episodeMaxBytes: 64_000, episodeRetentionDays: 180, manualMaxCount: 80, manualMaxBytes: 64_000 }
 }
 
 export function normalizeMemoryText(value: string): string {
