@@ -26,9 +26,12 @@ export function normalizeMemoryText(value: string): string {
 
 /** Keep useful context while avoiding copied contact details in assistant memory. */
 export function sanitizeAssistantMemoryText(value: string, maxChars = 420): string {
-  return value.replace(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/gi, '[email ẩn]')
+  const withoutControls = value.split('').filter(character => {
+    const code = character.charCodeAt(0)
+    return code >= 32 || code === 9 || code === 10 || code === 13
+  }).join('')
+  return withoutControls.replace(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/gi, '[email ẩn]')
     .replace(/(?:\+?\d[\d\s().-]{7,}\d)/g, match => match.replace(/\d/g, '•'))
-    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '')
     .replace(/\s+/g, ' ').trim().slice(0, maxChars)
 }
 
