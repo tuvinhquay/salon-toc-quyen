@@ -15,7 +15,7 @@ import { makeAssistantLanguageFriendly } from './assistant-language'
 import { isGuideQuestion } from './guide-content'
 import { assertEnaOwnerActor } from './assistant-ena-policy'
 import { parseCustomerCreateCommand, parseCustomerPhoneUpdate, parseProductCreateCommand } from './assistant-ena-actions'
-import { incrementEnaUnreadCount } from './assistant-notifications'
+import { clearEnaUnreadCount, incrementEnaUnreadCount } from './assistant-notifications'
 
 type Message = { id: string; role: 'assistant' | 'user'; content: string; source?: 'local' | 'gemini' }
 
@@ -125,6 +125,7 @@ export function AssistantPage() {
     if (!node) return
     stickToLatestRef.current = true
     node.scrollTo({ top: node.scrollHeight, behavior: 'smooth' })
+    clearEnaUnreadCount()
     setShowLatest(false)
   }
 
