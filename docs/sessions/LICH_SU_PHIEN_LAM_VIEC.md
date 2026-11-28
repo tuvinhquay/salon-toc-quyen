@@ -615,3 +615,11 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Câu hỏi “ENA nhớ lúc nãy…” tìm trong ký ức sự kiện; Gemini chỉ nhận một số tóm tắt đã lọc liên quan, không được truy cập DB.
 - Tự dọn theo hạn lưu, trùng lặp, số lượng và dung lượng. Mặc định giữ tối đa 40 tin/48 KB/30 ngày, 120 ký ức sự kiện/64 KB/180 ngày, 80 mục trí nhớ rõ ràng/64 KB. Khi quota browser origin đạt 85% hoặc 95%, giới hạn giảm; nếu IndexedDB báo quota, dọn rồi thử ghi với giới hạn nhỏ hơn.
 - GitHub Actions CI run #660 PASS tại commit `270afbe4f217d366bd0201e68fb1d9791e9f5c7a`: typecheck, lint, unit tests, production PWA build PASS. Nghiệm thu Android/Termux còn chờ Owner.
+
+
+## Phiên 2026-11-28 – Phase 47: Local-first Firebase Sync Hub
+- Owner chốt kiến trúc: dữ liệu salon làm việc chính nằm trong IndexedDB độc lập trên máy tính, laptop, iPhone và Android. Firebase không phải kho dữ liệu nghiệp vụ chính; Firebase làm Auth, kiểm duyệt membership/device và điều phối phân phối các gói thay đổi.
+- Tạo ADR `docs/architecture/LOCAL_FIRST_FIREBASE_SYNC_HUB.md`; quyết định mới thay thế phần P2P-only cấm Firebase relay trong ghi chú 2026-11-23, nhưng giữ local-first, tenant isolation, E2E encryption và backup độc lập.
+- Cập nhật `src/app/guide-content.ts`: hướng dẫn chủ tiệm hiểu nơi lưu dữ liệu, cách hoạt động dự kiến của sync hub, cảnh báo trạng thái hiện tại chưa có transport thực tế, và cách bảo vệ backup. Nội dung này cũng là nguồn trả lời hướng dẫn cục bộ của ENA.
+- Không tuyên bố đồng bộ đa thiết bị đã hoạt động. Chưa triển khai relay, outbox atomic, ACK/cursor, conflict policies hoặc cảnh báo dung lượng thật.
+- Tiếp theo cần audit repositories/Firestore Rules và triển khai theo lát cắt có test, sau đó mới nghiệm thu trên desktop, iPhone và Android. Không merge/deploy ở phase này.

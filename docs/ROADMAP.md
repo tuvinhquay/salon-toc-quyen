@@ -327,3 +327,13 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Automatic cleanup by age, duplicate, usefulness, count and byte limits. Base limits: 40 chat messages / 48 KB / 30 days; 120 episodes / 64 KB / 180 days; 80 explicit memory items / 64 KB. Browser-origin quota pressure reduces these progressively (85% and 95% thresholds). Quota write failure triggers cleanup and a smaller retry.
 - Chat history scope guard prevents one salon/owner's saved chat from being written into another tenant during account switching.
 - Add pure tests for filtering, recall detection, redaction and storage pressure. Local TypeScript/lint/unit/build and CI plus Android acceptance are pending.
+
+
+## Phase 47 – Local-first Firebase Sync Hub – 2026-11-28
+- Branch: `phase-47-local-first-device-sync-hub`, based on Phase 46. Owner xác nhận: IndexedDB trên từng thiết bị là nơi lưu dữ liệu salon làm việc chính; Firebase là trung tâm xác thực, kiểm duyệt quyền thiết bị và điều phối phân phối thay đổi, không phải kho dữ liệu nghiệp vụ chính.
+- Quyết định mới này supersede ghi chú P2P-only ngày 2026-11-23 ở phần không dùng Firebase relay. Vẫn giữ local-first, mã hóa đầu-cuối, tenant isolation và backup độc lập.
+- Thêm ADR `docs/architecture/LOCAL_FIRST_FIREBASE_SYNC_HUB.md` mô tả ranh giới dữ liệu, flow outbox/relay/ACK, TTL, offline, conflict, quota và bảo vệ dữ liệu.
+- Cập nhật nội dung Hướng dẫn & giới thiệu và knowledge trả lời của ENA: mỗi thiết bị có IndexedDB riêng; Firebase làm Auth/control-plane/relay envelope mã hóa tạm thời; nói rõ sync transport chưa hoàn thiện, không hứa sync đang hoạt động.
+- Phase này chưa triển khai transport hoặc bật đồng bộ thật. Cần tiếp tục: audit repositories để tạo outbox nguyên tử; Firestore control-plane + Rules; encrypted relay; ACK/cursor/idempotency; conflict policies cho invoice/payment/refund/stock; ENA memory sync; device quota health + cảnh báo; test đa thiết bị.
+- Không tự xóa dữ liệu salon/outbox chưa ACK khi thiết bị gần đầy. Chỉ dọn cache có thể tái tạo; báo lỗi trước khi xác nhận nghiệp vụ nếu local write thất bại.
+- Chưa merge/deploy; CI và nghiệm thu thiết bị chưa chạy.
