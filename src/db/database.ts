@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie'
-import type { Appointment, AuditEvent, AssistantMemoryRecord, BackupRecord, CustomerGroup, CashSession, ChangeLog, CommissionPolicy, Customer, DeviceRecord, Employee, Expense, InventoryLot, Invoice, Payment, Product, PurchaseOrder, Refund, Service, StockMovement, Supplier, SyncConflict, SyncCursor, TaxPolicy, WorkShift, WorkflowEvent } from './types'
+import type { Appointment, AuditEvent, AssistantMemoryRecord, AssistantEpisode, AssistantChatHistory, BackupRecord, CustomerGroup, CashSession, ChangeLog, CommissionPolicy, Customer, DeviceRecord, Employee, Expense, InventoryLot, Invoice, Payment, Product, PurchaseOrder, Refund, Service, StockMovement, Supplier, SyncConflict, SyncCursor, TaxPolicy, WorkShift, WorkflowEvent } from './types'
 
 export class SalonDatabase extends Dexie {
   customers!: Table<Customer, string>
@@ -28,6 +28,8 @@ export class SalonDatabase extends Dexie {
   syncCursors!: Table<SyncCursor, string>
   backupRecords!: Table<BackupRecord, string>
   assistantMemories!: Table<AssistantMemoryRecord, string>
+  assistantEpisodes!: Table<AssistantEpisode, string>
+  assistantChatHistory!: Table<AssistantChatHistory, string>
 
   constructor() {
     super('salon-toc-quyen')
@@ -91,6 +93,12 @@ export class SalonDatabase extends Dexie {
     // Re-declare the complete schema at v8 so IndexedDB creates any missing object stores
     // without deleting existing records or requiring the user to clear browser storage.
     this.version(8).stores(v7)
+    const v9 = {
+      ...v7,
+      assistantEpisodes: 'id,salonId,ownerId,episodeType,importance,status,createdAt,[salonId+ownerId],[salonId+ownerId+createdAt],[salonId+episodeType]',
+      assistantChatHistory: 'id,salonId,ownerId,role,messageAt,[salonId+ownerId],[salonId+ownerId+messageAt]',
+    }
+    this.version(9).stores(v9)
   }
 }
 
