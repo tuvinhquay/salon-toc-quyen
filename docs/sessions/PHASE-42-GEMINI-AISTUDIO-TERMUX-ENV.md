@@ -48,3 +48,12 @@ Không thêm tiền tố `VITE_`. Không commit, không gửi khóa vào chat. S
 - Audit phát hiện UI đọc `geminiConfigStatus.expectedProject` nhưng hàm cấu hình không cung cấp trường này. Đã nối chẩn đoán Firebase project thật từ `firebaseEnvDiagnostics` và làm rõ cảnh báo project chỉ liên quan Firebase Auth/Firestore, không tự nó quyết định Gemini AI Studio.
 - Đã mở rộng unit tests cho ngân sách smoke test và trường chẩn đoán project. Chưa chạy CI/Termux runtime trong bước audit này; chưa xác nhận khóa thực tế hoặc kết nối live.
 - Firebase Auth, Firestore, App Check và dữ liệu Dexie không bị thay đổi; không deploy, không merge.
+
+
+## Audit follow-up 2 – GEMINI_SERVICE_UNAVAILABLE (HTTP 503)
+- User reported `GEMINI_SERVICE_UNAVAILABLE` after pressing the connection test. Source audit confirms the proxy maps this code specifically from Google's upstream HTTP 503 response; it is not the missing-key or invalid-key branch.
+- Google AI Developers guidance states HTTP 503 indicates temporary service/model overload and recommends retry with exponential backoff. This can occur even when the API key and request are valid.
+- Updated Vite proxy to retry transient upstream HTTP 500/502/503/504 at most two additional times, with exponential backoff plus jitter. Authentication, validation and quota errors are not retried.
+- Preserve upstream 503 as HTTP 503 locally for clearer diagnostics. Increased client-side timeout windows to accommodate the bounded retry sequence.
+- Commit(s): `46a8a9bd3b58eede80a84ebed1e547073ea90911`, `07a781b27eddf77b5e4ff6094893855ec69d75a4`.
+- Still pending: CI verification and a real Termux smoke test. No merge/deploy.
