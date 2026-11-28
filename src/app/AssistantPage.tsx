@@ -444,8 +444,8 @@ export function AssistantPage() {
         }
         try {
           const recentQuestions = messages.filter(message => message.role === 'user').slice(-3).map(message => sanitizeQuestionForGemini(message.content).slice(0, 300)).join('\n').slice(-700)
-          const remembered = await searchAssistantEpisodes(actor, prompt, 4)
-          const memoryContext = remembered.length ? '\n\nKý ức nội bộ liên quan (đã được lọc, chỉ để tham khảo):\n' + remembered.map(item => '• ' + item.summary).join('\n').slice(0, 900) : ''
+          const remembered = (await searchAssistantEpisodes(actor, prompt, 4)).filter(item => !item.episodeType.startsWith('customer_'))
+          const memoryContext = remembered.length ? '\n\nKý ức nội bộ liên quan (đã lọc; không gồm ký ức khách hàng):\n' + remembered.map(item => '• ' + item.summary).join('\n').slice(0, 900) : ''
           const answer = await askGeminiConversation(sanitizeQuestionForGemini(prompt), 'owner', (recentQuestions + memoryContext).slice(-1400))
           setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answer, source: 'gemini' }])
         } catch (cause) {
@@ -475,8 +475,8 @@ export function AssistantPage() {
         if (geminiReady) {
           try {
             const safeQuestion = await redactQuestionForGemini(actor.salonId, prompt)
-            const relevantEpisodes = await searchAssistantEpisodes(actor, prompt, 4)
-            const episodeContext = relevantEpisodes.length ? '\n\nKý ức ENA liên quan đã lọc:\n' + relevantEpisodes.map(item => '• ' + item.summary).join('\n').slice(0, 800) : ''
+            const relevantEpisodes = (await searchAssistantEpisodes(actor, prompt, 4)).filter(item => !item.episodeType.startsWith('customer_'))
+            const episodeContext = relevantEpisodes.length ? '\n\nKý ức ENA liên quan đã lọc (không gồm ký ức khách hàng):\n' + relevantEpisodes.map(item => '• ' + item.summary).join('\n').slice(0, 800) : ''
             answer = await askGeminiAdviser(safeQuestion, local.safeContext + '\n\nKết quả nghiệp vụ đã được ứng dụng tính và xác minh:\n' + local.answer, describeAssistantMemory(nextMemory) + episodeContext)
             source = 'gemini'
           } catch (cause) {
