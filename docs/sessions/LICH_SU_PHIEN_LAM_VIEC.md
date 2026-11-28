@@ -549,3 +549,12 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Cập nhật UI trạng thái AI Studio, `.env.example`, ROADMAP P21 và thêm unit tests.
 - Chưa xác nhận CI, chưa chạy live Gemini API trên thiết bị. Cần Owner thêm `GEMINI_API_KEY` vào `.env.local`, restart Vite, chạy kiểm tra kết nối và regression trên Android/Termux.
 - Không ghi PASS runtime, không merge/deploy trước khi có bằng chứng kiểm thử.
+
+
+## Phase 42 – Audit lỗi Gemini EMPTY_RESPONSE – 2026-11-28
+- Audit trực tiếp nhánh `phase-42-gemini-aistudio-termux-env` phát hiện nút kiểm tra kết nối gửi `maxOutputTokens=24` tới Gemini 3.8 Flash. Ngân sách quá thấp vì token suy luận cũng nằm trong giới hạn đầu ra; có thể trả HTTP 200 nhưng không có text hiển thị.
+- Sửa smoke test lên 1.024 token, đặt thinking level LOW tại proxy, tăng timeout kiểm tra; chat/tư vấn dùng 2.048 token.
+- Proxy trả mã chẩn đoán phân biệt prompt bị chặn, MAX_TOKENS, API key bị từ chối, access denied, model not found, quota và service unavailable; không tiết lộ nguyên văn payload upstream.
+- Sửa UI bỏ các hướng dẫn lỗi Firebase AI Logic/App Check và `VITE_FIREBASE_API_KEY` còn sót; chẩn đoán theo Gemini Developer API.
+- Sửa lỗi UI đọc `expectedProject` không tồn tại trong cấu hình; hiện lấy project ID thật từ `firebaseEnvDiagnostics` và giải thích cảnh báo Firebase project không tự động là nguyên nhân lỗi Gemini AI Studio.
+- Bổ sung unit tests cho token budget và Firebase project diagnostic. Chưa xác nhận CI hoặc live Gemini trên Termux; chưa merge/deploy. Firebase Auth/Firestore/App Check và Dexie giữ nguyên.
