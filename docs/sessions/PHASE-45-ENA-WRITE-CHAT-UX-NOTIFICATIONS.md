@@ -24,4 +24,5 @@ Repository: `tuvinhquay/salon-toc-quyen`
 No unrestricted read/write access is granted to Gemini. ENA app actions remain scoped by verified Owner context, salon tenant, repository validation and explicit confirmation. Employee access remains disabled until real employee authentication, membership and permissions exist.
 
 ## Validation
-Pending on the branch: typecheck, lint, unit tests, production build, GitHub Actions CI and Android/Termux acceptance. Do not merge/deploy until these pass.
+- GitHub Actions CI PASS (run #616, commit `391cd9e4f96a642eafa0ffaafc67ff614b929d7e`): TypeScript, lint, unit tests and optimized PWA production build succeeded.
+- Owner Termux/Android acceptance remains pending; do not merge/deploy until the app-level product/customer write and chat/bell behavior are verified on the phone.
