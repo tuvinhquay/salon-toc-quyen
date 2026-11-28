@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseCustomerCreateCommand, parseCustomerPhoneUpdate } from '../src/app/assistant-ena-actions'
+import { parseCustomerCreateCommand, parseCustomerPhoneUpdate, parseProductCreateCommand } from '../src/app/assistant-ena-actions'
 
 describe('ENA customer command parsing', () => {
   it('extracts only explicitly supplied customer fields', () => {
@@ -20,5 +20,23 @@ describe('ENA customer command parsing', () => {
   it('rejects incomplete or malformed updates', () => {
     expect(parseCustomerPhoneUpdate('Sửa khách hàng Nguyễn Văn A')).toBeNull()
     expect(parseCustomerPhoneUpdate('Sửa khách hàng Nguyễn Văn A, đổi số điện thoại thành 123')).toBeNull()
+  })
+})
+
+describe('ENA product create command parsing', () => {
+  it('parses a fully specified Vietnamese product command without mixing sale price and cost', () => {
+    const parsed = parseProductCreateCommand('Thêm sản phẩm mới tên Dầu gội phục hồi tóc hư tổn, mã SKU DG001, đơn vị chai, giá vốn 120000 đồng, giá bán 180000 đồng, số lượng nhập ban đầu 20 chai')
+    expect(parsed).not.toBeNull()
+    expect(parsed?.input.name).toBe('Dầu gội phục hồi tóc hư tổn')
+    expect(parsed?.input.sku).toBe('DG001')
+    expect(parsed?.input.unit).toBe('chai')
+    expect(parsed?.input.salePriceVnd).toBe(180000)
+    expect(parsed?.unitCostVnd).toBe(120000)
+    expect(parsed?.quantity).toBe(20)
+  })
+
+  it('requires an explicit sale price and SKU', () => {
+    expect(parseProductCreateCommand('Thêm sản phẩm dầu gội, giá vốn 120000')).toBeNull()
+    expect(parseProductCreateCommand('Thêm sản phẩm dầu gội, mã SKU DG002')).toBeNull()
   })
 })
