@@ -71,7 +71,7 @@ export async function loadAssistantChatHistory(actor: ActorContext): Promise<Ass
 
 export async function recordAssistantEpisode(actor: ActorContext, episodeType: AssistantEpisodeType, summary: string, importance: 1 | 2 | 3 | 4 | 5 = 4): Promise<AssistantEpisode | null> {
   if (!actor.salonId || !actor.actorId) return null
-  const clean = sanitizeAssistantMemoryText(summary, 360)
+  const clean = summary.replace(/[\\w.+-]+@[\\w.-]+\\.[a-z]{2,}/gi, '[email ẩn]').replace(/\\s+/g, ' ').trim().slice(0, 360)
   if (!clean || (episodeType === 'conversation' && isLowValueMemoryText(clean))) return null
   const limits = await storageLimits()
   const now = new Date().toISOString()
@@ -133,12 +133,17 @@ export async function pruneAssistantMemory(actor: ActorContext): Promise<{ chatC
   const episodeKeepIds = new Set(episodeKept.map(row => row.id))
   const manualDuplicateKeys = new Set<string>()
   const manualKeepIds = new Set<string>()
-  for (const row of manualRows.filter(item => item.status === 'active').sort((a, b) => b.category.localeCompare(a.category) || Date.parse(b.updatedAt) - Date.parse(a.updatedAt))) {
+  const categoryWeight: Record<string, number> = { profile: 5, preference: 4, project: 4, routine: 3, shortcut: 2, knowledge: 2 }
+  const manualCandidates = manualRows.filter(row => row.status === 'active').sort((a, b) =>
+    (categoryWeight[b.category] ?? 1) - (categoryWeight[a.category] ?? 1) || Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
+  let manualBytes = 0
+  for (const row of manualCandidates) {
     const key = normalizeMemoryText(row.category + ':' + row.content)
-    if (!manualDuplicateKeys.has(key)) {
-      manualDuplicateKeys.add(key)
-      manualKeepIds.add(row.id)
-    }
+    const rowBytes = estimateMemoryBytes(row.title + row.content)
+    if (manualDuplicateKeys.has(key) || manualKeepIds.size >= limits.manualMaxCount || manualBytes + rowBytes > limits.manualMaxBytes) continue
+    manualDuplicateKeys.add(key)
+    manualKeepIds.add(row.id)
+    manualBytes += rowBytes
   }
   const archivedManual = manualRows.filter(row => row.status === 'archived' && Date.parse(row.updatedAt) < now - 90 * DAY_MS)
   const deleteChat = chatRows.filter(row => !chatKeepIds.has(row.id)).map(row => row.id)
@@ -149,7 +154,7 @@ export async function pruneAssistantMemory(actor: ActorContext): Promise<{ chatC
     if (deleteEpisodes.length) await salonDb.assistantEpisodes.bulkDelete(deleteEpisodes)
     if (deleteManual.length) await salonDb.assistantMemories.bulkDelete(deleteManual)
   })
-  return { chatCount: chatKept.length, episodeCount: episodeKept.length, bytes: chatBytes + episodeBytes + manualKeepIds.size * 160 }
+  return { chatCount: chatKept.length, episodeCount: episodeKept.length, bytes: chatBytes + episodeBytes + manualBytes }
 }
 
 export async function listRecentAssistantEpisodes(actor: ActorContext, maxResults = 8): Promise<AssistantEpisode[]> {
@@ -166,5 +171,5 @@ export async function deleteAssistantEpisode(actor: ActorContext, episodeId: str
 
 export function formatAssistantEpisodes(rows: AssistantEpisode[]): string {
   if (!rows.length) return 'Em chưa tìm thấy ký ức gần đây phù hợp. Các thao tác đã xác nhận sẽ được ghi nhớ ngắn gọn trên thiết bị này.'
-  return 'Dạ, em nhớ những việc đã ghi nhận:\\n\\n' + rows.map((row, index) => (index + 1) + '. ' + row.summary + ' (' + new Date(row.createdAt).toLocaleString('vi-VN') + ')').join('\\n')
+  return 'Dạ, em nhớ những việc đã ghi nhận:\n\n' + rows.map((row, index) => (index + 1) + '. ' + row.summary + ' (' + new Date(row.createdAt).toLocaleString('vi-VN') + ')').join('\n')
 }
