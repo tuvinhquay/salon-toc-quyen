@@ -21,6 +21,7 @@ type Message = { id: string; role: 'assistant' | 'user'; content: string; source
 type PendingProductAction =
   | { kind: 'create'; phase: 'details' | 'confirm'; input: ProductInput; quantity: number | null; unitCostVnd: number | null }
   | { kind: 'update'; phase: 'confirm'; product: Product; salePriceVnd: number }
+  | { kind: 'archive'; phase: 'confirm'; product: Product }
 type PendingCustomerSave = { kind: 'create' | 'update'; input: CustomerInput; customerId?: string }
 
 const parseMoneyVnd = (raw: string, multiplier = 1) => {
@@ -282,6 +283,13 @@ export function AssistantPage() {
           return
         }
         if (/^(xac nhan|xac nhan them san pham|dong y|luu)$/.test(normalizedPrompt.trim())) {
+          if (pendingProductAction.kind === 'archive') {
+            const product = pendingProductAction.product
+            const saved = await saveProduct(actor, { name: product.name, sku: product.sku ?? '', category: product.category, unit: product.unit, salePriceVnd: product.salePriceVnd ?? 0, trackingMode: product.trackingMode, minimumStock: product.minimumStock, active: false, customFields: product.customFields ?? {} }, product.id)
+            setPendingProductAction(null)
+            setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã ngừng kinh doanh sản phẩm ' + saved.name + '. Hồ sơ và lịch sử tồn kho vẫn được giữ nguyên.' }])
+            return
+          }
           if (pendingProductAction.kind === 'create') {
             if (pendingProductAction.quantity === null || pendingProductAction.unitCostVnd === null) {
               setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em còn thiếu số lượng nhập và giá vốn mỗi đơn vị. Vui lòng cung cấp hai thông tin đó trước khi xác nhận.', source: 'local' }])
@@ -299,6 +307,28 @@ export function AssistantPage() {
           return
         }
         setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em đang chờ xác nhận thao tác sản phẩm. Gõ “XÁC NHẬN” để thực hiện hoặc “HỦY” để dừng.', source: 'local' }])
+        return
+      }
+
+      const archiveProductIntent = /(xoa|luu tru|ngung kinh doanh|an)/.test(normalizedPrompt) && /(san pham|mat hang)/.test(normalizedPrompt)
+      if (archiveProductIntent) {
+        const skuMatch = prompt.match(/(?:mã|sku)\\s+([a-z0-9-]+)/i)
+        if (!skuMatch) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Để tránh ngừng nhầm sản phẩm, anh vui lòng cung cấp mã SKU chính xác. ENA sẽ lưu trữ bằng cách ngừng kinh doanh, không xóa lịch sử kho.' }])
+          return
+        }
+        const products = await listProducts(actor)
+        const product = products.find(item => (item.sku ?? '').toUpperCase() === skuMatch[1].toUpperCase())
+        if (!product) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em không tìm thấy sản phẩm có mã SKU ' + skuMatch[1].toUpperCase() + ' trong salon hiện tại. Không có dữ liệu nào thay đổi.' }])
+          return
+        }
+        if (!product.active) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Sản phẩm ' + product.name + ' đã được ngừng kinh doanh trước đó.' }])
+          return
+        }
+        setPendingProductAction({ kind: 'archive', phase: 'confirm', product })
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Anh xác nhận ngừng kinh doanh sản phẩm này?\\nTên: ' + product.name + '\\nSKU: ' + (product.sku ?? '') + '\\nTồn kho và lịch sử giao dịch được giữ nguyên; sản phẩm sẽ không còn được chọn cho giao dịch mới.\\n\\nGõ “XÁC NHẬN” để tiếp tục hoặc “HỦY” để dừng.' }])
         return
       }
 
