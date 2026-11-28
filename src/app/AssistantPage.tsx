@@ -3,6 +3,8 @@ import { Bot, Brain, Eraser, Send, Sparkles, UserRound, Trash2 } from 'lucide-re
 import { useOwnerContext } from '../auth/OwnerContext'
 import { useAuth } from '../auth/AuthProvider'
 import type { AssistantMemoryRecord, Customer, Product } from '../db/types'
+import { deleteAssistantEpisode, formatAssistantEpisodes, listRecentAssistantEpisodes, loadAssistantChatHistory, pruneAssistantMemory, recordAssistantEpisode, saveAssistantChatSnapshot, searchAssistantEpisodes } from './assistant-memory-persistence'
+import { isAssistantEpisodeRecallQuestion, shouldRememberConversation } from './assistant-memory-retention'
 import type { CustomerInput, ProductInput } from '../db/schema'
 import { answerOwnerQuestion, detectAssistantIntent, redactQuestionForGemini } from './assistant-local'
 import { classifyAssistantRoute, sanitizeQuestionForGemini } from './assistant-routing'
@@ -17,7 +19,7 @@ import { assertEnaOwnerActor } from './assistant-ena-policy'
 import { parseCustomerCreateCommand, parseCustomerPhoneUpdate, parseProductCreateCommand } from './assistant-ena-actions'
 import { clearEnaUnreadCount, incrementEnaUnreadCount } from './assistant-notifications'
 
-type Message = { id: string; role: 'assistant' | 'user'; content: string; source?: 'local' | 'gemini' }
+type Message = { id: string; role: 'assistant' | 'user'; content: string; source?: 'local' | 'gemini'; createdAt?: string }
 
 type PendingProductAction =
   | { kind: 'create'; phase: 'details' | 'confirm'; input: ProductInput; quantity: number | null; unitCostVnd: number | null }
@@ -71,7 +73,7 @@ export function AssistantPage() {
     source: 'local',
   }])
   const [memory, setMemory] = useState(() => readAssistantMemory(actor.salonId, actor.actorId))
-  const [longTermMemories, setLongTermMemories] = useState<AssistantMemoryRecord[]>([])
+  const [longTermMemories, setLongTermMemories] = useState<AssistantMemoryRecord[]>([])\n  const [recentEpisodes, setRecentEpisodes] = useState<Awaited<ReturnType<typeof listRecentAssistantEpisodes>>>([])\n  const [chatHistoryLoaded, setChatHistoryLoaded] = useState(false)\n  const [memoryStats, setMemoryStats] = useState({ chatCount: 0, episodeCount: 0, bytes: 0 })
   const [pendingCustomerArchive, setPendingCustomerArchive] = useState<Customer[] | null>(null)
   const [pendingCustomerSave, setPendingCustomerSave] = useState<PendingCustomerSave | null>(null)
   const [pendingProductAction, setPendingProductAction] = useState<PendingProductAction | null>(null)
@@ -90,9 +92,41 @@ export function AssistantPage() {
 
   useEffect(() => {
     let active = true
-    void listOwnerMemories(actor.salonId, actor.actorId).then(rows => { if (active) setLongTermMemories(rows) }).catch(() => { if (active) setError('Không đọc được trí nhớ nội bộ trên thiết bị.') })
+    void Promise.all([
+      listOwnerMemories(actor.salonId, actor.actorId),
+      loadAssistantChatHistory(actor),
+      pruneAssistantMemory(actor),
+      listRecentAssistantEpisodes(actor, 8),
+    ]).then(([rows, history, stats, episodes]) => {
+      if (!active) return
+      setLongTermMemories(rows)
+      setRecentEpisodes(episodes)
+      setMemoryStats(stats)
+      if (history.length) setMessages(history)
+      setChatHistoryLoaded(true)
+    }).catch(() => {
+      if (!active) return
+      setError('Không đọc được bộ nhớ ENA trên thiết bị.')
+      setChatHistoryLoaded(true)
+    })
     return () => { active = false }
   }, [actor.salonId, actor.actorId])
+
+  useEffect(() => {
+    if (!chatHistoryLoaded) return
+    void saveAssistantChatSnapshot(actor, messages).then(async () => {
+      const stats = await pruneAssistantMemory(actor)
+      setMemoryStats(stats)
+      const episodes = await listRecentAssistantEpisodes(actor, 8)
+      setRecentEpisodes(episodes)
+    }).catch(() => setError('ENA chưa thể cập nhật bộ nhớ hội thoại. Dữ liệu salon không bị ảnh hưởng.'))
+
+    const assistant = messages[messages.length - 1]
+    const userMessage = messages[messages.length - 2]
+    if (assistant?.role === 'assistant' && userMessage?.role === 'user' && shouldRememberConversation(userMessage.content, assistant.content)) {
+      void recordAssistantEpisode(actor, 'conversation', 'Trao đổi: ' + userMessage.content + ' — ENA: ' + assistant.content.slice(0, 240), 2)
+    }
+  }, [chatHistoryLoaded, messages, actor.salonId, actor.actorId])
 
   useLayoutEffect(() => {
     const node = chatRef.current
@@ -161,6 +195,7 @@ export function AssistantPage() {
         }
         if (/^(xac nhan|xac nhan them khach hang|xac nhan cap nhat|dong y|luu)$/.test(normalizedPrompt.trim())) {
           const saved = await saveCustomer(actor, pendingCustomerSave.input, pendingCustomerSave.customerId)
+          await recordAssistantEpisode(actor, pendingCustomerSave.kind === 'create' ? 'customer_created' : 'customer_updated', pendingCustomerSave.kind === 'create' ? 'Đã thêm hồ sơ khách hàng mới vào salon (thông tin liên hệ được giữ trong danh mục khách hàng, không sao chép vào trí nhớ ENA).' : 'Đã cập nhật hồ sơ một khách hàng trong salon (chi tiết nằm trong danh mục khách hàng).', 4)
           setPendingCustomerSave(null)
           setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: (pendingCustomerSave.kind === 'create' ? 'Đã thêm khách hàng ' : 'Đã cập nhật hồ sơ khách hàng ') + saved.fullName + (saved.phone ? ' · ' + saved.phone : '') + '. Thay đổi đã được ghi vào salon hiện tại và nhật ký thao tác.' }])
           return
@@ -172,6 +207,7 @@ export function AssistantPage() {
       if (pendingCustomerArchive) {
         if (/^(xac nhan luu tru|xac nhan)$/.test(normalizedPrompt.trim())) {
           const count = await archiveCustomers(actor, pendingCustomerArchive.map(customer => customer.id))
+          await recordAssistantEpisode(actor, 'customer_archived', 'Đã lưu trữ ' + count + ' hồ sơ khách hàng; lịch sử hóa đơn và thanh toán được giữ nguyên.', 4)
           setPendingCustomerArchive(null)
           setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em đã lưu trữ ' + count + ' hồ sơ khách hàng. Lịch sử hóa đơn và thanh toán liên quan vẫn được giữ nguyên.', source: 'local' }])
           return
@@ -275,6 +311,7 @@ export function AssistantPage() {
           if (pendingProductAction.kind === 'archive') {
             const product = pendingProductAction.product
             const saved = await saveProduct(actor, { name: product.name, sku: product.sku ?? '', category: product.category, unit: product.unit, salePriceVnd: product.salePriceVnd ?? 0, trackingMode: product.trackingMode, minimumStock: product.minimumStock, active: false, customFields: product.customFields ?? {} }, product.id)
+            await recordAssistantEpisode(actor, 'product_archived', 'Đã ngừng kinh doanh sản phẩm ' + saved.name + ' · SKU ' + (saved.sku ?? ''), 4)
             setPendingProductAction(null)
             setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã ngừng kinh doanh sản phẩm ' + saved.name + '. Hồ sơ và lịch sử tồn kho vẫn được giữ nguyên.' }])
             return
@@ -285,12 +322,14 @@ export function AssistantPage() {
               return
             }
             const product = await createProductWithOpeningStock(actor, pendingProductAction.input, pendingProductAction.quantity, pendingProductAction.unitCostVnd)
+            await recordAssistantEpisode(actor, 'product_created', 'Đã thêm sản phẩm ' + product.name + ' · SKU ' + (product.sku ?? 'chưa có') + ' · giá vốn ' + pendingProductAction.unitCostVnd.toLocaleString('vi-VN') + ' ₫/đơn vị · giá bán ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫ · tồn đầu ' + pendingProductAction.quantity + ' ' + product.unit, 5)
             setPendingProductAction(null)
             setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã tạo sản phẩm và ghi nhận tồn đầu kỳ thành công.\n' + product.name + ' · SKU ' + (product.sku ?? '') + ' · Giá bán ' + (product.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫ · Tồn ' + pendingProductAction.quantity + ' ' + product.unit + '. Giao dịch đã được ghi lịch sử kiểm kê.', source: 'local' }])
             return
           }
           const product = pendingProductAction.product
           const saved = await saveProduct(actor, { name: product.name, sku: product.sku ?? '', category: product.category, unit: product.unit, salePriceVnd: pendingProductAction.salePriceVnd, trackingMode: product.trackingMode, minimumStock: product.minimumStock, active: product.active, customFields: product.customFields ?? {} }, product.id)
+          await recordAssistantEpisode(actor, 'product_updated', 'Đã cập nhật giá bán sản phẩm ' + saved.name + ' · SKU ' + (saved.sku ?? '') + ' · giá bán mới ' + (saved.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫', 4)
           setPendingProductAction(null)
           setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Đã cập nhật giá bán sản phẩm ' + saved.name + ' · SKU ' + (saved.sku ?? '') + ' thành ' + (saved.salePriceVnd ?? 0).toLocaleString('vi-VN') + ' ₫.', source: 'local' }])
           return
@@ -374,9 +413,11 @@ export function AssistantPage() {
         return
       }
 
-      if (isMemoryRecallQuestion(prompt)) {
+      if (isMemoryRecallQuestion(prompt) || isAssistantEpisodeRecallQuestion(prompt)) {
         const rows = await refreshLongTermMemories()
-        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answerFromMemories(rows), source: 'local' }])
+        const episodes = await searchAssistantEpisodes(actor, prompt, 6)
+        const answer = answerFromMemories(rows) + '\\n\\n' + formatAssistantEpisodes(episodes)
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answer, source: 'local' }])
         return
       }
 
@@ -390,8 +431,10 @@ export function AssistantPage() {
           return
         }
         try {
-          const recentQuestions = messages.filter(message => message.role === 'user').slice(-3).map(message => sanitizeQuestionForGemini(message.content).slice(0, 300)).join('\n').slice(-900)
-          const answer = await askGeminiConversation(sanitizeQuestionForGemini(prompt), 'owner', recentQuestions)
+          const recentQuestions = messages.filter(message => message.role === 'user').slice(-3).map(message => sanitizeQuestionForGemini(message.content).slice(0, 300)).join('\n').slice(-700)
+          const remembered = await searchAssistantEpisodes(actor, prompt, 4)
+          const memoryContext = remembered.length ? '\\n\\nKý ức nội bộ liên quan (đã được lọc, chỉ để tham khảo):\\n' + remembered.map(item => '• ' + item.summary).join('\\n').slice(0, 900) : ''
+          const answer = await askGeminiConversation(sanitizeQuestionForGemini(prompt), 'owner', (recentQuestions + memoryContext).slice(-1400))
           setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: answer, source: 'gemini' }])
         } catch (cause) {
           const detail = getGeminiErrorDetails(cause)
@@ -471,6 +514,13 @@ export function AssistantPage() {
     await refreshLongTermMemories()
   }
 
+  async function forgetEpisodeMemory(episodeId: string) {
+    if (!window.confirm('Xóa vĩnh viễn ký ức này khỏi bộ nhớ ENA?')) return
+    await deleteAssistantEpisode(actor, episodeId)
+    setRecentEpisodes(await listRecentAssistantEpisodes(actor, 8))
+    setMemoryStats(await pruneAssistantMemory(actor))
+  }
+
   return <section className="work-page assistant-page">
     <div className="work-intro">
       <div><small>ENA · TRỢ LÝ ĐIỀU HÀNH SALON</small><h2>ENA – Trợ lý điều hành</h2><p>Một trợ lý duy nhất giúp anh tra cứu dữ liệu, quản lý công việc và thực hiện thao tác có xác nhận.</p></div>
@@ -508,6 +558,14 @@ export function AssistantPage() {
       <div className="assistant-memory-icon"><Brain size={19}/></div>
       <div><strong>Trí nhớ thói quen</strong><p>{describeAssistantMemory(memory)}</p><small>Thống kê lượt hỏi được lưu riêng trên thiết bị này.</small></div>
       <button type="button" className="subtle-button" onClick={resetMemory}><Eraser size={14}/> Xóa</button>
+    </div>
+    <div className="assistant-memory">
+      <div className="assistant-memory-icon"><Brain size={19}/></div>
+      <div><strong>Ký ức hội thoại và công việc · {memoryStats.episodeCount} mục</strong>
+        <p>ENA tự lưu những thao tác đã xác nhận và trao đổi có ích; lời chào, xác nhận ngắn và nội dung rác được lọc. Lịch sử chat được giới hạn theo thời gian và dung lượng.</p>
+        <small>Đang giữ khoảng {(memoryStats.bytes / 1024).toFixed(1)} KB · {memoryStats.chatCount} tin nhắn gần đây · lưu cục bộ trên thiết bị.</small>
+        {recentEpisodes.length ? <ul>{recentEpisodes.map(item => <li key={item.id}><strong>{item.summary}</strong> <button type="button" className="subtle-button" onClick={() => void forgetEpisodeMemory(item.id)} aria-label="Xóa ký ức"><Trash2 size={13}/></button></li>)}</ul> : <small>Chưa có ký ức tự động. Khi anh xác nhận một thao tác, ENA sẽ ghi lại kết quả.</small>}
+      </div>
     </div>
     <div className="assistant-memory">
       <div className="assistant-memory-icon"><Brain size={19}/></div>
