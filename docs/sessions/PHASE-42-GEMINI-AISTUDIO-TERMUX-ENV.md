@@ -38,3 +38,13 @@ Không thêm tiền tố `VITE_`. Không commit, không gửi khóa vào chat. S
 - Cần Termux smoke test: xác nhận `.env.local` có biến (không in giá trị), restart Vite, mở app bằng localhost, chạy nút “Kiểm tra kết nối”, gửi một câu hỏi chat.
 - Kiểm tra không có request nào tới `firebasevertexai.googleapis.com`; request Gemini đi tới `generativelanguage.googleapis.com`.
 - Không merge/deploy cho tới khi CI và live smoke test hoàn tất.
+
+
+## Audit follow-up – sửa lỗi phản hồi rỗng và chẩn đoán cấu hình
+- Audit mã nguồn phát hiện nút kiểm tra kết nối chỉ cấp `maxOutputTokens=24` cho Gemini 3.8 Flash. Đây là mức quá thấp với model có token suy luận; token suy luận cũng tiêu thụ ngân sách đầu ra nên model có thể kết thúc mà không có phần text hiển thị.
+- Tăng ngân sách smoke test lên 1.024 token; đặt `thinkingConfig.thinkingLevel=LOW` ở proxy; tăng timeout kiểm tra; các luồng chat/tư vấn dùng ngân sách 2.048 token.
+- Proxy hiện phân biệt prompt bị chặn, hết token (ví dụ `MAX_TOKENS`), khóa bị từ chối, quyền truy cập, model không tồn tại, quota và dịch vụ quá tải. Không trả nguyên văn lỗi upstream hoặc khóa API về trình duyệt.
+- Audit phát hiện UI vẫn dùng thông báo lỗi Firebase AI Logic/App Check và `VITE_FIREBASE_API_KEY` dù luồng đã chuyển sang Gemini Developer API. Đã thay bằng hướng dẫn theo lỗi của Gemini API.
+- Audit phát hiện UI đọc `geminiConfigStatus.expectedProject` nhưng hàm cấu hình không cung cấp trường này. Đã nối chẩn đoán Firebase project thật từ `firebaseEnvDiagnostics` và làm rõ cảnh báo project chỉ liên quan Firebase Auth/Firestore, không tự nó quyết định Gemini AI Studio.
+- Đã mở rộng unit tests cho ngân sách smoke test và trường chẩn đoán project. Chưa chạy CI/Termux runtime trong bước audit này; chưa xác nhận khóa thực tế hoặc kết nối live.
+- Firebase Auth, Firestore, App Check và dữ liệu Dexie không bị thay đổi; không deploy, không merge.
