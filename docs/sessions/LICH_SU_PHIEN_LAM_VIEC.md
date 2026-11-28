@@ -568,3 +568,13 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Tăng timeout client lên 60 giây để đủ thời gian cho retry có giới hạn.
 - Commit: `46a8a9bd3b58eede80a84ebed1e547073ea90911`, `07a781b27eddf77b5e4ff6094893855ec69d75a4`.
 - Chưa xác nhận CI và chưa có live smoke test trên Termux; chưa merge/deploy. Firebase Auth, Firestore, App Check và Dexie không thay đổi.
+
+
+## Phiên 2026-11-28 – Phase 43: Chuyển trợ lý sang Gemini 3.5 Flash-Lite
+- Tạo branch `phase-43-gemini-model-flash-lite` từ `phase-42-fix-vitest-appcheck-dom-isolation`.
+- Kết quả Termux trực tiếp: `gemini-3.8-flash` trả HTTP 503 UNAVAILABLE; `gemini-3.5-flash-lite` trả HTTP 200, nội dung tiếng Việt và modelVersion chính xác.
+- Đổi model thống nhất trong `vite.config.ts` (proxy server-side) và `src/app/assistant-gemini.ts` (trạng thái UI).
+- Cập nhật `tests/assistant-gemini.test.ts` kiểm tra model mới; cập nhật ROADMAP và tạo `PHASE-43-GEMINI-FLASH-LITE.md`.
+- Giữ nguyên API key server-only trong `.env.local`, Firebase Auth, Firestore, App Check, Dexie, prompt và quyền Owner.
+- Bằng chứng direct API live test PASS do Owner chạy trên Termux. Proxy smoke test, typecheck/lint/test/build trên HEAD Phase 43, CI và kiểm tra sâu trong app còn pending.
+- Không merge/deploy; không đánh dấu P21 PASS cho đến khi các bước kiểm chứng còn lại hoàn tất.
