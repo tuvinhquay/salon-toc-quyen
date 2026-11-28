@@ -537,3 +537,15 @@ Base: `phase-24-assistant-clean-chat-google-switch`
 - Tinh chỉnh hội thoại trực tiếp: Gemini nhận tối đa 3 câu hỏi người dùng gần nhất (300 ký tự/câu, tối đa 900 ký tự) sau khi che email/số điện thoại; context chỉ lấy từ state chat hiện có, không đọc IndexedDB hay trí nhớ salon.
 
 - Sau khi bổ sung ngữ cảnh hội thoại an toàn (tối đa 3 câu hỏi, che email/số điện thoại, không đọc IndexedDB), CI run #553 trên HEAD Phase 40 PASS đầy đủ Typecheck, Lint, Unit tests và Production build/PWA.
+
+
+## Phiên 2026-11-28 – Phase 42: Chuyển Gemini sang Google AI Studio cho Termux
+- Tạo nhánh `phase-42-gemini-aistudio-termux-env` từ `phase-41-app-check-local-debug-provider`; không sửa main, không merge và không deploy.
+- Thay luồng Firebase AI Logic trong `src/app/assistant-gemini.ts` bằng local HTTP proxy `/__local-api/gemini`.
+- Thêm Vite dev middleware đọc `GEMINI_API_KEY` từ `.env.local` phía Node server; không dùng `VITE_GEMINI_API_KEY`, không đưa khóa vào browser bundle.
+- Giữ Firebase Auth, Firestore, Dexie, bộ nhớ, local assistant, routing, role guard và prompt redaction.
+- Giữ nguyên App Check Firebase hiện có để không vô tình thay đổi bảo vệ Firebase Auth/Firestore; Gemini không đi qua Firebase AI Logic/App Check.
+- Local proxy giới hạn Origin localhost, body, prompt, timeout và request rate; chỉ hoạt động trong Vite dev server Termux, không phải backend production.
+- Cập nhật UI trạng thái AI Studio, `.env.example`, ROADMAP P21 và thêm unit tests.
+- Chưa xác nhận CI, chưa chạy live Gemini API trên thiết bị. Cần Owner thêm `GEMINI_API_KEY` vào `.env.local`, restart Vite, chạy kiểm tra kết nối và regression trên Android/Termux.
+- Không ghi PASS runtime, không merge/deploy trước khi có bằng chứng kiểm thử.
