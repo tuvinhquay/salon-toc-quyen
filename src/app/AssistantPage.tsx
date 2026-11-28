@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import { Bot, Brain, Eraser, Send, Sparkles, UserRound, Trash2 } from 'lucide-react'
 import { useOwnerContext } from '../auth/OwnerContext'
 import { useAuth } from '../auth/AuthProvider'
@@ -14,7 +14,8 @@ import { askGeminiAdviser, askGeminiConversation, getGeminiConfigurationStatus, 
 import { makeAssistantLanguageFriendly } from './assistant-language'
 import { isGuideQuestion } from './guide-content'
 import { assertEnaOwnerActor } from './assistant-ena-policy'
-import { parseCustomerCreateCommand, parseCustomerPhoneUpdate } from './assistant-ena-actions'
+import { parseCustomerCreateCommand, parseCustomerPhoneUpdate, parseProductCreateCommand } from './assistant-ena-actions'
+import { incrementEnaUnreadCount } from './assistant-notifications'
 
 type Message = { id: string; role: 'assistant' | 'user'; content: string; source?: 'local' | 'gemini' }
 
@@ -28,26 +29,6 @@ const parseMoneyVnd = (raw: string, multiplier = 1) => {
   const digits = raw.replace(/[.,\s]/g, '')
   const value = Number(digits) * multiplier
   return Number.isFinite(value) && value >= 0 ? Math.round(value) : null
-}
-function parseProductCreateCommand(prompt: string) {
-  const match = prompt.match(/(?:thêm|tạo|nhập|bổ sung)\s+(?:sản phẩm\s+|mặt hàng\s+)?(.+?)\s+(?:mã|sku)\s+([a-z0-9-]+)/i)
-  const priceMatch = prompt.match(/(?:giá|đơn giá)\s*[:=]?\s*([\d.,]+)\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k)?/i)
-  if (!match || !priceMatch) return null
-  const multiplier = /^(triệu|trieu)$/i.test(priceMatch[2] ?? '') ? 1_000_000 : /^(nghìn|nghin|ngàn|ngan|k)$/i.test(priceMatch[2] ?? '') ? 1000 : 1
-  const price = parseMoneyVnd(priceMatch[1], multiplier)
-  const name = match[1].trim().replace(/\s+(?:giá|đơn giá)\s*.*$/i, '').trim()
-  if (!name || price === null) return null
-  const sku = match[2].trim().toUpperCase()
-  const category = /(keo|sáp|sap|gel|wax|xịt|xit)/i.test(name) ? 'Tạo kiểu' : 'Chăm sóc tóc'
-  const unit = /(sáp|sap|hũ|hu)/i.test(name) ? 'hũ' : 'chai'
-  const quantityMatch = prompt.match(/(?:số lượng|nhập kho|tồn đầu|ton dau|so luong)\s*[:=]?\s*(\d+(?:[.,]\d+)?)/i)
-  const costMatch = prompt.match(/(?:giá vốn|gia von|cost)\s*[:=]?\s*([\d.,]+)\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k)?/i)
-  const costMultiplier = /^(triệu|trieu)$/i.test(costMatch?.[2] ?? '') ? 1_000_000 : /^(nghìn|nghin|ngàn|ngan|k)$/i.test(costMatch?.[2] ?? '') ? 1000 : 1
-  return {
-    input: { name, sku, category, unit, salePriceVnd: price, trackingMode: 'lot' as const, minimumStock: 0, active: true, customFields: {} },
-    quantity: quantityMatch ? Number(quantityMatch[1].replace(',', '.')) : null,
-    unitCostVnd: costMatch ? parseMoneyVnd(costMatch[1], costMultiplier) : null,
-  }
 }
 function parseProductPriceUpdate(prompt: string) {
   const normalized = prompt.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
@@ -102,6 +83,7 @@ export function AssistantPage() {
   const [geminiTestMessage, setGeminiTestMessage] = useState<string | null>(null)
   const chatRef = useRef<HTMLDivElement | null>(null)
   const stickToLatestRef = useRef(true)
+  const lastAssistantMessageIdRef = useRef('welcome')
   const [showLatest, setShowLatest] = useState(false)
   const geminiReady = isGeminiAssistantReady()
   const geminiConfigStatus = getGeminiConfigurationStatus()
@@ -112,18 +94,23 @@ export function AssistantPage() {
     return () => { active = false }
   }, [actor.salonId, actor.actorId])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const node = chatRef.current
-    if (!node || !stickToLatestRef.current) {
-      if (node) setShowLatest(true)
-      return
-    }
-    const frame = window.requestAnimationFrame(() => {
-      node.scrollTo({ top: node.scrollHeight, behavior: messages.length > 2 ? 'smooth' : 'auto' })
+    if (!node) return
+    if (stickToLatestRef.current) {
+      node.scrollTop = node.scrollHeight
       setShowLatest(false)
-    })
-    return () => window.cancelAnimationFrame(frame)
+    } else {
+      setShowLatest(true)
+    }
   }, [messages, busy])
+
+  useEffect(() => {
+    const latestAssistant = [...messages].reverse().find(message => message.role === 'assistant')
+    if (!latestAssistant || latestAssistant.id === lastAssistantMessageIdRef.current) return
+    lastAssistantMessageIdRef.current = latestAssistant.id
+    if (!stickToLatestRef.current) incrementEnaUnreadCount()
+  }, [messages])
 
   function handleChatScroll() {
     const node = chatRef.current
@@ -332,7 +319,7 @@ export function AssistantPage() {
         return
       }
 
-      const createProductIntent = /(thêm|tạo|nhập|bổ sung)/.test(normalizedPrompt) && /(sản phẩm|mặt hàng)/.test(normalizedPrompt) && /(mã|sku)/.test(normalizedPrompt)
+      const createProductIntent = /(them|tao|nhap|bo sung)/.test(normalizedPrompt) && /(san pham|mat hang)/.test(normalizedPrompt) && /(?:ma|sku)/.test(normalizedPrompt)
       if (createProductIntent) {
         const parsed = parseProductCreateCommand(prompt)
         if (!parsed) {
@@ -492,7 +479,7 @@ export function AssistantPage() {
       <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Bộ não Gemini {geminiReady ? 'đã kết nối' : 'chưa khả dụng'}</div>
       <button type="button" className="subtle-button" onClick={() => void testGemini()} disabled={!geminiReady || geminiTestState === 'testing'}><Sparkles size={14}/> {geminiTestState === 'testing' ? 'Đang kiểm tra…' : 'Kiểm tra kết nối'}</button>
     </div>
-    <p className="assistant-chat-meta">Kết nối: {geminiConfigStatus.provider} · Khóa: {geminiConfigStatus.keyStorage} · Chế độ: {geminiConfigStatus.runtimeMode} · Model: {geminiConfigStatus.model}</p>
+    
     {!geminiConfigStatus.expectedProject && <p className="assistant-adviser-note" role="alert">Cảnh báo: Firebase hiện đang kết nối project “{geminiConfigStatus.firebaseProjectId || 'chưa cấu hình'}”, không phải “salonquyen-f21fa”. Cảnh báo này liên quan Firebase Auth/Firestore; Gemini AI Studio dùng khóa riêng GEMINI_API_KEY nên đây không tự động là nguyên nhân lỗi Gemini.</p>}
     {geminiTestMessage && <p className={geminiTestState === 'success' ? 'assistant-gemini-test-success' : 'assistant-adviser-note'} role="status" style={{ whiteSpace: 'pre-wrap' }}>{geminiTestMessage}</p>}
     <div className="assistant-chat" aria-live="polite" aria-relevant="additions" ref={chatRef} onScroll={handleChatScroll}>
@@ -505,7 +492,7 @@ export function AssistantPage() {
       </article>)}
       {busy && <div className="assistant-thinking"><Brain size={16}/> {busyLabel}</div>}
     </div>
-    <div className="assistant-chat-meta">Thông tin được xem từ dữ liệu lưu trên thiết bị này; hiện chưa tự chuyển sang thiết bị khác.</div>
+    
     {adviserNotice && <div className="assistant-adviser-note" role="status">{adviserNotice}</div>}
     {showLatest && <button type="button" className="assistant-latest-button" onClick={goToLatest}>↓ Tin nhắn mới</button>}
     {error && <p className="form-error" role="alert">{error}</p>}
@@ -513,6 +500,7 @@ export function AssistantPage() {
       <textarea aria-label="Nhập câu hỏi cho trợ lý" rows={3} maxLength={4000} value={question} onChange={event => setQuestion(event.target.value)} placeholder="Hỏi về công việc, cách dùng app, doanh thu, khách hàng hoặc kho…" />
       <button className="primary-button" disabled={busy || !question.trim()}><Send size={16}/> Gửi câu hỏi</button>
     </form>
+    <details className="assistant-extra-panel"><summary>Gợi ý và ghi nhớ</summary>
     <div className="assistant-suggestions"><div className="assistant-section-title">Gợi ý câu hỏi</div><div>{suggestions.map(item => <button key={item} type="button" className="assistant-suggestion" onClick={() => void send(item)} disabled={busy}>{item}</button>)}</div></div>
     <div className="assistant-memory">
       <div className="assistant-memory-icon"><Brain size={19}/></div>
@@ -527,6 +515,6 @@ export function AssistantPage() {
         <small>Những điều đã lưu chỉ có trên thiết bị này, chưa tự chuyển sang thiết bị khác.</small>
       </div>
     </div>
-    <p className="assistant-privacy-note">ENA chỉ thao tác trong salon đã được xác thực. Mọi thay đổi dữ liệu đều phải được xem trước và xác nhận; Gemini không có quyền ghi trực tiếp vào cơ sở dữ liệu. Thông tin định danh khách hàng và nhân viên không được gửi sang Gemini trong các luồng báo cáo.</p>
+    </details>
   </section>
 }
