@@ -1,10 +1,8 @@
-import { getAI, getGenerativeModel, GoogleAIBackend } from 'firebase/ai'
-import { appCheck, firebaseApp, firebaseEnvDiagnostics } from '../lib/firebase'
-
 const MODEL = 'gemini-3.8-flash'
 const CONNECTION_TIMEOUT_MS = 15_000
 const CHAT_TIMEOUT_MS = 30_000
 const ADVISER_TIMEOUT_MS = 25_000
+const LOCAL_GEMINI_ENDPOINT = '/__local-api/gemini'
 
 async function withTimeout<T>(request: Promise<T>, timeoutMs: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined
@@ -19,46 +17,53 @@ async function withTimeout<T>(request: Promise<T>, timeoutMs: number): Promise<T
     if (timer) clearTimeout(timer)
   }
 }
-export function isGeminiAssistantReady() {
-  return Boolean(firebaseApp && appCheck)
+
+type GeminiProxyResponse = { text?: string; error?: string }
+
+async function requestGemini(prompt: string, timeoutMs: number, temperature: number, maxOutputTokens: number): Promise<string> {
+  if (!import.meta.env.DEV) throw new Error('GEMINI_LOCAL_PROXY_DEV_ONLY')
+  const response = await withTimeout(fetch(LOCAL_GEMINI_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, temperature, maxOutputTokens }),
+  }), timeoutMs)
+  const payload = await response.json().catch(() => ({})) as GeminiProxyResponse
+  if (!response.ok) throw new Error(payload.error || 'GEMINI_PROXY_HTTP_' + response.status)
+  const answer = payload.text?.trim()
+  if (!answer) throw new Error('GEMINI_EMPTY_RESPONSE')
+  return answer
 }
+
+export function isGeminiAssistantReady() {
+  return Boolean(import.meta.env.DEV)
+}
+
 export function getGeminiConfigurationStatus() {
   return {
-    ...firebaseEnvDiagnostics,
-    firebaseAppCreated: Boolean(firebaseApp),
-    appCheckCreated: Boolean(appCheck),
+    provider: 'Gemini Developer API · Google AI Studio',
+    keyStorage: 'GEMINI_API_KEY trong .env.local (chỉ máy chủ Termux đọc)',
+    runtimeMode: import.meta.env.DEV ? 'Termux/Vite local' : 'Không khả dụng trong production build',
     model: MODEL,
   }
 }
-/** Returns actionable SDK error details while redacting any key-like strings. */
+
 export function getGeminiErrorDetails(error: unknown): string {
   if (!(error instanceof Error)) return String(error || 'Unknown error').slice(0, 240)
   const code = 'code' in error ? String((error as Error & { code?: unknown }).code ?? '') : ''
   const message = error.message
     .replace(/AIza[0-9A-Za-z_-]{20,}/g, '[API KEY REDACTED]')
-    .replace(/(key|api_key|token)=([^&\s]+)/gi, '$1=[REDACTED]')
+    .replace(/(key|api_key|token)=([^&\\s]+)/gi, '$1=[REDACTED]')
+    .replace(/https?:\\/\\/[^\\s]+/g, '[URL REDACTED]')
     .slice(0, 240)
   return [code, message].filter(Boolean).join(': ')
 }
-/** Makes a real, low-token model request; configuration presence alone is not a live connection. */
+
 export async function testGeminiConnection(): Promise<void> {
-  if (!firebaseApp || !appCheck) throw new Error('GEMINI_NOT_CONFIGURED')
-  const ai = getAI(firebaseApp, { backend: new GoogleAIBackend() })
-  const model = getGenerativeModel(ai, {
-    model: MODEL,
-    generationConfig: { temperature: 0, maxOutputTokens: 24 },
-  })
-  const result = await withTimeout(model.generateContent('Trả lời đúng một từ: Xin chào'), CONNECTION_TIMEOUT_MS)
-  if (!result.response.text().trim()) throw new Error('GEMINI_EMPTY_RESPONSE')
+  const answer = await requestGemini('Trả lời đúng một từ: Xin chào', CONNECTION_TIMEOUT_MS, 0, 24)
+  if (!answer) throw new Error('GEMINI_EMPTY_RESPONSE')
 }
-/** Gemini is an optional adviser. It receives only aggregate figures, never local customer/employee identifiers. */
+
 export async function askGeminiAdviser(question: string, safeContext: string, memorySummary: string, recentQuestions = ''): Promise<string> {
-  if (!firebaseApp || !appCheck) throw new Error('Gemini chưa sẵn sàng: cần cấu hình Firebase AI Logic và App Check.')
-  const ai = getAI(firebaseApp, { backend: new GoogleAIBackend() })
-  const model = getGenerativeModel(ai, {
-    model: MODEL,
-    generationConfig: { temperature: 0.35, maxOutputTokens: 1200 },
-  })
   const prompt = [
     'Bạn là người trợ lý đồng hành thân thiện của salon TÓC QUYỀN. Trò chuyện tự nhiên bằng tiếng Việt, xưng em và gọi người dùng anh/chị; đừng mở đầu máy móc hoặc lặp lại câu hỏi.',
     'Trả lời như đang trò chuyện với chủ tiệm: ưu tiên đoạn văn ngắn, chỉ dùng gạch đầu dòng khi thật sự giúp dễ đọc. Nêu ý chính trước, giải thích bằng từ đời thường; tránh giọng báo cáo, thuật ngữ kỹ thuật và lời khuyên chung chung.',
@@ -67,23 +72,13 @@ export async function askGeminiAdviser(question: string, safeContext: string, me
     'Không yêu cầu tên, số điện thoại, email, mật khẩu, khóa API hoặc dữ liệu riêng tư.',
     'Các câu hỏi gần đây của người dùng (đã lọc thông tin nhận diện, chỉ để hiểu ngữ cảnh): ' + (recentQuestions || 'Chưa có câu hỏi trước đó.'),
     'Thói quen tổng hợp của chủ tiệm: ' + memorySummary,
-    'Số liệu tổng hợp đã được tính tại thiết bị:\n' + safeContext,
+    'Số liệu tổng hợp đã được tính tại thiết bị:\\n' + safeContext,
     'Câu hỏi cần tư vấn: ' + question,
-  ].join('\n\n')
-  const result = await withTimeout(model.generateContent(prompt), ADVISER_TIMEOUT_MS)
-  const answer = result.response.text().trim()
-  if (!answer) throw new Error('Gemini chưa tạo được câu trả lời.')
-  return answer
+  ].join('\\n\\n')
+  return requestGemini(prompt, ADVISER_TIMEOUT_MS, 0.35, 1200)
 }
 
-/** General conversation is sent directly to Gemini without reading salon IndexedDB or memories. */
 export async function askGeminiConversation(question: string, role: 'owner' | 'employee', recentQuestions = ''): Promise<string> {
-  if (!firebaseApp || !appCheck) throw new Error('GEMINI_NOT_CONFIGURED')
-  const ai = getAI(firebaseApp, { backend: new GoogleAIBackend() })
-  const model = getGenerativeModel(ai, {
-    model: MODEL,
-    generationConfig: { temperature: 0.65, maxOutputTokens: 1000 },
-  })
   const trustedRole = role === 'owner' ? 'CHỦ TIỆM (Owner)' : 'NHÂN VIÊN (Employee)'
   const prompt = [
     'Bạn là trợ lý AI đồng hành của salon TÓC QUYỀN. Trả lời tự nhiên, thông minh và hữu ích bằng tiếng Việt; xưng em, gọi người dùng anh/chị; không mở đầu máy móc.',
@@ -92,9 +87,6 @@ export async function askGeminiConversation(question: string, role: 'owner' | 'e
     'Không yêu cầu mật khẩu, khóa API, mã đăng nhập hoặc thông tin cá nhân không cần thiết. Không tuyên bố đã đọc dữ liệu nội bộ, đã thực hiện thao tác hay đã thay đổi dữ liệu.',
     'Một vài câu hỏi gần nhất để giữ mạch hội thoại (đã giới hạn và che email/số điện thoại; không truy cập dữ liệu salon): ' + (recentQuestions || 'Chưa có.'),
     'Câu hỏi hiện tại: ' + question.slice(0, 4000),
-  ].join('\n\n')
-  const result = await withTimeout(model.generateContent(prompt), CHAT_TIMEOUT_MS)
-  const answer = result.response.text().trim()
-  if (!answer) throw new Error('GEMINI_EMPTY_RESPONSE')
-  return answer
+  ].join('\\n\\n')
+  return requestGemini(prompt, CHAT_TIMEOUT_MS, 0.65, 1000)
 }
