@@ -24,4 +24,5 @@ After ENA successfully added a product, leaving the assistant and returning caus
 - These limits apply to ENA's own stored memory, not salon inventory/customer/invoice records.
 
 ## Validation
-CI and local typecheck/lint/tests/build plus Android/Termux acceptance pending. No merge/deploy.
+- GitHub Actions CI run #645 PASS at commit `27904fec6a28357d74838bff4cc819b9bc6c9e84`: typecheck, lint, unit tests and optimized PWA build passed.
+- Owner Android/Termux acceptance remains pending. No merge/deploy.
