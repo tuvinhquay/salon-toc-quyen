@@ -65,8 +65,8 @@ export function isAssistantEpisodeRecallQuestion(value: string): boolean {
 export function shouldRememberConversation(userText: string, assistantText: string): boolean {
   const q = normalizeMemoryText(userText)
   const a = normalizeMemoryText(assistantText)
-  if (isLowValueMemoryText(userText) || isLowValueMemoryText(assistantText)) return false
-  if (/(^(them|tao|nhap|bo sung|cap nhat|sua|xoa|luu tru|ngung kinh doanh|xac nhan|huy)\b)/.test(q)) return false
+  if (isLowValueMemoryText(userText) || isLowValueMemoryText(assistantText) || isAssistantEpisodeRecallQuestion(userText)) return false
+  if (/(^(them|tao|nhap|bo sung|cap nhat|sua|xoa|luu tru|ngung kinh doanh|xac nhan|huy)\b)/.test(q) || /^(hay ghi nho|ghi nho|nho giup|luu lai)/.test(q)) return false
   if (/(doanh thu|bao cao|ton kho|lich hen|top khach|thong ke)/.test(q) && a.length < 180) return false
   return q.split(/\s+/).filter(word => word.length > 2).length >= 4 && a.length >= 80
 }
