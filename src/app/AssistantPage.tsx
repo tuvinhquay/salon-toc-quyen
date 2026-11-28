@@ -398,7 +398,7 @@ export function AssistantPage() {
     </div>
     <div className="assistant-status-row">
       <div><span className="assistant-status-dot"/> Trợ lý sẵn sàng</div>
-      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Gemini {geminiReady ? 'có cấu hình cơ bản' : 'chưa đủ cấu hình'}</div>
+      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Gemini {geminiReady ? 'proxy Termux sẵn sàng' : 'chỉ khả dụng khi chạy Termux/Vite'}</div>
       <button type="button" className="subtle-button" onClick={() => void testGemini()} disabled={!geminiReady || geminiTestState === 'testing'}><Sparkles size={14}/> {geminiTestState === 'testing' ? 'Đang kiểm tra…' : 'Kiểm tra kết nối'}</button>
     </div>
     <p className="assistant-chat-meta">Kết nối: {geminiConfigStatus.provider} · Khóa: {geminiConfigStatus.keyStorage} · Chế độ: {geminiConfigStatus.runtimeMode} · Model: {geminiConfigStatus.model}</p>
