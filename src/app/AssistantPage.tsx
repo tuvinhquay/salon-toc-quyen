@@ -3,22 +3,50 @@ import { Bot, Brain, Eraser, Send, Sparkles, UserRound, Trash2 } from 'lucide-re
 import { useOwnerContext } from '../auth/OwnerContext'
 import { useAuth } from '../auth/AuthProvider'
 import type { AssistantMemoryRecord, Customer, Product } from '../db/types'
-import type { ProductInput } from '../db/schema'
+import type { CustomerInput, ProductInput } from '../db/schema'
 import { answerOwnerQuestion, detectAssistantIntent, redactQuestionForGemini } from './assistant-local'
 import { classifyAssistantRoute, sanitizeQuestionForGemini } from './assistant-routing'
 import { clearAssistantMemory, describeAssistantMemory, learnAssistantHabit, readAssistantMemory } from './assistant-memory'
 import { answerAssistantAbout, answerFromMemories, applyLearnedVocabulary, findMatchingAssistantShortcut, isAssistantGreeting, isMemoryRecallQuestion, parseMemoryInstruction, selectRelevantMemories } from './assistant-brain'
 import { archiveOwnerMemory, listOwnerMemories, saveOwnerMemory } from './assistant-brain-store'
-import { archiveCustomers, createProductWithOpeningStock, listCustomers, listProducts, saveProduct } from '../db/repositories'
+import { archiveCustomers, createProductWithOpeningStock, listCustomers, listProducts, saveCustomer, saveProduct } from '../db/repositories'
 import { askGeminiAdviser, askGeminiConversation, getGeminiConfigurationStatus, getGeminiErrorDetails, isGeminiAssistantReady, testGeminiConnection } from './assistant-gemini'
 import { makeAssistantLanguageFriendly } from './assistant-language'
 import { isGuideQuestion } from './guide-content'
+import { assertEnaOwnerActor } from './assistant-ena-policy'
 
 type Message = { id: string; role: 'assistant' | 'user'; content: string; source?: 'local' | 'gemini' }
 
 type PendingProductAction =
   | { kind: 'create'; phase: 'details' | 'confirm'; input: ProductInput; quantity: number | null; unitCostVnd: number | null }
   | { kind: 'update'; phase: 'confirm'; product: Product; salePriceVnd: number }
+type PendingCustomerSave = { kind: 'create' | 'update'; input: CustomerInput; customerId?: string }
+
+function parseCustomerCreateCommand(prompt: string): CustomerInput | null {
+  const match = prompt.match(/(?:thêm|tạo|lập|đăng ký)\s+(?:mới\s+)?khách hàng\s+(.+?)(?=,?\s*(?:sđt|số điện thoại|điện thoại|email|ghi chú)\b|$)/i)
+  if (!match) return null
+  const fullName = match[1].trim().replace(/[,.\s]+$/, '')
+  if (fullName.length < 2) return null
+  const phoneMatch = prompt.match(/(?:sđt|số điện thoại|điện thoại)\s*[:=]?\s*([+()\d .-]{8,})/i)
+  const phone = phoneMatch ? phoneMatch[1].trim() : ''
+  const phoneDigits = phone.replace(/\D/g, '')
+  if (phone && (phoneDigits.length < 9 || phoneDigits.length > 11)) return null
+  const emailMatch = prompt.match(/email\s*[:=]?\s*([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})/i)
+  const notesMatch = prompt.match(/(?:ghi chú|ghi chu)\s*[:=]?\s*(.+)$/i)
+  return { fullName, phone, email: emailMatch?.[1] ?? '', notes: notesMatch?.[1]?.trim() ?? '', groupIds: [], customFields: {} }
+}
+
+function parseCustomerPhoneUpdate(prompt: string): { name: string; phone: string } | null {
+  const normalized = prompt.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
+  if (!/(sua|cap nhat|doi thong tin)/.test(normalized) || !/khach hang/.test(normalized)) return null
+  const nameMatch = prompt.match(/khách hàng\s+(.+?)(?=,?\s*(?:đổi|cập nhật|thành|sđt|số điện thoại)\b)/i)
+  const phoneMatch = prompt.match(/(?:sđt|số điện thoại)(?:\s+mới)?\s*(?:thành|là|[:=])?\s*([+()\d .-]{8,})/i)
+  if (!nameMatch || !phoneMatch) return null
+  const phone = phoneMatch[1].trim()
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length < 9 || digits.length > 11) return null
+  return { name: nameMatch[1].trim().replace(/[,.\s]+$/, ''), phone }
+}
 const parseMoneyVnd = (raw: string, multiplier = 1) => {
   const digits = raw.replace(/[.,\s]/g, '')
   const value = Number(digits) * multiplier
@@ -87,6 +115,7 @@ export function AssistantPage() {
   const [memory, setMemory] = useState(() => readAssistantMemory(actor.salonId, actor.actorId))
   const [longTermMemories, setLongTermMemories] = useState<AssistantMemoryRecord[]>([])
   const [pendingCustomerArchive, setPendingCustomerArchive] = useState<Customer[] | null>(null)
+  const [pendingCustomerSave, setPendingCustomerSave] = useState<PendingCustomerSave | null>(null)
   const [pendingProductAction, setPendingProductAction] = useState<PendingProductAction | null>(null)
   const [busy, setBusy] = useState(false)
   const [busyLabel, setBusyLabel] = useState('Em đang xử lý yêu cầu…')
@@ -144,6 +173,10 @@ export function AssistantPage() {
   async function send(value = question) {
     const prompt = value.trim()
     if (!prompt || busy) return
+    try { assertEnaOwnerActor(actor, user?.uid) } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'ENA không thể xác minh quyền truy cập.')
+      return
+    }
     setQuestion('')
     setError(null)
     setAdviserNotice(null)
@@ -154,6 +187,22 @@ export function AssistantPage() {
     setBusyLabel('Em đang xử lý yêu cầu…')
     try {
       const normalizedPrompt = prompt.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
+      if (pendingCustomerSave) {
+        if (/^(huy|huy bo|khong|dung lai)$/.test(normalizedPrompt.trim())) {
+          setPendingCustomerSave(null)
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Dạ, em đã hủy thao tác. Hồ sơ khách hàng không thay đổi.' }])
+          return
+        }
+        if (/^(xac nhan|xac nhan them khach hang|xac nhan cap nhat|dong y|luu)$/.test(normalizedPrompt.trim())) {
+          const saved = await saveCustomer(actor, pendingCustomerSave.input, pendingCustomerSave.customerId)
+          setPendingCustomerSave(null)
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: (pendingCustomerSave.kind === 'create' ? 'Đã thêm khách hàng ' : 'Đã cập nhật hồ sơ khách hàng ') + saved.fullName + (saved.phone ? ' · ' + saved.phone : '') + '. Thay đổi đã được ghi vào salon hiện tại và nhật ký thao tác.' }])
+          return
+        }
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em đang chờ xác nhận thay đổi hồ sơ khách hàng. Gõ “XÁC NHẬN” để thực hiện hoặc “HỦY” để dừng.' }])
+        return
+      }
+
       if (pendingCustomerArchive) {
         if (/^(xac nhan luu tru|xac nhan)$/.test(normalizedPrompt.trim())) {
           const count = await archiveCustomers(actor, pendingCustomerArchive.map(customer => customer.id))
@@ -167,6 +216,41 @@ export function AssistantPage() {
           return
         }
         setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em vẫn đang chờ xác nhận lưu trữ ' + pendingCustomerArchive.length + ' hồ sơ. Anh gõ “XÁC NHẬN LƯU TRỮ” để tiếp tục hoặc “HỦY” để dừng nhé.', source: 'local' }])
+        return
+      }
+
+      const customerPhoneUpdate = parseCustomerPhoneUpdate(prompt)
+      if (customerPhoneUpdate) {
+        const customers = await listCustomers(actor)
+        const normalizedName = customerPhoneUpdate.name.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
+        const matches = customers.filter(customer => customer.fullName.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd') === normalizedName)
+        if (matches.length !== 1) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: matches.length ? 'Có nhiều hồ sơ trùng tên. Em chưa sửa để tránh nhầm khách; anh hãy cung cấp số điện thoại hiện tại của khách.' : 'Em chưa tìm thấy khách hàng có tên chính xác “' + customerPhoneUpdate.name + '”. Không có dữ liệu nào thay đổi.' }])
+          return
+        }
+        const customer = matches[0]
+        const input: CustomerInput = { fullName: customer.fullName, phone: customerPhoneUpdate.phone, email: customer.email ?? '', notes: customer.notes, groupIds: customer.groupIds ?? [], customFields: customer.customFields ?? {} }
+        setPendingCustomerSave({ kind: 'update', customerId: customer.id, input })
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em tìm thấy đúng hồ sơ cần cập nhật:\nTên: ' + customer.fullName + '\nSố điện thoại cũ: ' + (customer.phone || 'Chưa có') + '\nSố điện thoại mới: ' + customerPhoneUpdate.phone + '\n\nChỉ số điện thoại được thay đổi. Anh xác nhận để lưu hay hủy thao tác?' }])
+        return
+      }
+
+      const createCustomerIntent = /(them|tao|lap|dang ky)/.test(normalizedPrompt) && /(khach hang|khach)/.test(normalizedPrompt)
+      if (createCustomerIntent) {
+        const input = parseCustomerCreateCommand(prompt)
+        if (!input) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em nhận ra anh muốn thêm khách hàng nhưng chưa đọc đủ tên hoặc số điện thoại hợp lệ. Ví dụ: “Thêm khách hàng Nguyễn Văn A, số điện thoại 0901234567”. Chưa có dữ liệu nào được ghi.' }])
+          return
+        }
+        const customers = await listCustomers(actor)
+        const phoneDigits = (input.phone ?? '').replace(/\D/g, '')
+        const duplicate = customers.find(customer => customer.fullName.toLocaleLowerCase('vi') === input.fullName.toLocaleLowerCase('vi') || (phoneDigits.length >= 9 && (customer.phone ?? '').replace(/\D/g, '') === phoneDigits))
+        if (duplicate) {
+          setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em phát hiện hồ sơ có thể đã tồn tại: ' + duplicate.fullName + (duplicate.phone ? ' · ' + duplicate.phone : '') + '. Em không tạo trùng. Anh có thể yêu cầu cập nhật hồ sơ hiện có.' }])
+          return
+        }
+        setPendingCustomerSave({ kind: 'create', input })
+        setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Em chuẩn bị thêm khách hàng mới:\nTên: ' + input.fullName + '\nSố điện thoại: ' + (input.phone || 'Chưa cung cấp') + '\nEmail: ' + (input.email || 'Chưa cung cấp') + '\nGhi chú: ' + (input.notes || 'Không có') + '\n\nAnh kiểm tra thông tin. Gõ “XÁC NHẬN” để lưu hoặc “HỦY” để dừng. Chưa có dữ liệu nào được ghi.' }])
         return
       }
 
@@ -304,7 +388,7 @@ export function AssistantPage() {
       const intent = detectAssistantIntent(prompt)
       const route = classifyAssistantRoute(prompt, intent)
       if (route === 'chat') {
-        setBusyLabel('Em đang trò chuyện cùng Gemini…')
+        setBusyLabel('ENA đang trò chuyện cùng Gemini…')
         if (!geminiReady) {
           setAdviserNotice('Gemini chưa sẵn sàng. Em chưa thể trả lời câu hỏi trò chuyện bằng AI; các chức năng tra cứu nội bộ vẫn dùng được.')
           setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', content: 'Hiện Gemini chưa kết nối nên em chưa thể trò chuyện hoặc sáng tác bằng AI. Anh vẫn có thể dùng các chức năng tra cứu dữ liệu tiệm trên thiết bị.', source: 'local' }])
@@ -322,8 +406,8 @@ export function AssistantPage() {
         return
       }
 
-      if (route === 'hybrid') setBusyLabel('Em đang kết hợp dữ liệu tiệm với Gemini…')
-      else setBusyLabel('Em đang tra cứu dữ liệu của tiệm…')
+      if (route === 'hybrid') setBusyLabel('ENA đang kết hợp dữ liệu tiệm với Gemini…')
+      else setBusyLabel('ENA đang đọc dữ liệu của salon…')
 
       const trainedShortcut = findMatchingAssistantShortcut(longTermMemories, prompt)
       const learnedPrompt = applyLearnedVocabulary(longTermMemories, prompt)
@@ -336,11 +420,12 @@ export function AssistantPage() {
       if (relevant.length && /(ke hoach|lap ke hoach|nen lam gi|thoi quen|uu tien|buoi sang|hang ngay)/i.test(prompt.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'))) {
         answer += '\n\n**Điều mình đã ghi nhớ có liên quan**\n' + relevant.map(item => '• ' + item.content).join('\n')
       }
-      if (!trainedShortcut && route === 'hybrid' && !isGuideQuestion(prompt)) {
+      const geminiReadableIntent = ['finance', 'inventory', 'appointments', 'services', 'overview'].includes(local.intent)
+      if (!trainedShortcut && (route === 'hybrid' || geminiReadableIntent) && !isGuideQuestion(prompt)) {
         if (geminiReady) {
           try {
             const safeQuestion = await redactQuestionForGemini(actor.salonId, prompt)
-            answer += '\n\n**Gợi ý từ trợ lý AI**\n' + await askGeminiAdviser(safeQuestion, local.safeContext, describeAssistantMemory(nextMemory))
+            answer = await askGeminiAdviser(safeQuestion, local.safeContext + '\n\nKết quả nghiệp vụ đã được ứng dụng tính và xác minh:\n' + local.answer, describeAssistantMemory(nextMemory))
             source = 'gemini'
           } catch (cause) {
             const detail = getGeminiErrorDetails(cause)
@@ -393,12 +478,12 @@ export function AssistantPage() {
 
   return <section className="work-page assistant-page">
     <div className="work-intro">
-      <div><small>TRỢ LÝ ĐỒNG HÀNH TÓC QUYỀN</small><h2>Trợ lý của chủ tiệm</h2><p>Trợ lý lưu những điều bạn chủ động dặn nhớ trên thiết bị này. Khi có kết nối, trợ lý có thể dùng AI để tư vấn thêm.</p></div>
+      <div><small>ENA · TRỢ LÝ ĐIỀU HÀNH SALON</small><h2>ENA – Trợ lý điều hành</h2><p>Một trợ lý duy nhất giúp anh tra cứu dữ liệu, quản lý công việc và thực hiện thao tác có xác nhận.</p></div>
       <span className="assistant-role-badge">OWNER</span>
     </div>
     <div className="assistant-status-row">
-      <div><span className="assistant-status-dot"/> Trợ lý sẵn sàng</div>
-      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Gemini {geminiReady ? 'proxy Termux sẵn sàng' : 'chỉ khả dụng khi chạy Termux/Vite'}</div>
+      <div><span className="assistant-status-dot"/> ENA sẵn sàng</div>
+      <div className={geminiReady ? 'assistant-gemini-ready' : 'assistant-gemini-idle'}><Sparkles size={14}/> Bộ não Gemini {geminiReady ? 'đã kết nối' : 'chưa khả dụng'}</div>
       <button type="button" className="subtle-button" onClick={() => void testGemini()} disabled={!geminiReady || geminiTestState === 'testing'}><Sparkles size={14}/> {geminiTestState === 'testing' ? 'Đang kiểm tra…' : 'Kiểm tra kết nối'}</button>
     </div>
     <p className="assistant-chat-meta">Kết nối: {geminiConfigStatus.provider} · Khóa: {geminiConfigStatus.keyStorage} · Chế độ: {geminiConfigStatus.runtimeMode} · Model: {geminiConfigStatus.model}</p>
@@ -408,7 +493,7 @@ export function AssistantPage() {
       {messages.map(message => <article className={'assistant-message ' + message.role} key={message.id}>
         <span className="assistant-message-icon">{message.role === 'assistant' ? <Bot size={17}/> : <UserRound size={17}/>}</span>
         <div className="assistant-message-body">
-          <small>{message.role === 'assistant' ? (message.source === 'gemini' ? 'TRỢ LÝ · GEMINI AI' : 'TRỢ LÝ TÓC QUYỀN') : 'BẠN'}</small>
+          <small>{message.role === 'assistant' ? 'ENA · TRỢ LÝ ĐIỀU HÀNH' : 'BẠN'}</small>
           <div className="assistant-message-content">{message.content.split('\n').map((line, index) => <p key={index}>{line.replaceAll('**', '').replaceAll('_', '') || '\u00a0'}</p>)}</div>
         </div>
       </article>)}
@@ -436,6 +521,6 @@ export function AssistantPage() {
         <small>Những điều đã lưu chỉ có trên thiết bị này, chưa tự chuyển sang thiết bị khác.</small>
       </div>
     </div>
-    <p className="assistant-privacy-note">Trợ lý chỉ ghi nhớ khi bạn chủ động yêu cầu. Bạn có thể xem hoặc lưu trữ các mục đã nhớ. Trợ lý không tự sửa dữ liệu kinh doanh.</p>
+    <p className="assistant-privacy-note">ENA chỉ thao tác trong salon đã được xác thực. Mọi thay đổi dữ liệu đều phải được xem trước và xác nhận; Gemini không có quyền ghi trực tiếp vào cơ sở dữ liệu. Thông tin định danh khách hàng và nhân viên không được gửi sang Gemini trong các luồng báo cáo.</p>
   </section>
 }
