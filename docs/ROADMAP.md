@@ -314,4 +314,4 @@ Nghiệp vụ thật; validation; error handling; tenant isolation; audit trail;
 - Add a persistent local unread-message counter and visible bell/badge to the floating ENA launcher. New assistant replies are counted only when the user has scrolled away from the latest message; opening ENA clears the badge.
 - Add parser tests for the exact full product prompt and ensure CI includes Phase 45 and Phase 44 as a PR base.
 - Permission model remains least-privilege: no unrestricted Gemini DB access. Supported app commands execute through scoped repositories with Owner actor verification, validation, salon isolation and confirmation. Employee access remains blocked until trusted employee auth/membership/permissions exist.
-- Status: code committed on branch; local typecheck/lint/tests/build, CI and Owner Android acceptance still pending. No merge/deploy.
+- CI GitHub Actions PASS (run #616, commit `391cd9e4f96a642eafa0ffaafc67ff614b929d7e`): TypeScript, lint, unit tests and optimized PWA production build all succeeded. Owner Termux/Android acceptance remains pending. No merge/deploy.
