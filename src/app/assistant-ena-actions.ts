@@ -6,10 +6,11 @@ export function parseCustomerCreateCommand(prompt: string): CustomerInput | null
   if (!match) return null
   const fullName = match[1].trim().replace(/[,.\s]+$/, '')
   if (fullName.length < 2) return null
+  const phoneLabelPresent = /(?:sđt|số điện thoại|điện thoại)\s*[:=]?/i.test(prompt)
   const phoneMatch = prompt.match(/(?:sđt|số điện thoại|điện thoại)\s*[:=]?\s*([+()\d .-]{8,})/i)
   const phone = phoneMatch ? phoneMatch[1].trim() : ''
   const phoneDigits = phone.replace(/\D/g, '')
-  if (phone && (phoneDigits.length < 9 || phoneDigits.length > 11)) return null
+  if (phoneLabelPresent && (!phoneMatch || phoneDigits.length < 9 || phoneDigits.length > 11)) return null
   const emailMatch = prompt.match(/email\s*[:=]?\s*([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})/i)
   const notesMatch = prompt.match(/(?:ghi chú|ghi chu)\s*[:=]?\s*(.+)$/i)
   return { fullName, phone, email: emailMatch?.[1] ?? '', notes: notesMatch?.[1]?.trim() ?? '', groupIds: [], customFields: {} }
