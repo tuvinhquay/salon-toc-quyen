@@ -35,7 +35,7 @@ export function sanitizeAssistantMemoryText(value: string, maxChars = 420): stri
 export function isLowValueMemoryText(value: string): boolean {
   const q = normalizeMemoryText(value).replace(/[.!?]+$/g, '').trim()
   if (!q || q.length < 8) return true
-  if (/^(xin chao|chao)(?:\\s+ena)?$/.test(q) || /^(hello|hi|hey|ok|okay|cam on|thanks|xac nhan|xac nhan luu tru|huy|huy bo|huy thao tac|dong y|luu|test|thu)$/.test(q)) return true
+  if (/^(xin chao|chao)(?:\s+ena)?$/.test(q) || /^(hello|hi|hey|ok|okay|cam on|thanks|xac nhan|xac nhan luu tru|huy|huy bo|huy thao tac|dong y|luu|test|thu)$/.test(q)) return true
   if (/^(da|vang|duoc|ok|okay|em day|em day a|da em day|da em day a)$/.test(q) && q.length < 30) return true
   return false
 }
