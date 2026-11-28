@@ -38,7 +38,7 @@ export type ParsedProductCreateCommand = {
 /** Parse an explicit product name, SKU, sale price, cost and opening quantity. */
 export function parseProductCreateCommand(prompt: string): ParsedProductCreateCommand | null {
   const nameMatch = prompt.match(/(?:thêm|tạo|nhập|bổ sung)\s+(?:sản phẩm\s+)?(?:mới\s+)?(?:tên\s+)?(.+?)(?=\s*,?\s*(?:mã|sku)\s+)/i)
-  const skuMatch = prompt.match(/(?:mã|sku)\s*[:=]?\s*([a-z0-9-]+)/i)
+  const skuMatch = prompt.match(/(?:mã\\s*(?:sku\\s*)?|sku)\\s*[:=]?\\s*([a-z0-9-]+)/i)
   const saleMatch = prompt.match(/giá bán\s*[:=]?\s*([\d.,]+)\s*(triệu|trieu|nghìn|nghin|ngàn|ngan|k|đồng|dong|vnd)?/i)
   if (!nameMatch || !skuMatch || !saleMatch) return null
 
