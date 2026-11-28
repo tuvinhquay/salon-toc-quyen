@@ -4,7 +4,7 @@ import type { CustomerInput } from '../db/schema'
 export function parseCustomerCreateCommand(prompt: string): CustomerInput | null {
   const match = prompt.match(/(?:thêm|tạo|lập|đăng ký)\s+(?:mới\s+)?khách hàng\s+(.+?)(?=,?\s*(?:sđt|số điện thoại|điện thoại|email|ghi chú)\b|$)/i)
   if (!match) return null
-  const fullName = match[1].trim().replace(/[,.\\s]+$/, '')
+  const fullName = match[1].trim().replace(/[,.\s]+$/, '')
   if (fullName.length < 2) return null
   const phoneMatch = prompt.match(/(?:sđt|số điện thoại|điện thoại)\s*[:=]?\s*([+()\d .-]{8,})/i)
   const phone = phoneMatch ? phoneMatch[1].trim() : ''
@@ -25,5 +25,5 @@ export function parseCustomerPhoneUpdate(prompt: string): { name: string; phone:
   const phone = phoneMatch[1].trim()
   const digits = phone.replace(/\D/g, '')
   if (digits.length < 9 || digits.length > 11) return null
-  return { name: nameMatch[1].trim().replace(/[,.\\s]+$/, ''), phone }
+  return { name: nameMatch[1].trim().replace(/[,.\s]+$/, ''), phone }
 }
