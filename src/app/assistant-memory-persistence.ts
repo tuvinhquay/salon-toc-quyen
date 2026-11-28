@@ -98,7 +98,7 @@ export async function searchAssistantEpisodes(actor: ActorContext, query: string
     const score = terms.reduce((sum, term) => sum + (haystack.includes(term) ? 2 : 0), 0)
     return { row, score }
   }).filter(item => item.score > 0).sort((a, b) => b.score - a.score || Date.parse(b.row.createdAt) - Date.parse(a.row.createdAt))
-  const selected = (terms.length ? scored.map(item => item.row) : active.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))).slice(0, maxResults)
+  const recent = active.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))\n  const selected = (terms.length && scored.length ? scored.map(item => item.row) : recent).slice(0, maxResults)
   const now = new Date().toISOString()
   await Promise.all(selected.map(row => salonDb.assistantEpisodes.put({ ...row, lastRecalledAt: now, recallCount: row.recallCount + 1, updatedAt: now, revision: row.revision + 1 })))
   return selected
@@ -150,4 +150,21 @@ export async function pruneAssistantMemory(actor: ActorContext): Promise<{ chatC
     if (deleteManual.length) await salonDb.assistantMemories.bulkDelete(deleteManual)
   })
   return { chatCount: chatKept.length, episodeCount: episodeKept.length, bytes: chatBytes + episodeBytes + manualKeepIds.size * 160 }
+}
+
+export async function listRecentAssistantEpisodes(actor: ActorContext, maxResults = 8): Promise<AssistantEpisode[]> {
+  const rows = await salonDb.assistantEpisodes.where('[salonId+ownerId]').equals([actor.salonId, actor.actorId]).toArray()
+  return rows.filter(row => row.status === 'active').sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)).slice(0, maxResults)
+}
+
+export async function deleteAssistantEpisode(actor: ActorContext, episodeId: string): Promise<boolean> {
+  const row = await salonDb.assistantEpisodes.get(episodeId)
+  if (!row || row.salonId !== actor.salonId || row.ownerId !== actor.actorId) return false
+  await salonDb.assistantEpisodes.delete(episodeId)
+  return true
+}
+
+export function formatAssistantEpisodes(rows: AssistantEpisode[]): string {
+  if (!rows.length) return 'Em chưa tìm thấy ký ức gần đây phù hợp. Các thao tác đã xác nhận sẽ được ghi nhớ ngắn gọn trên thiết bị này.'
+  return 'Dạ, em nhớ những việc đã ghi nhận:\\n\\n' + rows.map((row, index) => (index + 1) + '. ' + row.summary + ' (' + new Date(row.createdAt).toLocaleString('vi-VN') + ')').join('\\n')
 }
