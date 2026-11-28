@@ -1,9 +1,9 @@
 import { firebaseEnvDiagnostics } from '../lib/firebase'
 
 const MODEL = 'gemini-3.8-flash'
-const CONNECTION_TIMEOUT_MS = 40_000
-const CHAT_TIMEOUT_MS = 30_000
-const ADVISER_TIMEOUT_MS = 25_000
+const CONNECTION_TIMEOUT_MS = 60_000
+const CHAT_TIMEOUT_MS = 60_000
+const ADVISER_TIMEOUT_MS = 60_000
 const LOCAL_GEMINI_ENDPOINT = '/__local-api/gemini'
 
 async function withTimeout<T>(request: Promise<T>, timeoutMs: number): Promise<T> {
